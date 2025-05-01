@@ -1,0 +1,436 @@
+:root {
+  --bg-color: #ffffff;
+  --editor-bg: #f6f8fa;
+  --preview-bg: #ffffff; /* Preview background for light mode */
+  --text-color: #24292e;
+  --preview-text-color: #24292e; /* Text color for preview in light mode */
+  --border-color: #e1e4e8;
+  --header-bg: #f6f8fa;
+  --button-bg: #f6f8fa;
+  --button-hover: #e1e4e8;
+  --button-active: #d1d5da;
+  --dropzone-bg: rgba(255, 255, 255, 0.8);
+  --scrollbar-thumb: #c1c1c1;
+  --scrollbar-track: #f1f1f1;
+  --accent-color: #0366d6;
+  --table-bg: #ffffff; /* Table background for light mode */
+  --code-bg: #f6f8fa; /* Code block background for light mode */
+}
+
+[data-theme="dark"] {
+  --bg-color: #0d1117;
+  --editor-bg: #161b22;
+  --preview-bg: #0d1117; /* Preview background for dark mode */
+  --text-color: #c9d1d9;
+  --preview-text-color: #c9d1d9; /* Text color for preview in dark mode */
+  --border-color: #30363d;
+  --header-bg: #161b22;
+  --button-bg: #21262d;
+  --button-hover: #30363d;
+  --button-active: #3b434b;
+  --dropzone-bg: rgba(13, 17, 23, 0.8);
+  --scrollbar-thumb: #484f58;
+  --scrollbar-track: #21262d;
+  --accent-color: #58a6ff;
+  --table-bg: #161b22; /* Table background for dark mode */
+  --code-bg: #161b22; /* Code block background for dark mode */
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.app-header {
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem;
+  transition: background-color 0.3s ease;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-pane, .preview-pane {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.editor-pane {
+  background-color: var(--editor-bg);
+  border-right: 1px solid var(--border-color);
+}
+
+.preview-pane {
+  background-color: var(--preview-bg); /* Using the new variable for preview background */
+}
+
+/* Custom scrollbar */
+.editor-pane::-webkit-scrollbar,
+.preview-pane::-webkit-scrollbar,
+#markdown-editor::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.editor-pane::-webkit-scrollbar-track,
+.preview-pane::-webkit-scrollbar-track,
+#markdown-editor::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.editor-pane::-webkit-scrollbar-thumb,
+.preview-pane::-webkit-scrollbar-thumb,
+#markdown-editor::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.editor-pane::-webkit-scrollbar-thumb:hover,
+.preview-pane::-webkit-scrollbar-thumb:hover,
+#markdown-editor::-webkit-scrollbar-thumb:hover {
+  background: var(--button-active);
+}
+
+#markdown-editor {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-color: var(--editor-bg);
+  color: var(--text-color);
+  resize: none;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-y: auto;
+}
+
+#markdown-editor:focus {
+  outline: none;
+}
+
+.preview-pane {
+  padding: 20px;
+}
+
+.markdown-body {
+  padding: 20px;
+  width: 100%;
+  background-color: var(--preview-bg); /* Ensuring the markdown content matches preview background */
+  color: var(--preview-text-color); /* Using specific text color for preview content */
+}
+
+/* Style tables in light mode */
+.markdown-body table {
+  background-color: var(--table-bg);
+  border-color: var(--border-color);
+}
+
+.markdown-body table tr {
+  background-color: var(--table-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: var(--bg-color);
+}
+
+/* Style code blocks in light mode */
+.markdown-body pre {
+  background-color: var(--code-bg);
+  border-radius: 6px;
+}
+
+.markdown-body code {
+  background-color: var(--code-bg);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tool-button {
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.tool-button:hover {
+  background-color: var(--button-hover);
+}
+
+.tool-button:active {
+  background-color: var(--button-active);
+}
+
+.tool-button i {
+  font-size: 16px;
+}
+
+.file-input {
+  display: none;
+}
+
+.dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--dropzone-bg);
+}
+
+.dropzone.active {
+  border-color: var(--accent-color);
+  background-color: rgba(var(--accent-color), 0.05);
+}
+
+.dropzone p {
+  transition: transform 0.2s ease;
+}
+
+.dropzone:hover p {
+  transform: scale(1.02);
+}
+
+/* Dropdown improvements */
+.dropdown-menu {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+}
+
+.dropdown-item {
+  color: var(--text-color);
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+  background-color: var(--button-hover);
+  color: var(--text-color);
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .content-container {
+      flex-direction: column;
+  }
+  
+  .editor-pane, .preview-pane {
+      flex: none;
+      height: 50%;
+      border-right: none;
+  }
+  
+  .editor-pane {
+      border-bottom: 1px solid var(--border-color);
+  }
+  
+  .toolbar {
+      flex-wrap: wrap;
+  }
+}
+
+/* Loading indicators */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Focus outline for accessibility */
+button:focus, 
+a:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Animation for copied message */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Tooltip styles */
+.tooltip {
+  position: absolute;
+  background: var(--button-bg);
+  border: 1px solid var(--border-color);
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Styles for GitHub markdown preview light mode */
+.markdown-body {
+  color-scheme: light;
+  --color-prettylights-syntax-comment: #6a737d;
+  --color-prettylights-syntax-constant: #005cc5;
+  --color-prettylights-syntax-entity: #6f42c1;
+  --color-prettylights-syntax-storage-modifier-import: #24292e;
+  --color-prettylights-syntax-entity-tag: #22863a;
+  --color-prettylights-syntax-keyword: #d73a49;
+  --color-prettylights-syntax-string: #032f62;
+  --color-prettylights-syntax-variable: #e36209;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #b31d28;
+  --color-prettylights-syntax-invalid-illegal-text: #fafbfc;
+  --color-prettylights-syntax-invalid-illegal-bg: #b31d28;
+  --color-prettylights-syntax-carriage-return-text: #fafbfc;
+  --color-prettylights-syntax-carriage-return-bg: #d73a49;
+  --color-prettylights-syntax-string-regexp: #22863a;
+  --color-prettylights-syntax-markup-list: #735c0f;
+  --color-prettylights-syntax-markup-heading: #005cc5;
+  --color-prettylights-syntax-markup-italic: #24292e;
+  --color-prettylights-syntax-markup-bold: #24292e;
+  --color-prettylights-syntax-markup-deleted-text: #b31d28;
+  --color-prettylights-syntax-markup-deleted-bg: #ffeef0;
+  --color-prettylights-syntax-markup-inserted-text: #22863a;
+  --color-prettylights-syntax-markup-inserted-bg: #f0fff4;
+  --color-prettylights-syntax-markup-changed-text: #e36209;
+  --color-prettylights-syntax-markup-changed-bg: #ffebda;
+  --color-prettylights-syntax-markup-ignored-text: #f6f8fa;
+  --color-prettylights-syntax-markup-ignored-bg: #005cc5;
+  --color-prettylights-syntax-meta-diff-range: #6f42c1;
+  --color-prettylights-syntax-brackethighlighter-angle: #586069;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #e1e4e8;
+  --color-prettylights-syntax-constant-other-reference-link: #032f62;
+  --color-fg-default: #24292e;
+  --color-fg-muted: #586069;
+  --color-fg-subtle: #6a737d;
+  --color-canvas-default: #ffffff;
+  --color-canvas-subtle: #f6f8fa;
+  --color-border-default: #e1e4e8;
+  --color-border-muted: #eaecef;
+  --color-neutral-muted: rgba(175,184,193,0.2);
+  --color-accent-fg: #0366d6;
+  --color-accent-emphasis: #0366d6;
+  --color-attention-subtle: #fff5b1;
+  --color-danger-fg: #d73a49;
+}
+
+/* Styles for GitHub markdown preview dark mode */
+[data-theme="dark"] .markdown-body {
+  color-scheme: dark;
+  --color-prettylights-syntax-comment: #8b949e;
+  --color-prettylights-syntax-constant: #79c0ff;
+  --color-prettylights-syntax-entity: #d2a8ff;
+  --color-prettylights-syntax-storage-modifier-import: #c9d1d9;
+  --color-prettylights-syntax-entity-tag: #7ee787;
+  --color-prettylights-syntax-keyword: #ff7b72;
+  --color-prettylights-syntax-string: #a5d6ff;
+  --color-prettylights-syntax-variable: #ffa657;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #f85149;
+  --color-prettylights-syntax-invalid-illegal-text: #f0f6fc;
+  --color-prettylights-syntax-invalid-illegal-bg: #8e1519;
+  --color-prettylights-syntax-carriage-return-text: #f0f6fc;
+  --color-prettylights-syntax-carriage-return-bg: #b62324;
+  --color-prettylights-syntax-string-regexp: #7ee787;
+  --color-prettylights-syntax-markup-list: #f2cc60;
+  --color-prettylights-syntax-markup-heading: #1f6feb;
+  --color-prettylights-syntax-markup-italic: #c9d1d9;
+  --color-prettylights-syntax-markup-bold: #c9d1d9;
+  --color-prettylights-syntax-markup-deleted-text: #ffdcd7;
+  --color-prettylights-syntax-markup-deleted-bg: #67060c;
+  --color-prettylights-syntax-markup-inserted-text: #aff5b4;
+  --color-prettylights-syntax-markup-inserted-bg: #033a16;
+  --color-prettylights-syntax-markup-changed-text: #ffdfb6;
+  --color-prettylights-syntax-markup-changed-bg: #5a1e02;
+  --color-prettylights-syntax-markup-ignored-text: #c9d1d9;
+  --color-prettylights-syntax-markup-ignored-bg: #1158c7;
+  --color-prettylights-syntax-meta-diff-range: #d2a8ff;
+  --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
+  --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
+  --color-fg-default: #c9d1d9;
+  --color-fg-muted: #8b949e;
+  --color-fg-subtle: #484f58;
+  --color-canvas-default: #0d1117;
+  --color-canvas-subtle: #161b22;
+  --color-border-default: #30363d;
+  --color-border-muted: #21262d;
+  --color-neutral-muted: rgba(110,118,129,0.4);
+  --color-accent-fg: #58a6ff;
+  --color-accent-emphasis: #1f6feb;
+  --color-attention-subtle: rgba(187,128,9,0.15);
+  --color-danger-fg: #f85149;
+}
+
+/* Override specific styles for dark mode tables and code */
+[data-theme="dark"] .markdown-body table tr {
+  background-color: var(--table-bg);
+}
+
+[data-theme="dark"] .markdown-body table tr:nth-child(2n) {
+  background-color: #1c2128; /* Slightly lighter than base dark background */
+}
+
+[data-theme="dark"] .markdown-body pre {
+  background-color: var(--code-bg);
+}
+
+[data-theme="dark"] .markdown-body code {
+  background-color: var(--code-bg);
+}
+
+[data-theme="dark"] .hljs {
+  color: #e8eaed;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.stats-container {
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.stat-item {
+  align-items: center;
+}
+
+.stat-item i {
+  font-size: 1rem;
+  opacity: 0.8;
+}
