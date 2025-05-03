@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Initialize variables for performance optimization
   let markdownRenderTimeout = null;
   const RENDER_DELAY = 100; // ms debounce for editor input
   let syncScrollingEnabled = true; // Track sync scrolling state
@@ -26,6 +25,24 @@ document.addEventListener("DOMContentLoaded", function () {
   const readingTimeElement = document.getElementById("reading-time");
   const wordCountElement = document.getElementById("word-count");
   const charCountElement = document.getElementById("char-count");
+
+  // Mobile DOM Elements
+  const mobileMenuToggle    = document.getElementById("mobile-menu-toggle");
+  const mobileMenuPanel     = document.getElementById("mobile-menu-panel");
+  const mobileMenuOverlay   = document.getElementById("mobile-menu-overlay");
+  const mobileCloseMenu     = document.getElementById("close-mobile-menu");
+
+  const mobileReadingTime   = document.getElementById("mobile-reading-time");
+  const mobileWordCount     = document.getElementById("mobile-word-count");
+  const mobileCharCount     = document.getElementById("mobile-char-count");
+
+  const mobileToggleSync    = document.getElementById("mobile-toggle-sync");
+  const mobileImportBtn     = document.getElementById("mobile-import-button");
+  const mobileExportMd      = document.getElementById("mobile-export-md");
+  const mobileExportHtml    = document.getElementById("mobile-export-html");
+  const mobileExportPdf     = document.getElementById("mobile-export-pdf");
+  const mobileCopyHtml      = document.getElementById("mobile-copy-html");
+  const mobileThemeToggle   = document.getElementById("mobile-theme-toggle");
 
   // Detect system color scheme preference and set initial theme
   const prefersDarkMode =
@@ -253,13 +270,61 @@ function renderMarkdown() {
     }
   }
 
+  // —— Mobile menu functionality ——
+  function openMobileMenu() {
+    mobileMenuPanel.classList.add("active");
+    mobileMenuOverlay.classList.add("active");
+  }
+  function closeMobileMenu() {
+    mobileMenuPanel.classList.remove("active");
+    mobileMenuOverlay.classList.remove("active");
+  }
+  mobileMenuToggle.addEventListener("click", openMobileMenu);
+  mobileCloseMenu.addEventListener("click", closeMobileMenu);
+  mobileMenuOverlay.addEventListener("click", closeMobileMenu);
+
+  function updateMobileStats() {
+    mobileCharCount.textContent   = charCountElement.textContent;
+    mobileWordCount.textContent   = wordCountElement.textContent;
+    mobileReadingTime.textContent = readingTimeElement.textContent;
+  }
+  // wrap original stats updater
+  const origUpdateStats = updateDocumentStats;
+  updateDocumentStats = function() {
+    origUpdateStats();
+    updateMobileStats();
+  };
+
+  mobileToggleSync.addEventListener("click", () => {
+    toggleSyncScrolling();
+    if (syncScrollingEnabled) {
+      mobileToggleSync.innerHTML = '<i class="bi bi-link-45deg me-2"></i> Sync Off';
+      mobileToggleSync.classList.add("sync-disabled");
+      mobileToggleSync.classList.remove("sync-enabled");
+      mobileToggleSync.classList.add("border-primary");
+    } else {
+      mobileToggleSync.innerHTML = '<i class="bi bi-link me-2"></i> Sync On';
+      mobileToggleSync.classList.add("sync-enabled");
+      mobileToggleSync.classList.remove("sync-disabled");
+      mobileToggleSync.classList.remove("border-primary");
+    }
+  });
+  mobileImportBtn.addEventListener("click", () => fileInput.click());
+  mobileExportMd.addEventListener("click", () => exportMd.click());
+  mobileExportHtml.addEventListener("click", () => exportHtml.click());
+  mobileExportPdf.addEventListener("click", () => exportPdf.click());
+  mobileCopyHtml.addEventListener("click", () => copyHtmlButton.click());
+  mobileThemeToggle.addEventListener("click", () => {
+    themeToggle.click();
+    mobileThemeToggle.innerHTML = themeToggle.innerHTML + " Toggle Dark Mode";
+  });
   renderMarkdown();
+  updateMobileStats();
 
   markdownEditor.addEventListener("input", debouncedRender);
   editorPane.addEventListener("scroll", syncEditorToPreview);
   previewPane.addEventListener("scroll", syncPreviewToEditor);
   toggleSyncButton.addEventListener("click", toggleSyncScrolling);
-
   themeToggle.addEventListener("click", function () {
     const theme =
       document.documentElement.getAttribute("data-theme") === "dark"
@@ -273,41 +338,16 @@ function renderMarkdown() {
       themeToggle.innerHTML = '<i class="bi bi-moon"></i>';
     }
   });
-
-  // Import button click handler
   importButton.addEventListener("click", function () {
     fileInput.click();
   });
-
-  // File input change handler
   fileInput.addEventListener("change", function (e) {
     const file = e.target.files[0];
     if (file) {
       importMarkdownFile(file);
     }
-    // Reset input to allow selecting the same file again
     this.value = "";
   });
-
-  // Function to import markdown file
-  function importMarkdownFile(file) {
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      markdownEditor.value = e.target.result;
-      renderMarkdown();
-      // Hide dropzone after successful import
-      dropzone.style.display = "none";
-    };
-    reader.onerror = function (e) {
-      console.error("File reading failed:", e);
-      alert("Failed to read the file. Please try again.");
-    };
-    reader.readAsText(file);
-  }
-
-  // Export as Markdown
   exportMd.addEventListener("click", function () {
     try {
       const blob = new Blob([markdownEditor.value], {
@@ -319,21 +359,16 @@ function renderMarkdown() {
       alert("Export failed: " + e.message);
     }
   });
-
-  // Export as HTML
   exportHtml.addEventListener("click", function () {
     try {
       const markdown = markdownEditor.value;
       const html = marked.parse(markdown);
       const sanitizedHtml = DOMPurify.sanitize(html);
-
-      // Create a basic HTML document with current theme
       const isDarkTheme =
         document.documentElement.getAttribute("data-theme") === "dark";
       const cssTheme = isDarkTheme
         ? "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.3.0/github-markdown-dark.min.css"
         : "https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.3.0/github-markdown.min.css";
-
       const fullHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -371,7 +406,6 @@ function renderMarkdown() {
   </article>
 </body>
 </html>`;
-
       const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
       saveAs(blob, "document.html");
     } catch (e) {
@@ -379,8 +413,6 @@ function renderMarkdown() {
       alert("HTML export failed: " + e.message);
     }
   });
-
-  // Export as PDF
   exportPdf.addEventListener("click", function () {
     try {
       if (!window.html2pdf) {
@@ -389,18 +421,13 @@ function renderMarkdown() {
         );
         return;
       }
-
       const markdown = markdownEditor.value;
       const html = marked.parse(markdown);
       const sanitizedHtml = DOMPurify.sanitize(html);
-
-      // Create a temporary element for PDF conversion
       const tempElement = document.createElement("div");
       tempElement.className = "markdown-body";
       tempElement.innerHTML = sanitizedHtml;
       tempElement.style.padding = "20px";
-
-      // Apply styles for PDF export
       const currentTheme = document.documentElement.getAttribute("data-theme");
       if (currentTheme === "dark") {
         tempElement.style.backgroundColor = "#0d1117";
@@ -409,13 +436,9 @@ function renderMarkdown() {
         tempElement.style.backgroundColor = "#ffffff";
         tempElement.style.color = "#24292e";
       }
-
-      // Append to body temporarily but hide it
       tempElement.style.position = "absolute";
       tempElement.style.left = "-9999px";
       document.body.appendChild(tempElement);
-
-      // Configure PDF options
       const options = {
         margin: 10,
         filename: "document.pdf",
@@ -423,23 +446,18 @@ function renderMarkdown() {
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       };
-
-      // Generate PDF with a loading indicator
       const originalText = exportPdf.innerHTML;
       exportPdf.innerHTML =
         '<i class="bi bi-hourglass-split"></i> Generating...';
       exportPdf.disabled = true;
-
       window
         .html2pdf()
         .from(tempElement)
         .set(options)
         .save()
         .then(() => {
-          // Restore button state
           exportPdf.innerHTML = originalText;
           exportPdf.disabled = false;
-          // Remove the temporary element
           document.body.removeChild(tempElement);
         })
         .catch((err) => {
@@ -461,8 +479,6 @@ function renderMarkdown() {
       const markdown = markdownEditor.value;
       const html = marked.parse(markdown);
       const sanitizedHtml = DOMPurify.sanitize(html);
-
-      // Use Clipboard API with fallback
       copyToClipboard(sanitizedHtml);
     } catch (e) {
       console.error("Copy failed:", e);
@@ -477,7 +493,6 @@ function renderMarkdown() {
         await navigator.clipboard.writeText(text);
         showCopiedMessage();
       } else {
-        // Fallback for browsers that don't support clipboard API
         const textArea = document.createElement("textarea");
         textArea.value = text;
         textArea.style.position = "fixed";
@@ -485,10 +500,8 @@ function renderMarkdown() {
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-
         const successful = document.execCommand("copy");
         document.body.removeChild(textArea);
-
         if (successful) {
           showCopiedMessage();
         } else {
@@ -513,7 +526,6 @@ function renderMarkdown() {
   // Drag and drop functionality with improved event handling
   const dropEvents = ["dragenter", "dragover", "dragleave", "drop"];
 
-  // Prevent default behavior for all drag events
   dropEvents.forEach((eventName) => {
     dropzone.addEventListener(eventName, preventDefaults, false);
     document.body.addEventListener(eventName, preventDefaults, false);
@@ -524,7 +536,6 @@ function renderMarkdown() {
     e.stopPropagation();
   }
 
-  // Visual feedback during drag
   ["dragenter", "dragover"].forEach((eventName) => {
     dropzone.addEventListener(eventName, highlight, false);
   });
@@ -547,8 +558,6 @@ function renderMarkdown() {
       fileInput.click();
     }
   });
-  
-  // Close dropzone button click handler
   closeDropzoneBtn.addEventListener("click", function(e) {
     e.stopPropagation(); 
     dropzone.style.display = "none";
@@ -557,35 +566,29 @@ function renderMarkdown() {
   function handleDrop(e) {
     const dt = e.dataTransfer;
     const files = dt.files;
-
     if (files.length) {
-      // Check if the file is a markdown file
       const file = files[0];
       const isMarkdownFile =
         file.type === "text/markdown" ||
         file.name.endsWith(".md") ||
         file.name.endsWith(".markdown");
-
       if (isMarkdownFile) {
         importMarkdownFile(file);
       } else {
-        alert("Please upload a Markdown file (.md or .markdown)");
+        alert("Please upload a Markdown file (.md or .umarkdown)");
       }
     }
   }
 
-  // Add keyboard shortcuts for common operations
   document.addEventListener("keydown", function (e) {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       exportMd.click();
     }
-
     if ((e.ctrlKey || e.metaKey) && e.key === "h") {
       e.preventDefault();
       exportHtml.click();
     }
-
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "S") {
       e.preventDefault();
       toggleSyncScrolling();

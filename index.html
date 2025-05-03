@@ -49,7 +49,7 @@
             <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
                     <h1 class="h4 mb-0 me-4">GitHub-Style Markdown Viewer</h1>
-                    <div id="stats-container" class="stats-container d-flex align-items-center">
+                    <div id="stats-container" class="stats-container d-flex align-items-center d-none d-md-flex">
                         <div class="stat-item me-3">
                             <i class="bi bi-clock me-1"></i> <span id="reading-time">0</span> Min Read
                         </div>
@@ -61,7 +61,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="toolbar">
+                
+                <!-- Regular toolbar for desktop -->
+                <div class="toolbar d-none d-md-flex">
                     <button id="toggle-sync" class="tool-button sync-enabled border-primary" title="Toggle Sync Scrolling">
                         <i class="bi bi-link"></i> Sync Off
                     </button>
@@ -89,6 +91,66 @@
                         <i class="bi bi-moon"></i>
                     </button>
                 </div>
+                
+                <!-- Hamburger menu for mobile -->
+                <div class="mobile-menu d-md-none">
+                    <button id="mobile-menu-toggle" class="tool-button" title="Menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    
+                    <div id="mobile-menu-panel" class="mobile-menu-panel">
+                        <div class="mobile-menu-header">
+                            <h5>Menu</h5>
+                            <button id="close-mobile-menu" class="tool-button">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="mobile-stats-container mb-3">
+                            <div class="stat-item mb-2">
+                                <i class="bi bi-clock me-1"></i> <span id="mobile-reading-time">0</span> Min Read
+                            </div>
+                            <div class="stat-item mb-2">
+                                <i class="bi bi-text-paragraph me-1"></i> <span id="mobile-word-count">0</span> Words
+                            </div>
+                            <div class="stat-item">
+                                <i class="bi bi-fonts me-1"></i> <span id="mobile-char-count">0</span> Chars
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-menu-items">
+                            <button id="mobile-toggle-sync" class="mobile-menu-item tool-button sync-enabled border-primary" title="Toggle Sync Scrolling">
+                                <i class="bi bi-link"></i> Sync Off
+                            </button>
+                            
+                            <button id="mobile-import-button" class="mobile-menu-item" title="Import Markdown">
+                                <i class="bi bi-upload me-2"></i> Import Markdown
+                            </button>
+                            
+                            <button id="mobile-export-md" class="mobile-menu-item" title="Export as Markdown">
+                                <i class="bi bi-file-earmark-text me-2"></i> Export as Markdown
+                            </button>
+                            
+                            <button id="mobile-export-html" class="mobile-menu-item" title="Export as HTML">
+                                <i class="bi bi-file-earmark-code me-2"></i> Export as HTML
+                            </button>
+                            
+                            <button id="mobile-export-pdf" class="mobile-menu-item" title="Export as PDF">
+                                <i class="bi bi-file-earmark-pdf me-2"></i> Export as PDF
+                            </button>
+                            
+                            <button id="mobile-copy-html" class="mobile-menu-item" title="Copy HTML">
+                                <i class="bi bi-clipboard me-2"></i> Copy HTML
+                            </button>
+                            
+                            <button id="mobile-theme-toggle" class="mobile-menu-item" title="Toggle Dark Mode">
+                                <i class="bi bi-moon me-2"></i> Toggle Dark Mode
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="mobile-menu-overlay"></div>
+                </div>
             </div>
         </header>
 
@@ -111,5 +173,5 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
-</head>
+</body>
 </html>
