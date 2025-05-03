@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
   let markdownRenderTimeout = null;
-  const RENDER_DELAY = 100; // ms debounce for editor input
-  let syncScrollingEnabled = true; // Track sync scrolling state
-  let isEditorScrolling = false; // Prevent scroll feedback loops
-  let isPreviewScrolling = false; // Prevent scroll feedback loops
-  let scrollSyncTimeout = null; // For debouncing scroll events
+  const RENDER_DELAY = 100;
+  let syncScrollingEnabled = true;
+  let isEditorScrolling = false; 
+  let isPreviewScrolling = false;
+  let scrollSyncTimeout = null;
   const SCROLL_SYNC_DELAY = 10;
 
-  // DOM Elements - cache for better performance
   const markdownEditor = document.getElementById("markdown-editor");
   const markdownPreview = document.getElementById("markdown-preview");
   const themeToggle = document.getElementById("theme-toggle");
@@ -26,16 +25,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const wordCountElement = document.getElementById("word-count");
   const charCountElement = document.getElementById("char-count");
 
-  // Mobile DOM Elements
   const mobileMenuToggle    = document.getElementById("mobile-menu-toggle");
   const mobileMenuPanel     = document.getElementById("mobile-menu-panel");
   const mobileMenuOverlay   = document.getElementById("mobile-menu-overlay");
   const mobileCloseMenu     = document.getElementById("close-mobile-menu");
-
   const mobileReadingTime   = document.getElementById("mobile-reading-time");
   const mobileWordCount     = document.getElementById("mobile-word-count");
   const mobileCharCount     = document.getElementById("mobile-char-count");
-
   const mobileToggleSync    = document.getElementById("mobile-toggle-sync");
   const mobileImportBtn     = document.getElementById("mobile-import-button");
   const mobileExportMd      = document.getElementById("mobile-export-md");
@@ -44,7 +40,19 @@ document.addEventListener("DOMContentLoaded", function () {
   const mobileCopyMarkdown  = document.getElementById("mobile-copy-markdown");
   const mobileThemeToggle   = document.getElementById("mobile-theme-toggle");
 
-  // Detect system color scheme preference and set initial theme
+  const initMermaid = () => {
+    const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "default";
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: theme,
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+      fontSize: 16
+    });
+  };
+  
+  initMermaid();
+
   const prefersDarkMode =
     window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -56,7 +64,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ? '<i class="bi bi-sun"></i>'
     : '<i class="bi bi-moon"></i>';
 
-  // Initialize marked with GitHub Flavored Markdown
   const markedOptions = {
     gfm: true,
     breaks: false,
@@ -68,9 +75,13 @@ document.addEventListener("DOMContentLoaded", function () {
     mangle: false,
   };
 
-  // Add syntax highlighting for code blocks
   const renderer = new marked.Renderer();
   renderer.code = function (code, language) {
+    if (language === 'mermaid') {
+      const uniqueId = 'mermaid-diagram-' + Math.random().toString(36).substr(2, 9);
+      return `<div class="mermaid-container"><div class="mermaid" id="${uniqueId}">${code}</div></div>`;
+    }
+    
     const validLanguage = hljs.getLanguage(language) ? language : "plaintext";
     const highlightedCode = hljs.highlight(code, {
       language: validLanguage,
@@ -78,90 +89,140 @@ document.addEventListener("DOMContentLoaded", function () {
     return `<pre><code class="hljs ${validLanguage}">${highlightedCode}</code></pre>`;
   };
 
-  // Configure marked with our options and renderer
   marked.setOptions({
     ...markedOptions,
     renderer: renderer,
     highlight: function (code, language) {
+      if (language === 'mermaid') return code;
       const validLanguage = hljs.getLanguage(language) ? language : "plaintext";
       return hljs.highlight(code, { language: validLanguage }).value;
     },
   });
 
-  // Sample markdown to start with
   const sampleMarkdown = `# Welcome to GitHub-Style Markdown Viewer
 
-## Features
-- **Live Preview** with GitHub styling
-- **Import/Export** Markdown, HTML, and PDF
-- **Syntax Highlighting** for code blocks
-- **Dark Mode** support
-- **Emoji** support 👍
-- **Sync Scrolling** between editor and preview
-- **Document Stats** showing reading time, word count, and character count
+  ## Features
+  - **Live Preview** with GitHub styling
+  - **Import/Export** Markdown, HTML, and PDF
+  - **Syntax Highlighting** for code blocks
+  - **Dark Mode** support
+  - **Emoji** support 👍
+  - **Sync Scrolling** between editor and preview
+  - **Document Stats** showing reading time, word count, and character count
+  - **Math Expressions** with LaTeX syntax
+  - **Mermaid Diagrams** for flowcharts, sequences, and more
 
-## Code Example
-\`\`\`javascript
-function renderMarkdown() {
-  const markdown = markdownEditor.value;
-  const html = marked.parse(markdown);
-  const sanitizedHtml = DOMPurify.sanitize(html);
-  markdownPreview.innerHTML = sanitizedHtml;
-  
-  // Apply syntax highlighting to code blocks
-  markdownPreview.querySelectorAll('pre code').forEach((block) => {
-      hljs.highlightElement(block);
-  });
-}
-\`\`\`
+  ## Code Example
+  \`\`\`javascript
+  function renderMarkdown() {
+    const markdown = markdownEditor.value;
+    const html = marked.parse(markdown);
+    const sanitizedHtml = DOMPurify.sanitize(html);
+    markdownPreview.innerHTML = sanitizedHtml;
+    
+    // Apply syntax highlighting to code blocks
+    markdownPreview.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+  }
+  \`\`\`
 
-## Task List
-- [x] Create Markdown editor
-- [x] Implement live preview
-- [x] Add GitHub styling
-- [x] Support Dark Mode
-- [x] Add sync scrolling
-- [x] Add document statistics
-- [ ] Add more features
+  ## Mathematical Expressions
+  Inline math: $E = mc^2$
 
-## Table Example
-| Feature | Status |
-|---------|--------|
-| Editor | ✅ |
-| Preview | ✅ |
-| Import | ✅ |
-| Export | ✅ |
-| Dark Mode | ✅ |
-| Sync Scrolling | ✅ |
-| Statistics | ✅ |
+  Block math:
+  $$ \\frac{d}{dx}(e^x) = e^x $$
+  $$ \\sum_{i=1}^{n} i = \\frac{n(n+1)}{2} $$
 
-> **Note:** This is a fully client-side application. Your content stays in your browser.
-`;
+  ## Mermaid Diagrams
+  \`\`\`mermaid
+  graph TD;
+      A[Start] --> B{Decision};
+      B -->|Yes| C[Process 1];
+      B -->|No| D[Process 2];
+      C --> E[End];
+      D --> E;
+  \`\`\`
+  \`\`\`mermaid
+  sequenceDiagram
+      participant User
+      participant App
+      participant Server
+      
+      User->>App: Edit markdown
+      App->>App: Render preview
+      User->>App: Export content
+      App->>Server: Request conversion
+      Server-->>App: Return result
+      App-->>User: Download file
+  \`\`\`
 
-  // Set the sample markdown
+  ## Task List
+  - [x] Create Markdown editor
+  - [x] Implement live preview
+  - [x] Add GitHub styling
+  - [x] Support Dark Mode
+  - [x] Add sync scrolling
+  - [x] Add document statistics
+  - [x] Add math expressions
+  - [x] Add Mermaid diagrams
+
+  ## Table Example
+  | Feature | Status |
+  |---------|--------|
+  | Editor | ✅ |
+  | Preview | ✅ |
+  | Import | ✅ |
+  | Export | ✅ |
+  | Dark Mode | ✅ |
+  | Sync Scrolling | ✅ |
+  | Statistics | ✅ |
+  | Math Support | ✅ |
+  | Diagrams | ✅ |
+
+  > **Note:** This is a fully client-side application. Your content stays in your browser.
+  `;
+
   markdownEditor.value = sampleMarkdown;
 
-  // Function to render markdown with debounce for performance
   function renderMarkdown() {
     try {
       const markdown = markdownEditor.value;
       const html = marked.parse(markdown);
-      const sanitizedHtml = DOMPurify.sanitize(html);
+      const sanitizedHtml = DOMPurify.sanitize(html, {
+        ADD_TAGS: ['mjx-container'],
+        ADD_ATTR: ['id', 'class', 'style']
+      });
       markdownPreview.innerHTML = sanitizedHtml;
 
-      // Apply syntax highlighting to code blocks
       markdownPreview.querySelectorAll("pre code").forEach((block) => {
         try {
-          hljs.highlightElement(block);
+          if (!block.classList.contains('mermaid')) {
+            hljs.highlightElement(block);
+          }
         } catch (e) {
           console.warn("Syntax highlighting failed for a code block:", e);
         }
       });
 
-      // Process emojis to unicode characters
       processEmojis(markdownPreview);
+      
+      try {
+        mermaid.init(undefined, markdownPreview.querySelectorAll('.mermaid'));
+      } catch (e) {
+        console.warn("Mermaid rendering failed:", e);
+      }
+      
+      if (window.MathJax) {
+        try {
+          MathJax.typesetPromise([markdownPreview]).catch((err) => {
+            console.warn('MathJax typesetting failed:', err);
+          });
+        } catch (e) {
+          console.warn("MathJax rendering failed:", e);
+        }
+      }
 
-      // Update stats after rendering
       updateDocumentStats();
     } catch (e) {
       console.error("Markdown rendering failed:", e);
@@ -178,30 +239,24 @@ function renderMarkdown() {
     // if full emoji support is critical.
   }
 
-  // Debounced render function for better performance
   function debouncedRender() {
     clearTimeout(markdownRenderTimeout);
     markdownRenderTimeout = setTimeout(renderMarkdown, RENDER_DELAY);
   }
 
-  // Calculate reading time, word count, and character count
   function updateDocumentStats() {
     const text = markdownEditor.value;
 
-    // Character count (including spaces)
     const charCount = text.length;
     charCountElement.textContent = charCount.toLocaleString();
 
-    // Word count (splitting by whitespace)
     const wordCount = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
     wordCountElement.textContent = wordCount.toLocaleString();
 
-    // Reading time calculation (average reading speed: 200 words per minute)
     const readingTimeMinutes = Math.ceil(wordCount / 200);
     readingTimeElement.textContent = readingTimeMinutes;
   }
 
-  // Synchronized scrolling functions
   function syncEditorToPreview() {
     if (!syncScrollingEnabled || isPreviewScrolling) return;
 
@@ -216,12 +271,10 @@ function renderMarkdown() {
         (previewPane.scrollHeight - previewPane.clientHeight) *
         editorScrollRatio;
 
-      // Only scroll if the ratio is valid (prevents errors when content is smaller than container)
       if (!isNaN(previewScrollPosition) && isFinite(previewScrollPosition)) {
         previewPane.scrollTop = previewScrollPosition;
       }
 
-      // Reset flag after a short delay to prevent feedback loops
       setTimeout(() => {
         isEditorScrolling = false;
       }, 50);
@@ -242,19 +295,16 @@ function renderMarkdown() {
         (editorPane.scrollHeight - editorPane.clientHeight) *
         previewScrollRatio;
 
-      // Only scroll if the ratio is valid
       if (!isNaN(editorScrollPosition) && isFinite(editorScrollPosition)) {
         editorPane.scrollTop = editorScrollPosition;
       }
 
-      // Reset flag after a short delay
       setTimeout(() => {
         isPreviewScrolling = false;
       }, 50);
     }, SCROLL_SYNC_DELAY);
   }
 
-  // Toggle sync scrolling
   function toggleSyncScrolling() {
     syncScrollingEnabled = !syncScrollingEnabled;
     if (syncScrollingEnabled) {
@@ -270,7 +320,6 @@ function renderMarkdown() {
     }
   }
 
-  // —— Mobile menu functionality ——
   function openMobileMenu() {
     mobileMenuPanel.classList.add("active");
     mobileMenuOverlay.classList.add("active");
@@ -288,7 +337,7 @@ function renderMarkdown() {
     mobileWordCount.textContent   = wordCountElement.textContent;
     mobileReadingTime.textContent = readingTimeElement.textContent;
   }
-  // wrap original stats updater
+
   const origUpdateStats = updateDocumentStats;
   updateDocumentStats = function() {
     origUpdateStats();
@@ -334,9 +383,24 @@ function renderMarkdown() {
 
     if (theme === "dark") {
       themeToggle.innerHTML = '<i class="bi bi-sun"></i>';
+      
+      // Update mermaid theme when switching to dark mode
+      mermaid.initialize({
+        theme: 'dark',
+        securityLevel: 'loose',
+        flowchart: { useMaxWidth: true, htmlLabels: true },
+        fontSize: 16
+      });
     } else {
       themeToggle.innerHTML = '<i class="bi bi-moon"></i>';
+      mermaid.initialize({
+        theme: 'default',
+        securityLevel: 'loose',
+        flowchart: { useMaxWidth: true, htmlLabels: true },
+        fontSize: 16
+      });
     }
+    renderMarkdown();
   });
   importButton.addEventListener("click", function () {
     fileInput.click();
@@ -363,7 +427,10 @@ function renderMarkdown() {
     try {
       const markdown = markdownEditor.value;
       const html = marked.parse(markdown);
-      const sanitizedHtml = DOMPurify.sanitize(html);
+      const sanitizedHtml = DOMPurify.sanitize(html, {
+        ADD_TAGS: ['mjx-container'], 
+        ADD_ATTR: ['id', 'class', 'style']
+      });
       const isDarkTheme =
         document.documentElement.getAttribute("data-theme") === "dark";
       const cssTheme = isDarkTheme
@@ -484,7 +551,6 @@ function renderMarkdown() {
     }
   });
 
-  // Modern clipboard API with fallback
   async function copyToClipboard(text) {
     try {
       if (navigator.clipboard && window.isSecureContext) {
@@ -521,7 +587,6 @@ function renderMarkdown() {
     }, 2000);
   }
 
-  // Drag and drop functionality with improved event handling
   const dropEvents = ["dragenter", "dragover", "dragleave", "drop"];
 
   dropEvents.forEach((eventName) => {
