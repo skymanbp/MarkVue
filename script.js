@@ -40,29 +40,34 @@ document.addEventListener("DOMContentLoaded", function () {
   const mobileCopyMarkdown  = document.getElementById("mobile-copy-markdown");
   const mobileThemeToggle   = document.getElementById("mobile-theme-toggle");
 
+  // Check dark mode preference first for proper initialization
+  const prefersDarkMode =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  
+  document.documentElement.setAttribute(
+    "data-theme",
+    prefersDarkMode ? "dark" : "light"
+  );
+  
+  themeToggle.innerHTML = prefersDarkMode
+    ? '<i class="bi bi-sun"></i>'
+    : '<i class="bi bi-moon"></i>';
+
   const initMermaid = () => {
-    const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "default";
+    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const mermaidTheme = currentTheme === "dark" ? "dark" : "default";
+    
     mermaid.initialize({
       startOnLoad: false,
-      theme: theme,
+      theme: mermaidTheme,
       securityLevel: 'loose',
       flowchart: { useMaxWidth: true, htmlLabels: true },
       fontSize: 16
     });
   };
-  
-  initMermaid();
 
-  const prefersDarkMode =
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
-  document.documentElement.setAttribute(
-    "data-theme",
-    prefersDarkMode ? "dark" : "light"
-  );
-  themeToggle.innerHTML = prefersDarkMode
-    ? '<i class="bi bi-sun"></i>'
-    : '<i class="bi bi-moon"></i>';
+  initMermaid();
 
   const markedOptions = {
     gfm: true,
@@ -207,6 +212,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       processEmojis(markdownPreview);
       
+      // Reinitialize mermaid with current theme before rendering diagrams
+      initMermaid();
+      
       try {
         mermaid.init(undefined, markdownPreview.querySelectorAll('.mermaid'));
       } catch (e) {
@@ -231,6 +239,16 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
           <pre>${markdownEditor.value}</pre>`;
     }
+  }
+
+  function importMarkdownFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      markdownEditor.value = e.target.result;
+      renderMarkdown();
+      dropzone.style.display = "none";
+    };
+    reader.readAsText(file);
   }
 
   // Emoji handling function - simpler replacement for twemoji
@@ -367,6 +385,8 @@ document.addEventListener("DOMContentLoaded", function () {
     themeToggle.click();
     mobileThemeToggle.innerHTML = themeToggle.innerHTML + " Toggle Dark Mode";
   });
+  
+  // Render markdown on page load with correct theme
   renderMarkdown();
   updateMobileStats();
 
@@ -383,23 +403,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (theme === "dark") {
       themeToggle.innerHTML = '<i class="bi bi-sun"></i>';
-      
-      // Update mermaid theme when switching to dark mode
-      mermaid.initialize({
-        theme: 'dark',
-        securityLevel: 'loose',
-        flowchart: { useMaxWidth: true, htmlLabels: true },
-        fontSize: 16
-      });
     } else {
       themeToggle.innerHTML = '<i class="bi bi-moon"></i>';
-      mermaid.initialize({
-        theme: 'default',
-        securityLevel: 'loose',
-        flowchart: { useMaxWidth: true, htmlLabels: true },
-        fontSize: 16
-      });
     }
+    
+    // Re-render markdown to update diagrams with new theme
     renderMarkdown();
   });
   importButton.addEventListener("click", function () {
@@ -638,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (isMarkdownFile) {
         importMarkdownFile(file);
       } else {
-        alert("Please upload a Markdown file (.md or .umarkdown)");
+        alert("Please upload a Markdown file (.md or .markdown)");
       }
     }
   }
