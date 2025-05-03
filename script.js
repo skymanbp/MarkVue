@@ -148,6 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
       C --> E[End];
       D --> E;
   \`\`\`
+  ### Sequence Diagram
   \`\`\`mermaid
   sequenceDiagram
       participant User
@@ -251,10 +252,62 @@ document.addEventListener("DOMContentLoaded", function () {
     reader.readAsText(file);
   }
 
-  // Emoji handling function - simpler replacement for twemoji
   function processEmojis(element) {
-    // This is a minimal implementation. For production, consider using a dedicated emoji library
-    // if full emoji support is critical.
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const textNodes = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      let parent = node.parentNode;
+      let isInCode = false;
+      while (parent && parent !== element) {
+        if (parent.tagName === 'PRE' || parent.tagName === 'CODE') {
+          isInCode = true;
+          break;
+        }
+        parent = parent.parentNode;
+      }
+      
+      if (!isInCode && node.nodeValue.includes(':')) {
+        textNodes.push(node);
+      }
+    }
+    
+    textNodes.forEach(textNode => {
+      const text = textNode.nodeValue;
+      const emojiRegex = /:([\w+-]+):/g;
+      
+      let match;
+      let lastIndex = 0;
+      let result = '';
+      let hasEmoji = false;
+      
+      while ((match = emojiRegex.exec(text)) !== null) {
+        const shortcode = match[1];
+        const emoji = joypixels.shortnameToUnicode(`:${shortcode}:`);
+        
+        if (emoji !== `:${shortcode}:`) { // If conversion was successful
+          hasEmoji = true;
+          result += text.substring(lastIndex, match.index) + emoji;
+          lastIndex = emojiRegex.lastIndex;
+        } else {
+          result += text.substring(lastIndex, emojiRegex.lastIndex);
+          lastIndex = emojiRegex.lastIndex;
+        }
+      }
+      
+      if (hasEmoji) {
+        result += text.substring(lastIndex);
+        const span = document.createElement('span');
+        span.innerHTML = result;
+        textNode.parentNode.replaceChild(span, textNode);
+      }
+    });
   }
 
   function debouncedRender() {
@@ -386,7 +439,6 @@ document.addEventListener("DOMContentLoaded", function () {
     mobileThemeToggle.innerHTML = themeToggle.innerHTML + " Toggle Dark Mode";
   });
   
-  // Render markdown on page load with correct theme
   renderMarkdown();
   updateMobileStats();
 
@@ -407,12 +459,13 @@ document.addEventListener("DOMContentLoaded", function () {
       themeToggle.innerHTML = '<i class="bi bi-moon"></i>';
     }
     
-    // Re-render markdown to update diagrams with new theme
     renderMarkdown();
   });
+
   importButton.addEventListener("click", function () {
     fileInput.click();
   });
+
   fileInput.addEventListener("change", function (e) {
     const file = e.target.files[0];
     if (file) {
@@ -420,6 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     this.value = "";
   });
+
   exportMd.addEventListener("click", function () {
     try {
       const blob = new Blob([markdownEditor.value], {
@@ -431,6 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("Export failed: " + e.message);
     }
   });
+
   exportHtml.addEventListener("click", function () {
     try {
       const markdown = markdownEditor.value;
@@ -488,6 +543,7 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("HTML export failed: " + e.message);
     }
   });
+
   exportPdf.addEventListener("click", function () {
     try {
       if (!window.html2pdf) {
@@ -548,7 +604,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Copy Markdown button with modern Clipboard API
   copyMarkdownButton.addEventListener("click", function () {
     try {
       const markdownText = markdownEditor.value;
