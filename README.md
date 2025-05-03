@@ -1,38 +1,113 @@
-# Markdown Viewer <img src="assets/logo-navbar.png" alt="screen_1" height="35" width="35" style="margin-top: 15px;">
+# Markdown Viewer
 
-[![Apache 2.0 License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+<div align="center">
+    <img src="assets/icon.jpg" alt="Markdown Viewer Logo" width="150px"/>
+    <h3>A powerful GitHub-style Markdown rendering tool</h3>
+    <p>Fast, secure, and feature-rich - all running in your browser</p>
+    <a href="https://markdownviewer.pages.dev/">Live Demo</a> •
+    <a href="#features">Features</a> •
+    <a href="#screenshots">Screenshots</a> •
+    <a href="#usage">Usage</a> •
+    <a href="#license">License</a>
+</div>
 
-## Description ℹ️
-This _Markdown Viewer_ is a simple web application that allows you to preview and manipulate Markdown text. You can input Markdown text, view the rendered HTML output, and perform various actions such as copying the text, exporting it in different formats, and more.
+## 🚀 Overview
 
-## Features 🚀
-- *Sync scroll* option to synchronize scrolling between input and output.
-- Choose different *preview* formats: HTML, PDF, or Markdown.
-- *Export* the Markdown content as HTML, PDF, or Markdown file.
-- *Import* HTML or Markdown content into the application.
+Markdown Viewer is a professional, full-featured Markdown editor and preview application that runs entirely in your browser. It provides a GitHub-style rendering experience with a clean split-screen interface, allowing you to write Markdown on one side and instantly preview the formatted output on the other.
 
-## Usage 📝
-![screencapture-127-0-0-1-5501-index-html-2024-04-12-20_50_14](https://github.com/ThisIs-Developer/Markdown-Viewer/assets/109382325/3f9a1e4e-6e02-40bd-b515-76c14405e5ee)
+## ✨ Features
 
-### UI Responsive 📱
-<img src="https://github.com/ThisIs-Developer/Markdown-Viewer/assets/109382325/d8c91912-1325-4e21-a7fc-266984a721ce" alt="screen_1" height="400" width="200">
-<img src="https://github.com/ThisIs-Developer/Markdown-Viewer/assets/109382325/7d49331d-63e3-4003-804c-e188c18929ef" alt="screen_2" height="400" width="200">
-<img src="https://github.com/ThisIs-Developer/Markdown-Viewer/assets/109382325/99d3c8f3-6b57-4823-99a7-4db5de4a907b" alt="screen_3" height="400" width="200">
-<img src="https://github.com/ThisIs-Developer/Markdown-Viewer/assets/109382325/4d5c04f8-1fda-4ea7-863e-7e01ccef797f" alt="screen_4" height="400" width="200">
+- **GitHub-style Markdown rendering** - See your Markdown exactly as it would appear on GitHub
+- **Live preview** - Instantly see changes as you type
+- **Syntax highlighting** - Beautiful code highlighting for multiple programming languages
+- **LaTeX math support** - Render mathematical equations using LaTeX syntax
+- **Mermaid diagrams** - Create diagrams and flowcharts within your Markdown
+- **Dark mode toggle** - Switch between light and dark themes for comfortable viewing
+- **Export options** - Download your content as Markdown, HTML, or PDF
+- **Import Markdown files** - Drag & drop or select files to open
+- **Copy to clipboard** - Quickly copy your Markdown content with one click
+- **Sync scrolling** - Keep editor and preview panes aligned (toggleable)
+- **Content statistics** - Track word count, character count, and reading time
+- **Fully responsive** - Works on desktop and mobile devices
+- **Emoji support** - Convert emoji shortcodes into actual emojis
+- **100% client-side** - No server processing, ensuring complete privacy and security
+- **No sign-up required** - Use instantly without any registration
 
-## Resources 🛠️
-- [Markdown-it](https://github.com/markdown-it/markdown-it): The Markdown parser used in this application.
-- [jQuery](https://jquery.com/): JavaScript library used for DOM manipulation and event handling.
+## 📸 Screenshots
 
-## License ⚖️
-This project is licensed under the [Apache-2.0 License](https://github.com/ThisIs-Developer/Markdown-Viewer/blob/main/LICENSE). See the LICENSE file for more details.
+### Code Syntax Highlighting
+![Code Syntax Highlighting](assets/code.png)
+
+### Mathematical Expressions Support
+![Mathematical Expressions](assets/mathexp.png)
+
+### Mermaid Diagrams
+![Mermaid Diagrams](assets/mermaid.png)
+
+### Tables Support
+![Tables Support](assets/table.png)
+
+## 📝 Usage
+
+1. **Writing Markdown** - Type or paste Markdown content in the left editor panel
+2. **Viewing Output** - See the rendered HTML in the right preview panel
+3. **Importing Files** - Click "Import" or drag and drop .md files into the interface
+4. **Exporting Content** - Use the "Export" dropdown to download as MD, HTML, or PDF
+5. **Toggle Dark Mode** - Click the moon icon to switch between light and dark themes
+6. **Toggle Sync Scrolling** - Enable/disable synchronized scrolling between panels
+
+### Supported Markdown Features
+
+- Headings (# H1, ## H2, etc.)
+- **Bold** and *italic* text
+- ~~Strikethrough~~
+- [Links](https://example.com)
+- Images
+- Lists (ordered and unordered)
+- Tables
+- Code blocks with syntax highlighting
+- Blockquotes
+- Horizontal rules
+- Task lists
+- LaTeX equations (inline and block)
+- Mermaid diagrams
+- And more!
+
+## 🔧 Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript
+- [Bootstrap](https://getbootstrap.com/) - Responsive UI framework
+- [Marked.js](https://marked.js.org/) - Markdown parser
+- [highlight.js](https://highlightjs.org/) - Syntax highlighting
+- [MathJax](https://www.mathjax.org/) - Mathematical expressions
+- [Mermaid](https://mermaid-js.github.io/mermaid/) - Diagrams and flowcharts
+- [DOMPurify](https://github.com/cure53/DOMPurify) - HTML sanitization
+- [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) - PDF generation
+- [FileSaver.js](https://github.com/eligrey/FileSaver.js) - File download handling
+- [JoyPixels](https://www.joypixels.com/) - Emoji support
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📈 Development Journey
+
+The Markdown Viewer has undergone significant evolution since its inception. What started as a simple markdown parser has grown into a full-featured, professional application with multiple advanced capabilities. By comparing the [current version](https://markdownviewer.pages.dev/) with the [original version](https://a1b91221.markdownviewer.pages.dev/), you can see the remarkable progress in UI design, performance optimization, and feature implementation.
 
 ---
 
-Feel free to customize and enhance this Markdown Viewer as per your needs. If you encounter any issues or have suggestions for improvements, please open an issue on the GitHub repository. Happy Markdown editing and viewing! 😊
-
-[license-shield]: https://img.shields.io/badge/License-Apache%202.0-red.svg
-[license-url]: https://github.com/ThisIs-Developer/Markdown-Viewer/blob/main/LICENSE
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat&logo=linkedin&colorB=blue
-[linkedin-url]: https://www.linkedin.com/in/baivabsarkar/
+<div align="center">
+    <p>Developed with ❤️ by <a href="https://github.com/ThisIs-Developer">ThisIs-Developer</a></p>
+</div>
