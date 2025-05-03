@@ -4,11 +4,11 @@
     <img src="assets/icon.jpg" alt="Markdown Viewer Logo" width="150px"/>
     <h3>A powerful GitHub-style Markdown rendering tool</h3>
     <p>Fast, secure, and feature-rich - all running in your browser</p>
-    <a href="https://markdownviewer.pages.dev/">Live Demo</a> •
-    <a href="#features">Features</a> •
-    <a href="#screenshots">Screenshots</a> •
-    <a href="#usage">Usage</a> •
-    <a href="#license">License</a>
+    <a href="https://markdownviewer.pages.dev/">Live Demo</a> • 
+    <a href="#-features">Features</a> • 
+    <a href="#-screenshots">Screenshots</a> • 
+    <a href="#-usage">Usage</a> • 
+    <a href="#-license">License</a>
 </div>
 
 ## 🚀 Overview
