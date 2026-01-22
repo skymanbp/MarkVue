@@ -85,7 +85,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   };
 
-  initMermaid();
+  try {
+    initMermaid();
+  } catch (e) {
+    console.warn("Mermaid initialization failed:", e);
+  }
 
   const markedOptions = {
     gfm: true,
@@ -712,6 +716,30 @@ This is a fully client-side application. Your content never leaves your browser 
   });
 
   markdownEditor.addEventListener("input", debouncedRender);
+  
+  // Tab key handler to insert indentation instead of moving focus
+  markdownEditor.addEventListener("keydown", function(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      
+      const start = this.selectionStart;
+      const end = this.selectionEnd;
+      const value = this.value;
+      
+      // Insert 2 spaces
+      const indent = '  '; // 2 spaces
+      
+      // Update textarea value
+      this.value = value.substring(0, start) + indent + value.substring(end);
+      
+      // Update cursor position
+      this.selectionStart = this.selectionEnd = start + indent.length;
+      
+      // Trigger input event to update preview
+      this.dispatchEvent(new Event('input'));
+    }
+  });
+  
   editorPane.addEventListener("scroll", syncEditorToPreview);
   previewPane.addEventListener("scroll", syncPreviewToEditor);
   toggleSyncButton.addEventListener("click", toggleSyncScrolling);
