@@ -58,13 +58,14 @@
 <body>
     <div class="app-container">
         <header class="app-header">
-            <div class="container-fluid d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center">
+            <div class="container-fluid d-flex justify-content-between align-items-center header-container">
+                <!-- Left section: Logo, GitHub, Stats -->
+                <div class="d-flex align-items-center header-left">
                     <h1 class="h4 mb-0 me-2">Markdown Viewer</h1>
                     <a href="https://github.com/ThisIs-Developer/Markdown-Viewer/" class="github-link" title="View on GitHub" target="_blank" rel="noopener noreferrer">
                         <i class="bi bi-github"></i>
                     </a>
-                    <div id="stats-container" class="stats-container d-flex align-items-center d-none d-md-flex">
+                    <div id="stats-container" class="stats-container d-flex align-items-center d-none d-lg-flex">
                         <div class="stat-item me-3">
                             <i class="bi bi-clock me-1"></i> <span id="reading-time">0</span> Min Read
                         </div>
@@ -76,9 +77,25 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Regular toolbar for desktop -->
-                <div class="toolbar d-none d-md-flex">
+
+                <!-- Center section: View Mode Buttons -->
+                <div class="view-mode-group d-none d-md-flex" role="group" aria-label="View mode">
+                    <button class="view-mode-btn" data-mode="editor" aria-pressed="false" title="Editor only">
+                        <i class="bi bi-file-text"></i>
+                        <span>Editor</span>
+                    </button>
+                    <button class="view-mode-btn active" data-mode="split" aria-pressed="true" title="Split view">
+                        <i class="bi bi-layout-split"></i>
+                        <span>Split</span>
+                    </button>
+                    <button class="view-mode-btn" data-mode="preview" aria-pressed="false" title="Preview only">
+                        <i class="bi bi-eye"></i>
+                        <span>Preview</span>
+                    </button>
+                </div>
+
+                <!-- Right section: Toolbar -->
+                <div class="toolbar d-none d-md-flex header-right">
                     <button id="toggle-sync" class="tool-button sync-enabled border-primary" title="Toggle Sync Scrolling">
                         <i class="bi bi-link"></i> Sync Off
                     </button>
@@ -120,7 +137,23 @@
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
-                        
+
+                        <!-- Story 1.4: Mobile View Mode Buttons -->
+                        <div class="mobile-view-mode-group mb-3" role="group" aria-label="View mode">
+                            <button class="mobile-view-mode-btn" data-mode="editor" aria-pressed="false" title="Editor only">
+                                <i class="bi bi-file-text"></i>
+                                <span>Editor</span>
+                            </button>
+                            <button class="mobile-view-mode-btn active" data-mode="split" aria-pressed="true" title="Split view">
+                                <i class="bi bi-layout-split"></i>
+                                <span>Split</span>
+                            </button>
+                            <button class="mobile-view-mode-btn" data-mode="preview" aria-pressed="false" title="Preview only">
+                                <i class="bi bi-eye"></i>
+                                <span>Preview</span>
+                            </button>
+                        </div>
+
                         <div class="mobile-stats-container mb-3">
                             <div class="stat-item mb-2">
                                 <i class="bi bi-clock me-1"></i> <span id="mobile-reading-time">0</span> Min Read
@@ -132,7 +165,7 @@
                                 <i class="bi bi-fonts me-1"></i> <span id="mobile-char-count">0</span> Chars
                             </div>
                         </div>
-                        
+
                         <div class="mobile-menu-items">
                             <button id="mobile-toggle-sync" class="mobile-menu-item tool-button sync-enabled border-primary" title="Toggle Sync Scrolling">
                                 <i class="bi bi-link"></i> Sync Off
@@ -179,6 +212,10 @@
         <div class="content-container">
             <div class="editor-pane">
                 <textarea id="markdown-editor" placeholder="Type or paste your Markdown here..."></textarea>
+            </div>
+            <!-- Resize Divider - Story 1.3 -->
+            <div class="resize-divider" role="separator" aria-orientation="vertical" aria-label="Resize panes" tabindex="0">
+                <div class="resize-divider-handle"></div>
             </div>
             <div class="preview-pane">
                 <div id="markdown-preview" class="markdown-body"></div>

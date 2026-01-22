@@ -648,3 +648,307 @@ a:focus {
 .github-link i {
   font-size: 1.5rem;
 }
+
+/* ========================================
+   VIEW MODE CONTROLS - Story 1.1
+   ======================================== */
+
+/* Header layout for three sections */
+.header-container {
+  position: relative;
+}
+
+.header-left {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.header-right {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* View Mode Button Group */
+.view-mode-group {
+  display: flex;
+  gap: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.view-mode-btn {
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.view-mode-btn:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.view-mode-btn:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.view-mode-btn:not(:last-child) {
+  border-right: none;
+}
+
+.view-mode-btn:hover {
+  background-color: var(--button-hover);
+}
+
+.view-mode-btn.active {
+  background-color: var(--button-bg);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  border-width: 2px;
+  padding: 5px 11px; /* Adjust for thicker border */
+}
+
+.view-mode-btn.active:not(:last-child) {
+  border-right: 2px solid var(--accent-color);
+}
+
+.view-mode-btn i {
+  font-size: 16px;
+}
+
+/* Pane View States */
+.content-container.view-editor-only .preview-pane {
+  display: none;
+}
+
+.content-container.view-editor-only .editor-pane {
+  flex: 1;
+  border-right: none;
+}
+
+.content-container.view-preview-only .editor-pane {
+  display: none;
+}
+
+.content-container.view-preview-only .preview-pane {
+  flex: 1;
+}
+
+.content-container.view-split .editor-pane,
+.content-container.view-split .preview-pane {
+  flex: 1;
+}
+
+/* Responsive adjustments for view mode buttons */
+@media (max-width: 1079px) {
+  .view-mode-group {
+    position: static;
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .view-mode-group {
+    display: none;
+  }
+}
+
+/* ========================================
+   RESIZE DIVIDER - Story 1.3
+   ======================================== */
+
+.resize-divider {
+  width: 8px;
+  background-color: transparent;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  transition: background-color 0.2s ease;
+}
+
+.resize-divider:hover {
+  background-color: var(--button-hover);
+}
+
+.resize-divider.dragging {
+  background-color: var(--accent-color);
+}
+
+.resize-divider-handle {
+  width: 2px;
+  height: 40px;
+  background-color: var(--border-color);
+  border-radius: 2px;
+  transition: background-color 0.2s ease, width 0.2s ease;
+}
+
+.resize-divider:hover .resize-divider-handle,
+.resize-divider.dragging .resize-divider-handle {
+  background-color: var(--accent-color);
+  width: 3px;
+}
+
+/* Hide divider in single-pane modes */
+.content-container.view-editor-only .resize-divider,
+.content-container.view-preview-only .resize-divider {
+  display: none;
+}
+
+/* Hide divider on tablet and mobile (no drag resize) */
+@media (max-width: 1079px) {
+  .resize-divider {
+    display: none;
+  }
+}
+
+/* Prevent text selection during drag */
+.resizing {
+  user-select: none;
+  cursor: col-resize !important;
+}
+
+.resizing * {
+  cursor: col-resize !important;
+}
+
+/* ========================================
+   MOBILE VIEW MODE CONTROLS - Story 1.4
+   ======================================== */
+
+.mobile-view-mode-group {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+.mobile-view-mode-btn {
+  flex: 1;
+  background-color: var(--button-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.mobile-view-mode-btn:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.mobile-view-mode-btn:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.mobile-view-mode-btn:not(:last-child) {
+  border-right: none;
+}
+
+.mobile-view-mode-btn:hover,
+.mobile-view-mode-btn:active {
+  background-color: var(--button-hover);
+}
+
+.mobile-view-mode-btn.active {
+  background-color: var(--button-bg);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  border-width: 2px;
+  padding: 7px 11px;
+}
+
+.mobile-view-mode-btn.active:not(:last-child) {
+  border-right: 2px solid var(--accent-color);
+}
+
+.mobile-view-mode-btn i {
+  font-size: 18px;
+}
+
+.mobile-view-mode-btn span {
+  font-size: 12px;
+}
+
+/* ========================================
+   RESPONSIVE VIEW MODE FIXES - Story 1.5
+   ======================================== */
+
+/* On tablet/mobile, ensure single-pane modes take full height */
+@media (max-width: 1079px) {
+  .content-container.view-editor-only .editor-pane,
+  .content-container.view-preview-only .preview-pane {
+    height: 100%;
+  }
+
+  .content-container.view-split .editor-pane,
+  .content-container.view-split .preview-pane {
+    height: 50%;
+  }
+}
+
+/* ========================================
+   PDF EXPORT TABLE FIX - Rowspan/Colspan
+   ======================================== */
+
+/* Fix for html2canvas not properly rendering rowspan/colspan cells.
+   Apply backgrounds to cells instead of rows to prevent row backgrounds
+   from painting over rowspan cells during canvas capture. */
+.pdf-export table tr {
+  background-color: transparent !important;
+}
+
+.pdf-export table th,
+.pdf-export table td {
+  background-color: var(--table-bg, #ffffff);
+  position: relative;
+}
+
+.pdf-export table tr:nth-child(2n) th,
+.pdf-export table tr:nth-child(2n) td {
+  background-color: var(--bg-color, #f6f8fa);
+}
+
+/* Ensure rowspan cells render correctly */
+.pdf-export table th[rowspan],
+.pdf-export table td[rowspan] {
+  vertical-align: middle;
+  background-color: var(--table-bg, #ffffff) !important;
+}
+
+/* Ensure colspan cells render correctly */
+.pdf-export table th[colspan],
+.pdf-export table td[colspan] {
+  text-align: center;
+}
+
+/* Dark mode PDF export table fix */
+[data-theme="dark"] .pdf-export table th,
+[data-theme="dark"] .pdf-export table td {
+  background-color: var(--table-bg, #161b22);
+}
+
+[data-theme="dark"] .pdf-export table tr:nth-child(2n) th,
+[data-theme="dark"] .pdf-export table tr:nth-child(2n) td {
+  background-color: #1c2128;
+}
+
+[data-theme="dark"] .pdf-export table th[rowspan],
+[data-theme="dark"] .pdf-export table td[rowspan] {
+  background-color: var(--table-bg, #161b22) !important;
+}
