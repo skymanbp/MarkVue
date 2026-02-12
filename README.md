@@ -1,44 +1,80 @@
 # MarkVue — Local Markdown Viewer / 本地 Markdown 查看器
 
 > **A fast, beautiful, feature-rich local Markdown editor and previewer.**
-> Single-file, zero dependencies. Double-click the HTML to start.
+> Build once as EXE, set as default app, double-click any .md file to open.
 >
 > **快速、美观、功能丰富的本地 Markdown 编辑器与预览器。**
-> 单文件运行，零依赖，双击 HTML 即用。
+> 一次打包为 EXE，设为默认程序，双击 .md 文件即可打开。
 
 ---
 
-## Getting Started / 启动方式
+## Quick Start: Use as Default App / 快速上手：设为默认程序
 
-### Method 1: Double-click HTML (simplest, zero dependencies)
+The recommended workflow to use MarkVue like a normal desktop application:
 
-Open `MarkVue.html` directly in any browser. All features work out of the box.
+推荐流程，让 MarkVue 像普通软件一样使用：
 
-直接双击 `MarkVue.html`，在浏览器中打开即可使用全部功能。
+**Step 1** -- Build the EXE / 构建 EXE
 
-### Method 2: Double-click BAT (recommended for Windows)
+```
+Double-click "Build EXE.bat"
+Wait 1-2 minutes -> dist/MarkVue.exe is created
 
-Double-click `Launch MarkVue.bat`:
+双击 "Build EXE.bat"
+等待 1-2 分钟 -> 生成 dist/MarkVue.exe
+```
 
-- If Python is detected, a local server starts automatically (better experience).
-- If Python is not installed, the HTML file opens directly in the browser (fully functional).
-- You can drag a `.md` file onto the BAT to open it directly.
+**Step 2** -- Move EXE to a permanent location / 把 EXE 放到固定位置
 
-双击 `Launch MarkVue.bat`：
+```
+Example: C:\Tools\MarkVue.exe
+示例：C:\Tools\MarkVue.exe
+```
 
-- 检测到 Python 时自动启动本地服务器（体验更好）。
-- 没有 Python 时直接在浏览器中打开 HTML（功能完全一样）。
-- 可将 `.md` 文件拖放到 BAT 上直接打开。
+**Step 3** -- Associate .md files / 关联 .md 文件
 
-### Method 3: Build a standalone EXE (for distribution)
+```
+Copy "Associate .md Files.bat" next to MarkVue.exe, then double-click it.
+Or: right-click any .md file -> "Open with" -> "Choose another app"
+    -> select MarkVue.exe -> check "Always use this app"
 
-Double-click `Build EXE.bat` to generate `MarkVue.exe`. See the "Build EXE" section below.
-The generated EXE can be shared with anyone — no Python or other dependencies required.
+把 "Associate .md Files.bat" 复制到 MarkVue.exe 旁边，然后双击运行。
+或者：右键任意 .md 文件 -> "打开方式" -> "选择其他应用"
+      -> 选择 MarkVue.exe -> 勾选"始终使用此应用"
+```
 
-双击 `Build EXE.bat` 一键生成 `MarkVue.exe`，详见下方"打包为 EXE"章节。
-生成的 EXE 可以分发给任何 Windows 用户，对方无需安装任何东西。
+**Done.** Now double-click any `.md` file and it opens in MarkVue.
 
-### Method 4: Python server mode (advanced)
+**完成。** 现在双击任意 `.md` 文件即可在 MarkVue 中打开。
+
+---
+
+## All Launch Methods / 所有启动方式
+
+### 1. Double-click HTML (simplest, zero dependencies)
+
+Open `MarkVue.html` directly in any browser. All features work immediately.
+
+直接双击 `MarkVue.html`，在浏览器中打开，全部功能可用。
+
+### 2. Double-click BAT (recommended for Windows without EXE)
+
+Double-click `Launch MarkVue.bat`. It detects Python automatically:
+if found, starts a local server; otherwise opens the HTML directly.
+
+双击 `Launch MarkVue.bat`，自动检测 Python 并选择最佳模式。
+
+### 3. MarkVue.exe (recommended, works like a normal app)
+
+After building with `Build EXE.bat`:
+- Double-click `MarkVue.exe` to launch.
+- Drag `.md` files onto it to open.
+- Set as default app for `.md` files (see above).
+- Single file, no dependencies, can be copied anywhere.
+
+构建后即可像普通软件一样使用，支持关联文件类型。
+
+### 4. Python server mode (advanced)
 
 ```bash
 python markvue.py                  # Launch / 启动
@@ -49,41 +85,36 @@ python markvue.py -n               # No auto-open browser / 不自动打开浏�
 
 ---
 
-## Features / 功能清单
+## Features / 功能
 
-### Core / 核心功能
-
-| Feature / 功能 | Description / 说明 |
-|----------------|---------------------|
-| GitHub-style rendering | Full GFM syntax support / 完整的 GFM 语法支持 |
-| Real-time preview | Renders as you type, 100ms debounce / 输入即渲染，100ms 延迟 |
-| Code highlighting | 100+ languages, one-click copy / 100+ 语言语法高亮，一键复制 |
-| LaTeX math | KaTeX engine, inline `$...$` and block `$$...$$` / 行内与块级公式 |
-| Mermaid diagrams | Flowcharts, sequence diagrams, gantt charts / 流程图、时序图、甘特图 |
-| Tables and task lists | Full GFM extended syntax / 完整的 GFM 扩展语法 |
-
-### Unique Features / 独有功能
+### Core / 核心
 
 | Feature / 功能 | Description / 说明 |
 |----------------|---------------------|
-| Command palette | `Ctrl+K` to fuzzy-search and run any command / 模糊搜索并执行任意命令 |
-| Outline navigation | Auto-generated TOC sidebar, click to jump / 自动生成大纲侧栏，点击跳转 |
-| Slide mode | Split by `---`, present as slides with keyboard nav / 一键变演示文稿，键盘翻页 |
-| Clipboard image paste | Paste screenshots as Base64 with Ctrl+V / 截图后粘贴，自动转 Base64 |
-| Find and replace | Full-text search with individual or batch replace / 全文搜索，逐个或全部替换 |
-| Zen mode | Hides all UI, centered editor for focused writing / 隐藏 UI，居中编辑器，专注写作 |
-| Formatting toolbar | Quick insert headings, lists, links, tables, code blocks / 快捷插入各种格式 |
-| Auto-save | Saves to localStorage; survives browser close / 自动保存到浏览器，关闭后不丢失 |
-| Save to file | `Ctrl+S` writes back to the original file (Chrome/Edge or server mode) / 直接保存回原文件 |
-| Theme memory | Dark/light preference is remembered / 深色/浅色偏好自动记忆 |
-| Smart word count | Handles mixed CJK and Latin text correctly / 自动识别中英文混合内容分别计数 |
-| Resizable split pane | Drag the divider to adjust editor/preview width / 拖动分隔条自由调整宽度 |
+| GitHub-style rendering | Full GFM syntax / 完整 GFM 语法 |
+| Real-time preview | 100ms debounce / 输入即渲染 |
+| Code highlighting | 100+ languages, one-click copy / 100+ 语言，一键复制 |
+| LaTeX math | KaTeX, inline `$...$` and block `$$...$$` / 行内与块级公式 |
+| Mermaid diagrams | Flowcharts, sequence, gantt / 流程图、时序图、甘特图 |
+| Tables and task lists | GFM extensions / 扩展语法 |
+
+### Unique / 独有功能
+
+| Feature / 功能 | Description / 说明 |
+|----------------|---------------------|
+| Command palette | `Ctrl+K` fuzzy search / 模糊搜索执行命令 |
+| Outline navigation | Auto TOC sidebar / 自动大纲侧栏 |
+| Slide mode | Split by `---`, keyboard nav / 一键演示文稿 |
+| Clipboard image paste | Ctrl+V screenshot to Base64 / 粘贴截图 |
+| Find and replace | Full-text search and replace / 全文查找替换 |
+| Zen mode | Distraction-free writing / 专注写作模式 |
+| Save to file | `Ctrl+S` writes back to original file / 直接保存回原文件 |
+| Auto-save | localStorage backup / 浏览器自动保存 |
+| Resizable split | Drag divider / 拖动分隔条 |
 
 ### Export / 导出
 
-- **Markdown (.md)** — Plain text / 纯文本
-- **HTML (.html)** — Styled standalone page / 带样式的完整 HTML 页面
-- **PDF (.pdf)** — PDF document / PDF 文档
+- Markdown (.md) / HTML (.html) / PDF (.pdf)
 
 ---
 
@@ -100,36 +131,35 @@ python markvue.py -n               # No auto-open browser / 不自动打开浏�
 | `Ctrl+B` | Bold / 粗体 |
 | `Ctrl+I` | Italic / 斜体 |
 | `Ctrl+Shift+O` | Outline sidebar / 大纲侧栏 |
-| `Tab` | Insert indent / 插入缩进 |
-| Left / Right arrow | Navigate slides / 幻灯片翻页 |
-| `Esc` | Close dialog or exit slides / 退出弹窗或幻灯片 |
 
 ---
 
-## Build Standalone EXE / 打包为独立 EXE
+## Build EXE / 打包为 EXE
+
+### Requirements / 前提
+
+- Python 3.7+ (only needed to build; the EXE runs without Python)
+- Python 3.7+（仅构建时需要，EXE 运行无需 Python）
 
 ### Steps / 步骤
 
-1. Make sure **Python 3.7+** is installed. / 确保已安装 Python 3.7+。
-2. Double-click `Build EXE.bat`. / 双击 `Build EXE.bat`。
-3. Wait 1-2 minutes. The output appears at `dist/MarkVue.exe`. / 等待 1-2 分钟，生成于 `dist/MarkVue.exe`。
+1. Double-click `Build EXE.bat`. / 双击 `Build EXE.bat`。
+2. Wait 1-2 minutes. / 等待 1-2 分钟。
+3. Output: `dist/MarkVue.exe`. / 生成于 `dist/MarkVue.exe`。
 
-```
-dist/
-  MarkVue.exe    <-- standalone executable, no dependencies
-                     独立可执行文件，无任何依赖
-```
+### After building / 构建后
 
-### Using the EXE / 使用方式
+- Move `MarkVue.exe` to a permanent location (e.g. `C:\Tools\`).
+- Copy `Associate .md Files.bat` next to it and run it.
+- Now `.md` files open with MarkVue when double-clicked.
 
-- Double-click `MarkVue.exe` to launch. / 双击启动。
-- Drag a `.md` file onto `MarkVue.exe` to open it. / 拖放 `.md` 文件到图标上直接打开。
-- Copy it anywhere — single file, no extra dependencies. / 可复制到任意位置，单文件，无额外依赖。
-- The control panel provides buttons to open browser, minimize, and quit. / 控制面板支持打开浏览器、最小化、退出。
+- 将 `MarkVue.exe` 移动到固定位置（如 `C:\Tools\`）。
+- 把 `Associate .md Files.bat` 复制到旁边并运行。
+- 此后双击 `.md` 文件即可用 MarkVue 打开。
 
-The build only needs to be done once. The resulting EXE can be distributed to any Windows user who does not need Python installed.
+To undo the association, run `Remove File Association.bat`.
 
-打包只需执行一次，生成的 EXE 可以分发给任何 Windows 用户，对方不需要安装 Python。
+取消关联请运行 `Remove File Association.bat`。
 
 ---
 
@@ -137,31 +167,33 @@ The build only needs to be done once. The resulting EXE can be distributed to an
 
 ```
 MarkVue/
-  MarkVue.html          Core app (single file, open in browser)
-                        核心应用（单文件，双击即用）
-  Launch MarkVue.bat    Windows launcher (zero dependencies)
-                        Windows 启动器（零依赖）
-  markvue.py            Python server mode (optional)
-                        Python 服务器模式（可选）
-  markvue_app.py        Desktop app source for EXE packaging
-                        EXE 打包用的桌面应用源码
-  Build EXE.bat         One-click EXE build script
-                        一键构建 EXE 的脚本
-  README.md             This file / 本文件
+  MarkVue.html                Core app (single file, browser-ready)
+                              核心应用（单文件，浏览器直接打开）
+  Launch MarkVue.bat          Windows launcher (zero dependencies)
+                              Windows 启动器（零依赖）
+  markvue.py                  Python server mode (optional)
+                              Python 服务器模式（可选）
+  markvue_app.py              Source for EXE packaging
+                              EXE 打包源码
+  Build EXE.bat               Build standalone EXE
+                              一键构建 EXE
+  Associate .md Files.bat     Set MarkVue as default for .md
+                              将 MarkVue 设为 .md 默认程序
+  Remove File Association.bat Undo the association
+                              取消文件关联
+  README.md                   This file / 本文件
 ```
 
 ---
 
 ## Tech Stack / 技术栈
 
-- **Runtime**: Single HTML file, opens directly in any browser / 单个 HTML 文件，浏览器直接打开
-- **Markdown**: [Marked.js](https://marked.js.org/)
-- **Code highlighting**: [highlight.js](https://highlightjs.org/)
-- **Math**: [KaTeX](https://katex.org/)
-- **Diagrams**: [Mermaid](https://mermaid-js.github.io/)
-- **Sanitization**: [DOMPurify](https://github.com/cure53/DOMPurify)
-- **PDF export**: html2canvas + jsPDF
-- **Fonts**: Playfair Display, DM Sans, Fira Code, Noto Sans SC
+- Markdown: Marked.js
+- Code highlighting: highlight.js
+- Math: KaTeX
+- Diagrams: Mermaid
+- Sanitization: DOMPurify
+- PDF export: html2canvas + jsPDF
 
 ---
 

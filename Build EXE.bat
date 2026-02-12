@@ -1,136 +1,134 @@
 @echo off
 title MarkVue - Build EXE
+chcp 65001 >nul 2>&1
 
 echo.
 echo   ========================================
 echo       MarkVue EXE Builder
-echo       Build a standalone executable
 echo   ========================================
 echo.
 
-:: ===== Locate script directory =====
 set "DIR=%~dp0"
-echo   [INFO] Working directory: %DIR%
-echo.
 
-:: ===== Check Python =====
-set PYTHON=
-where python >nul 2>&1
-if %errorlevel% equ 0 set PYTHON=python
-if defined PYTHON goto :found_python
+:: ===== Find Python =====
+set "PY="
+python --version >nul 2>&1
+if %errorlevel% equ 0 (
+    set "PY=python"
+    goto :found_py
+)
+py -3 --version >nul 2>&1
+if %errorlevel% equ 0 (
+    set "PY=py -3"
+    goto :found_py
+)
 
-where py >nul 2>&1
-if %errorlevel% equ 0 set PYTHON=py
-if defined PYTHON goto :found_python
-
-echo   [ERROR] Python not found!
-echo.
-echo   Please install Python 3.7+ first:
-echo   https://www.python.org/downloads/
-echo   Make sure to check "Add Python to PATH"
+echo   [ERROR] Python 3 not found.
+echo   Install from https://www.python.org/downloads/
+echo   Check "Add Python to PATH" during install.
 echo.
 pause
 exit /b 1
 
-:found_python
+:found_py
 echo   [OK] Python found:
-%PYTHON% --version
+%PY% --version
 echo.
 
-:: ===== Check MarkVue.html =====
-echo   [INFO] Looking for: %DIR%MarkVue.html
-if not exist "%DIR%MarkVue.html" goto :no_html
+:: ===== Check files =====
+if not exist "%DIR%MarkVue.html" (
+    echo   [ERROR] MarkVue.html not found in:
+    echo          %DIR%
+    echo.
+    pause
+    exit /b 1
+)
 echo   [OK] MarkVue.html found
-goto :check_app
 
-:no_html
-echo   [ERROR] MarkVue.html not found!
-echo   Please put all files in the same folder:
-echo     - MarkVue.html
-echo     - markvue_app.py
-echo     - Build EXE.bat
-echo.
-pause
-exit /b 1
-
-:check_app
-:: ===== Check markvue_app.py =====
-echo   [INFO] Looking for: %DIR%markvue_app.py
-if not exist "%DIR%markvue_app.py" goto :no_app
+if not exist "%DIR%markvue_app.py" (
+    echo   [ERROR] markvue_app.py not found in:
+    echo          %DIR%
+    echo.
+    pause
+    exit /b 1
+)
 echo   [OK] markvue_app.py found
 echo.
-goto :install_pyinstaller
 
-:no_app
-echo   [ERROR] markvue_app.py not found!
-echo.
-pause
-exit /b 1
-
-:install_pyinstaller
 :: ===== Install PyInstaller =====
+echo   [1/3] Checking PyInstaller...
+%PY% -m PyInstaller --version >nul 2>&1
+if %errorlevel% equ 0 (
+    echo   [OK] PyInstaller already installed
+    goto :do_build
+)
+
 echo   [1/3] Installing PyInstaller...
-%PYTHON% -m pip install pyinstaller --quiet --disable-pip-version-check
-if %errorlevel% neq 0 goto :try_pip_user
-echo   [OK] PyInstaller ready
-echo.
-goto :build
+%PY% -m pip install pyinstaller --quiet --disable-pip-version-check 2>nul
+if %errorlevel% equ 0 goto :pip_ok
 
-:try_pip_user
-echo   [WARN] Retrying with --user flag...
-%PYTHON% -m pip install pyinstaller --user --quiet
-if %errorlevel% neq 0 goto :pip_fail
-echo   [OK] PyInstaller ready
-echo.
-goto :build
+echo   [WARN] Retrying with --user ...
+%PY% -m pip install pyinstaller --user --quiet 2>nul
+if %errorlevel% equ 0 goto :pip_ok
 
-:pip_fail
-echo   [ERROR] Failed to install PyInstaller.
-echo   Please run manually: pip install pyinstaller
+echo   [ERROR] Cannot install PyInstaller.
+echo   Run manually:  pip install pyinstaller
 echo.
 pause
 exit /b 1
 
-:build
-:: ===== Build EXE =====
-echo   [2/3] Building EXE (this may take 1-2 minutes)...
+:pip_ok
+echo   [OK] PyInstaller installed
+echo.
+
+:do_build
+:: ===== Clean previous build =====
+echo   [2/3] Building EXE (may take 1~2 minutes)...
 echo.
 
 cd /d "%DIR%"
 
-%PYTHON% -m PyInstaller --onefile --windowed --name "MarkVue" --add-data "MarkVue.html;." --clean --noconfirm markvue_app.py
+:: Remove old build artifacts to avoid conflicts
+if exist "%DIR%build" rmdir /s /q "%DIR%build" >nul 2>&1
+if exist "%DIR%dist\MarkVue.exe" del /q "%DIR%dist\MarkVue.exe" >nul 2>&1
+
+:: Run PyInstaller
+%PY% -m PyInstaller ^
+    --onefile ^
+    --windowed ^
+    --name MarkVue ^
+    --add-data "MarkVue.html;." ^
+    --clean ^
+    --noconfirm ^
+    markvue_app.py
 
 echo.
 
-:: ===== Check result =====
-if exist "%DIR%dist\MarkVue.exe" goto :success
-goto :build_fail
+:: ===== Verify =====
+if not exist "%DIR%dist\MarkVue.exe" (
+    echo   [ERROR] Build failed. Check errors above.
+    echo.
+    echo   Common fixes:
+    echo     1. Close any running MarkVue.exe first
+    echo     2. Run:  pip install --upgrade pyinstaller
+    echo     3. Temporarily disable antivirus
+    echo.
+    pause
+    exit /b 1
+)
 
-:success
 echo   ========================================
-echo       BUILD SUCCESSFUL!
+echo       BUILD SUCCESSFUL
 echo   ========================================
 echo.
-echo   [3/3] EXE location:
+echo   [3/3] Output:
 echo         %DIR%dist\MarkVue.exe
 echo.
-echo   How to use:
-echo     - Double-click MarkVue.exe to launch
-echo     - Drag .md files onto MarkVue.exe to open them
-echo     - Single file, no dependencies needed
+echo   Next steps:
+echo     1. Double-click MarkVue.exe to launch
+echo     2. Drag .md files onto MarkVue.exe to open them
+echo     3. Run "Associate .md Files.bat" to set as default app
 echo.
+
 explorer "%DIR%dist"
-goto :done
-
-:build_fail
-echo   [ERROR] Build failed!
-echo   Check the error messages above.
-echo.
-echo   Common fixes:
-echo   1. Make sure Python 3.7+ is properly installed
-echo   2. Run: pip install pyinstaller
-echo   3. Restart terminal and try again
-echo.
-
-:done
 pause

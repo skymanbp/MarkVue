@@ -5,11 +5,6 @@ MarkVue - Local Markdown Viewer (Server Mode)
 Optional Python launcher with local HTTP server.
 Without Python, just double-click MarkVue.html.
 
-Server mode benefits:
-  - Open .md files from command line
-  - Save files back to disk (Ctrl+S)
-  - Better font loading & caching
-
 Usage:
     python markvue.py                  # Launch
     python markvue.py README.md        # Open a file
@@ -32,7 +27,7 @@ from pathlib import Path
 from functools import partial
 
 APP_NAME = "MarkVue"
-VERSION = "2.1.0"
+VERSION = "2.2.0"
 DEFAULT_PORT = 8899
 SCRIPT_DIR = Path(__file__).parent.resolve()
 HTML_FILE = SCRIPT_DIR / "MarkVue.html"
@@ -50,7 +45,7 @@ def banner(port, filepath=None):
   {C.G}OK{C.E} Server running
   {C.G}OK{C.E} URL: {C.BD}http://localhost:{port}{C.E}""")
     if filepath:
-        print(f"  {C.B}>>>{C.E} File: {C.BD}{os.path.basename(filepath)}{C.E}")
+        print(f"  {C.B}>>{C.E} File: {C.BD}{os.path.basename(filepath)}{C.E}")
     print(f"  {C.DM}   Press Ctrl+C to stop{C.E}\n")
 
 
@@ -60,68 +55,67 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
+        path = urllib.parse.urlparse(self.path).path
 
-        # API: initial file content + path
-        if parsed.path == '/api/initial-file':
-            if self.initial_file and os.path.exists(self.initial_file):
+        if path == '/api/initial-file':
+            if self.initial_file and os.path.isfile(self.initial_file):
                 try:
-                    with open(self.initial_file, 'r', encoding='utf-8') as f:
+                    with open(self.initial_file, 'r', encoding='utf-8', errors='replace') as f:
                         content = f.read()
-                    data = json.dumps({
+                    self._json(200, {
                         'content': content,
                         'filename': os.path.basename(self.initial_file),
                         'path': os.path.abspath(self.initial_file),
                     })
-                    self._json_response(200, data)
-                    return
                 except Exception as e:
-                    self.send_error(500, str(e))
-                    return
+                    self._json(500, {'error': str(e)})
+                return
             self.send_response(204)
             self.end_headers()
             return
 
-        if parsed.path in ('/', '/index.html'):
+        if path in ('/', '/index.html'):
             self.path = '/' + HTML_FILE.name
-
         super().do_GET()
 
     def do_POST(self):
-        parsed = urllib.parse.urlparse(self.path)
+        path = urllib.parse.urlparse(self.path).path
 
-        # API: save file
-        if parsed.path == '/api/save':
+        if path == '/api/save':
             try:
                 length = int(self.headers.get('Content-Length', 0))
                 body = json.loads(self.rfile.read(length).decode('utf-8'))
                 filepath = body.get('path', '')
                 content = body.get('content', '')
 
-                # Security: only allow saving to files that exist
-                # and are in accessible directories
-                if not filepath or not os.path.exists(filepath):
-                    self._json_response(400, json.dumps({'error': 'Invalid path'}))
+                if not filepath:
+                    self._json(400, {'error': 'No path'})
                     return
 
-                with open(filepath, 'w', encoding='utf-8') as f:
+                fp = os.path.abspath(filepath)
+                parent = os.path.dirname(fp)
+                if not os.path.isdir(parent):
+                    self._json(400, {'error': 'Parent directory does not exist'})
+                    return
+
+                with open(fp, 'w', encoding='utf-8', newline='') as f:
                     f.write(content)
 
-                self._json_response(200, json.dumps({'ok': True, 'path': filepath}))
-                print(f"  {C.G}>>>{C.E} Saved: {filepath}")
-                return
+                self._json(200, {'ok': True, 'path': fp})
+                print(f"  {C.G}>>{C.E} Saved: {fp}")
             except Exception as e:
-                self._json_response(500, json.dumps({'error': str(e)}))
-                return
+                self._json(500, {'error': str(e)})
+            return
 
         self.send_error(404)
 
-    def _json_response(self, code, data):
+    def _json(self, code, data):
+        body = json.dumps(data, ensure_ascii=False).encode('utf-8')
         self.send_response(code)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Content-Length', str(len(body)))
         self.end_headers()
-        self.wfile.write(data.encode('utf-8'))
+        self.wfile.write(body)
 
     def translate_path(self, path):
         path = urllib.parse.unquote(path.split('?', 1)[0].split('#', 1)[0]).strip('/')
@@ -137,7 +131,7 @@ def find_port(start):
     for p in range(start, start + 100):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('', p))
+                s.bind(('127.0.0.1', p))
                 return p
         except OSError:
             continue
@@ -147,42 +141,30 @@ def find_port(start):
 def serve(port, initial_file=None):
     handler = partial(Handler, initial_file=initial_file, directory=str(SCRIPT_DIR))
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", port), handler) as httpd:
+    with socketserver.TCPServer(("127.0.0.1", port), handler) as httpd:
         httpd.serve_forever()
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description=f'{APP_NAME} v{VERSION} - Local Markdown Viewer',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python markvue.py                  Launch MarkVue
-  python markvue.py README.md        Open and preview README.md
-  python markvue.py --port 3000      Use port 3000
-  python markvue.py -n               Don't auto-open browser
-        """)
+    parser = argparse.ArgumentParser(description=f'{APP_NAME} v{VERSION}')
     parser.add_argument('file', nargs='?', help='Markdown file to open')
     parser.add_argument('--port', '-p', type=int, default=DEFAULT_PORT)
     parser.add_argument('--no-browser', '-n', action='store_true')
     args = parser.parse_args()
 
     if not HTML_FILE.exists():
-        print(f"{C.Y}ERROR: {HTML_FILE.name} not found. Keep it next to this script.{C.E}")
+        print(f"ERROR: {HTML_FILE.name} not found next to this script.")
         sys.exit(1)
 
     initial_file = None
     if args.file:
         fp = Path(args.file).resolve()
         if not fp.exists():
-            print(f"{C.Y}ERROR: File not found: {args.file}{C.E}")
+            print(f"ERROR: File not found: {args.file}")
             sys.exit(1)
         initial_file = str(fp)
 
     port = find_port(args.port)
-    if port != args.port:
-        print(f"{C.Y}WARN: Port {args.port} busy, using {port}{C.E}")
-
     banner(port, initial_file)
 
     t = threading.Thread(target=serve, args=(port, initial_file), daemon=True)
@@ -192,17 +174,13 @@ Examples:
     if not args.no_browser:
         webbrowser.open(url)
 
-    def shutdown(sig, frame):
-        print(f"\n  {C.DM}Shutting down...{C.E}")
-        sys.exit(0)
-
-    signal.signal(signal.SIGINT, shutdown)
-    signal.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGINT, lambda s, f: sys.exit(0))
+    signal.signal(signal.SIGTERM, lambda s, f: sys.exit(0))
 
     try:
         t.join()
     except KeyboardInterrupt:
-        shutdown(None, None)
+        sys.exit(0)
 
 
 if __name__ == '__main__':
