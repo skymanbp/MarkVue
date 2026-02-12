@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarkVue</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+<!-- CDN libs (only external deps - all loaded async) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500;600&family=Playfair+Display:wght@600;700;800&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* =============================================
+   MARKVUE v2 — Editorial Developer Tool
+   Design: Moody dark meets refined editorial
+   ============================================= */
+
+:root {
+    --font-display: 'Playfair Display', 'Noto Sans SC', Georgia, serif;
+    --font-body: 'DM Sans', 'Noto Sans SC', sans-serif;
+    --font-mono: 'Fira Code', 'Consolas', monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-xs: 4px;
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --duration: 0.2s;
+}
+
+[data-theme="dark"] {
+    --bg-base: #0b0e14;
+    --bg-surface: #111621;
+    --bg-raised: #1a1f2e;
+    --bg-overlay: #222842;
+    --bg-editor: #0d1018;
+    --bg-preview: #111621;
+    --bg-toolbar: rgba(17, 22, 33, 0.92);
+    --bg-sidebar: #0e1219;
+    --bg-hover: rgba(255,255,255,0.05);
+    --bg-active: rgba(255,255,255,0.09);
+    --bg-selection: rgba(99, 179, 237, 0.18);
+    --border: rgba(255,255,255,0.06);
+    --border-strong: rgba(255,255,255,0.12);
+    --border-accent: rgba(99, 179, 237, 0.25);
+    --text-primary: #c9d1d9;
+    --text-heading: #e8edf3;
+    --text-secondary: #7d8590;
+    --text-muted: #484f58;
+    --accent: #63b3ed;
+    --accent-soft: rgba(99, 179, 237, 0.12);
+    --accent2: #c4b5fd;
+    --accent2-soft: rgba(196, 181, 253, 0.12);
+    --accent3: #86efac;
+    --success: #86efac;
+    --warning: #fbbf24;
+    --danger: #fca5a5;
+    --code-bg: #161d2d;
+    --scrollbar: rgba(255,255,255,0.08);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.6);
+    --shadow-glow: 0 0 40px rgba(99,179,237,0.06);
+    --gradient-divider: linear-gradient(180deg, transparent, var(--accent) 30%, var(--accent2) 70%, transparent);
+    --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+[data-theme="light"] {
+    --bg-base: #f8f9fc;
+    --bg-surface: #ffffff;
+    --bg-raised: #f0f2f5;
+    --bg-overlay: #e8eaef;
+    --bg-editor: #ffffff;
+    --bg-preview: #f8f9fc;
+    --bg-toolbar: rgba(255, 255, 255, 0.92);
+    --bg-sidebar: #f3f4f7;
+    --bg-hover: rgba(0,0,0,0.03);
+    --bg-active: rgba(0,0,0,0.06);
+    --bg-selection: rgba(37, 99, 235, 0.1);
+    --border: rgba(0,0,0,0.06);
+    --border-strong: rgba(0,0,0,0.12);
+    --border-accent: rgba(37, 99, 235, 0.2);
+    --text-primary: #24292f;
+    --text-heading: #1a1f25;
+    --text-secondary: #57606a;
+    --text-muted: #8b949e;
+    --accent: #2563eb;
+    --accent-soft: rgba(37, 99, 235, 0.08);
+    --accent2: #7c3aed;
+    --accent2-soft: rgba(124, 58, 237, 0.08);
+    --accent3: #059669;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --code-bg: #f0f3f6;
+    --scrollbar: rgba(0,0,0,0.1);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+    --shadow-glow: 0 0 40px rgba(37,99,235,0.04);
+    --gradient-divider: linear-gradient(180deg, transparent, var(--accent) 30%, var(--accent2) 70%, transparent);
+    --noise: none;
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: var(--font-body);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    transition: background 0.35s var(--ease), color 0.35s var(--ease);
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--noise);
+    pointer-events: none;
+    z-index: 99999;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 3px; }
+
+::selection { background: var(--bg-selection); }
+
+/* ===== App Shell ===== */
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* ===== Toolbar ===== */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 48px;
+    min-height: 48px;
+    background: var(--bg-toolbar);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    user-select: none;
+}
+
+.toolbar-section { display: flex; align-items: center; gap: 4px; }
+.toolbar-section.center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+    cursor: default;
+}
+
+.logo-mark {
+    width: 26px; height: 26px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 6px;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 13px; color: #fff;
+    font-family: var(--font-display);
+    letter-spacing: -0.5px;
+}
+
+.logo-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    color: var(--text-heading);
+}
+
+.sep { width:1px; height:20px; background: var(--border); margin: 0 6px; }
+
+/* Buttons */
+.tb { 
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; font: 500 12px var(--font-body);
+    color: var(--text-secondary); background: none; border: none;
+    border-radius: var(--radius-xs); cursor: pointer;
+    transition: all var(--duration) var(--ease);
+    white-space: nowrap; position: relative;
+}
+.tb:hover { background: var(--bg-hover); color: var(--text-primary); }
+.tb.active { background: var(--accent-soft); color: var(--accent); }
+.tb svg { width:15px; height:15px; flex-shrink:0; }
+.tb-icon { padding: 6px; }
+
+/* Tooltip */
+.tb[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute; bottom: -30px; left: 50%;
+    transform: translateX(-50%) scale(0.9);
+    padding: 3px 8px; font-size: 10px; white-space: nowrap;
+    background: var(--bg-overlay); color: var(--text-primary);
+    border-radius: var(--radius-xs); border: 1px solid var(--border);
+    opacity: 0; pointer-events: none;
+    transition: all 0.15s var(--ease);
+    z-index: 1000;
+}
+.tb[data-tip]:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
+
+/* Dropdown */
+.dropdown { position: relative; }
+.dd-menu {
+    position: absolute; top: calc(100% + 4px); right: 0;
+    background: var(--bg-surface); border: 1px solid var(--border-strong);
+    border-radius: var(--radius); padding: 4px;
+    min-width: 190px; box-shadow: var(--shadow-lg);
+    opacity: 0; visibility: hidden; transform: translateY(-6px) scale(0.97);
+    transition: all 0.18s var(--ease); z-index: 200;
+}
+.dropdown.open .dd-menu { opacity:1; visibility:visible; transform:translateY(0) scale(1); }
+.dd-item {
+    display:flex; align-items:center; gap:10px;
+    padding:8px 12px; font:13px var(--font-body);
+    color: var(--text-secondary); border-radius: var(--radius-xs);
+    cursor:pointer; border:none; background:none; width:100%;
+    transition: all var(--duration) var(--ease);
+}
+.dd-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.dd-item svg { width:14px; height:14px; opacity:0.5; }
+.dd-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.dd-item .shortcut { margin-left:auto; font:11px var(--font-mono); color:var(--text-muted); }
+
+/* ===== Main Layout ===== */
+.main-wrap { flex:1; display:flex; overflow:hidden; position:relative; }
+
+/* Outline Sidebar */
+.outline-sidebar {
+    width: 0; overflow: hidden;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    transition: width 0.3s var(--ease);
+    display: flex; flex-direction: column;
+}
+.outline-sidebar.open { width: 240px; }
+
+.outline-header {
+    padding: 12px 16px;
+    font: 600 11px var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+}
+
+.outline-list {
+    flex: 1; overflow-y: auto; padding: 8px;
+    list-style: none;
+}
+
+.outline-item {
+    display: block; width: 100%;
+    padding: 5px 10px; margin: 1px 0;
+    font-size: 12px; color: var(--text-secondary);
+    background: none; border: none; border-radius: var(--radius-xs);
+    cursor: pointer; text-align: left;
+    transition: all var(--duration) var(--ease);
+    text-overflow: ellipsis; white-space: nowrap; overflow: hidden;
+    border-left: 2px solid transparent;
+    font-family: var(--font-body);
+}
+.outline-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.outline-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+.outline-item[data-level="2"] { padding-left: 22px; }
+.outline-item[data-level="3"] { padding-left: 34px; font-size: 11px; }
+.outline-item[data-level="4"] { padding-left: 46px; font-size: 11px; }
+
+/* Editor / Preview Panes */
+.pane {
+    flex: 1; display: flex; flex-direction: column;
+    min-width: 0; position: relative;
+}
+.pane.editor-pane { background: var(--bg-editor); }
+.pane.preview-pane { background: var(--bg-preview); }
+
+.pane-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 14px; height: 34px; min-height: 34px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+}
+
+.pane-label {
+    font: 600 10px var(--font-body);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 6px;
+}
+
+.pane-actions { display:flex; align-items:center; gap:2px; }
+.pane-btn {
+    padding:3px 7px; font:500 10px var(--font-body);
+    color:var(--text-muted); background:none; border:none;
+    border-radius:var(--radius-xs); cursor:pointer;
+    transition:all var(--duration) var(--ease);
+    display:flex; align-items:center; gap:4px;
+}
+.pane-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
+
+/* Formatting Toolbar */
+.format-bar {
+    display: flex; align-items: center; gap: 1px;
+    padding: 4px 14px; border-bottom: 1px solid var(--border);
+    background: var(--bg-surface); flex-wrap: wrap;
+    height: 32px; min-height: 32px;
+}
+
+.fmt-btn {
+    padding: 4px 7px; background: none; border: none;
+    color: var(--text-muted); border-radius: var(--radius-xs);
+    cursor: pointer; transition: all var(--duration) var(--ease);
+    font: 13px var(--font-mono); display: grid; place-items: center;
+    min-width: 26px; height: 24px;
+}
+.fmt-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.fmt-sep { width:1px; height:16px; background:var(--border); margin:0 4px; }
+
+/* Editor textarea */
+#editor {
+    flex:1; width:100%; padding:20px 24px;
+    font: 14px/1.75 var(--font-mono);
+    color: var(--text-primary); background: transparent;
+    border:none; outline:none; resize:none;
+    tab-size:4; -moz-tab-size:4;
+    overflow-y: auto;
+}
+#editor::placeholder { color: var(--text-muted); }
+
+/* Divider */
+.divider {
+    width: 2px; cursor: col-resize;
+    background: var(--gradient-divider);
+    flex-shrink: 0; position: relative;
+    transition: width 0.15s ease; z-index: 10;
+    opacity: 0.5;
+}
+.divider:hover, .divider.dragging { width: 4px; opacity: 1; }
+.divider::after { content:''; position:absolute; inset:-2px -5px; }
+
+/* Preview */
+#preview-scroll {
+    flex:1; padding:28px 36px; overflow-y:auto; overflow-x:hidden;
+}
+
+/* ===== Status Bar ===== */
+.statusbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 14px; height:24px; min-height:24px;
+    background:var(--bg-surface); border-top:1px solid var(--border);
+    font:11px var(--font-mono); color:var(--text-muted);
+}
+.sb-group { display:flex; align-items:center; gap:14px; }
+.sb-item { display:flex; align-items:center; gap:4px; }
+.sb-dot { width:5px; height:5px; border-radius:50%; background:var(--success); }
+.sb-saved { color:var(--success); }
+
+/* ===== Markdown Body ===== */
+.md-body {
+    font: 15px/1.8 var(--font-body);
+    color: var(--text-primary);
+    word-wrap: break-word;
+}
+.md-body h1,.md-body h2,.md-body h3,.md-body h4,.md-body h5,.md-body h6 {
+    font-family: var(--font-display);
+    font-weight: 700; line-height:1.3;
+    margin:32px 0 16px; color: var(--text-heading);
+    letter-spacing:-0.02em;
+    scroll-margin-top: 20px;
+}
+.md-body h1 { font-size:2.1em; padding-bottom:12px; border-bottom:2px solid var(--border); }
+.md-body h2 { font-size:1.6em; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.md-body h3 { font-size:1.3em; }
+.md-body h4 { font-size:1.1em; font-family:var(--font-body); }
+.md-body p { margin-bottom:16px; }
+.md-body a { color:var(--accent); text-decoration:none; transition:opacity 0.15s; }
+.md-body a:hover { opacity:0.8; text-decoration:underline; }
+.md-body strong { font-weight:600; color:var(--text-heading); }
+.md-body blockquote {
+    margin:0 0 16px; padding:10px 20px;
+    border-left:3px solid var(--accent);
+    background:var(--accent-soft); border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+    color:var(--text-secondary);
+}
+.md-body blockquote p:last-child { margin-bottom:0; }
+.md-body code {
+    font:0.88em var(--font-mono);
+    padding:2px 7px; background:var(--code-bg);
+    border-radius:4px; color:var(--accent2);
+}
+.md-body pre {
+    margin:0 0 16px; background:var(--code-bg);
+    border-radius:var(--radius); border:1px solid var(--border);
+    overflow:hidden; position:relative;
+}
+.md-body pre code {
+    display:block; padding:18px 20px;
+    background:transparent; color:var(--text-primary);
+    font-size:13px; line-height:1.65; overflow-x:auto;
+    border-radius:0;
+}
+.code-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:6px 14px; background:var(--bg-active);
+    border-bottom:1px solid var(--border);
+    font:500 11px var(--font-mono); color:var(--text-muted);
+}
+.copy-btn {
+    padding:2px 8px; font:11px var(--font-body);
+    color:var(--text-muted); background:none;
+    border:1px solid var(--border); border-radius:var(--radius-xs);
+    cursor:pointer; transition:all var(--duration) var(--ease);
+}
+.copy-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
+.copy-btn.copied { color:var(--success); border-color:var(--success); }
+
+.md-body ul,.md-body ol { padding-left:24px; margin-bottom:16px; }
+.md-body li { margin-bottom:4px; }
+.md-body table { width:100%; border-collapse:collapse; margin:0 0 16px; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.md-body thead tr { background:var(--bg-active); }
+.md-body th,.md-body td { padding:9px 14px; border:1px solid var(--border); text-align:left; font-size:13px; }
+.md-body th { font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.03em; font-size:11px; }
+.md-body tbody tr:hover { background:var(--bg-hover); }
+.md-body hr { border:none; height:1px; background:var(--border); margin:28px 0; }
+.md-body img { max-width:100%; border-radius:var(--radius); border:1px solid var(--border); }
+.md-body input[type="checkbox"] { margin-right:6px; accent-color:var(--accent); }
+.md-body .task-list-item { list-style:none; margin-left:-20px; }
+.md-body del { color:var(--text-muted); }
+.md-body mark { background:rgba(251,191,36,0.2); padding:1px 4px; border-radius:3px; }
+.mermaid { text-align:center; margin:16px 0; padding:20px; background:var(--bg-surface); border-radius:var(--radius); border:1px solid var(--border); }
+.katex-display { margin:16px 0; padding:16px; background:var(--bg-surface); border-radius:var(--radius); overflow-x:auto; }
+
+/* ===== View Modes ===== */
+.main-wrap.editor-only .preview-pane,
+.main-wrap.editor-only .divider { display:none; }
+.main-wrap.preview-only .editor-pane,
+.main-wrap.preview-only .divider { display:none; }
+
+/* ===== Welcome ===== */
+.welcome {
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    height:100%; padding:40px; text-align:center;
+}
+.welcome-big { font:800 42px var(--font-display); color:var(--text-heading); margin-bottom:8px; letter-spacing:-0.03em; }
+.welcome-sub { color:var(--text-secondary); font-size:14px; line-height:1.7; max-width:340px; margin-bottom:24px; }
+.welcome kbd {
+    display:inline-block; padding:2px 7px;
+    font:11px var(--font-mono); background:var(--bg-active);
+    border:1px solid var(--border-strong); border-radius:var(--radius-xs);
+    color:var(--text-secondary);
+}
+
+/* ===== Command Palette ===== */
+.cmd-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(8px); z-index:9000;
+    display:flex; align-items:flex-start; justify-content:center;
+    padding-top:18vh;
+    opacity:0; visibility:hidden; transition:all 0.2s var(--ease);
+}
+.cmd-overlay.open { opacity:1; visibility:visible; }
+
+.cmd-box {
+    width:520px; background:var(--bg-surface);
+    border:1px solid var(--border-strong);
+    border-radius:var(--radius); box-shadow:var(--shadow-lg);
+    overflow:hidden;
+    transform:translateY(-12px) scale(0.97);
+    transition:all 0.2s var(--ease);
+}
+.cmd-overlay.open .cmd-box { transform:translateY(0) scale(1); }
+
+.cmd-input-wrap {
+    display:flex; align-items:center; gap:10px;
+    padding:14px 16px; border-bottom:1px solid var(--border);
+}
+.cmd-input-wrap svg { width:18px; height:18px; color:var(--text-muted); flex-shrink:0; }
+#cmd-input {
+    flex:1; font:14px var(--font-body);
+    color:var(--text-primary); background:none; border:none; outline:none;
+}
+#cmd-input::placeholder { color:var(--text-muted); }
+
+.cmd-list {
+    max-height:320px; overflow-y:auto; padding:4px;
+}
+
+.cmd-item {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:var(--radius-sm);
+    cursor:pointer; transition:all 0.1s var(--ease);
+    font-size:13px; color:var(--text-secondary);
+}
+.cmd-item:hover,.cmd-item.selected { background:var(--bg-hover); color:var(--text-primary); }
+.cmd-item svg { width:15px; height:15px; opacity:0.5; flex-shrink:0; }
+.cmd-item .cmd-shortcut { margin-left:auto; font:11px var(--font-mono); color:var(--text-muted); }
+
+.cmd-footer {
+    padding:8px 16px; border-top:1px solid var(--border);
+    font:11px var(--font-mono); color:var(--text-muted);
+    display:flex; align-items:center; gap:12px;
+}
+
+/* ===== Slide / Presentation Mode ===== */
+.slide-overlay {
+    position:fixed; inset:0; background:var(--bg-base);
+    z-index:8000; display:flex; flex-direction:column;
+    opacity:0; visibility:hidden; transition:all 0.3s var(--ease);
+}
+.slide-overlay.open { opacity:1; visibility:visible; }
+
+.slide-toolbar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 24px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.slide-info { font:13px var(--font-body); color:var(--text-secondary); }
+.slide-counter { font:600 13px var(--font-mono); color:var(--accent); }
+
+.slide-viewport {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    padding:40px; overflow:hidden;
+}
+
+.slide-card {
+    width:100%; max-width:900px;
+    background:var(--bg-surface); border:1px solid var(--border);
+    border-radius:16px; padding:60px 72px;
+    box-shadow:var(--shadow-lg), var(--shadow-glow);
+    min-height:460px;
+    display:flex; flex-direction:column; justify-content:center;
+    animation:slideIn 0.35s var(--ease-spring);
+}
+
+@keyframes slideIn {
+    from { opacity:0; transform:translateX(30px); }
+    to { opacity:1; transform:translateX(0); }
+}
+
+.slide-card .md-body h1 { font-size:2.6em; border:none; margin-top:0; }
+.slide-card .md-body h2 { font-size:2em; border:none; }
+.slide-card .md-body { font-size:18px; }
+
+.slide-nav {
+    display:flex; align-items:center; justify-content:center;
+    gap:16px; padding:16px; flex-shrink:0;
+}
+
+.slide-nav-btn {
+    padding:10px 24px; font:500 13px var(--font-body);
+    color:var(--text-secondary); background:var(--bg-surface);
+    border:1px solid var(--border); border-radius:var(--radius);
+    cursor:pointer; transition:all var(--duration) var(--ease);
+}
+.slide-nav-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
+
+.slide-dots {
+    display:flex; align-items:center; gap:6px;
+}
+.slide-dot {
+    width:8px; height:8px; border-radius:50%;
+    background:var(--text-muted); border:none; cursor:pointer;
+    transition:all var(--duration) var(--ease); padding:0;
+}
+.slide-dot.active { background:var(--accent); transform:scale(1.3); }
+
+/* ===== Find & Replace ===== */
+.find-bar {
+    display:none; align-items:center; gap:8px;
+    padding:6px 14px; background:var(--bg-surface);
+    border-bottom:1px solid var(--border);
+}
+.find-bar.open { display:flex; }
+
+.find-input {
+    padding:4px 10px; font:13px var(--font-mono);
+    color:var(--text-primary); background:var(--bg-raised);
+    border:1px solid var(--border); border-radius:var(--radius-xs);
+    outline:none; width:200px;
+    transition: border-color var(--duration) var(--ease);
+}
+.find-input:focus { border-color:var(--accent); }
+
+.find-count { font:11px var(--font-mono); color:var(--text-muted); min-width:60px; }
+
+.find-btn {
+    padding:4px 8px; font:12px var(--font-body);
+    color:var(--text-muted); background:none; border:none;
+    border-radius:var(--radius-xs); cursor:pointer;
+    transition:all var(--duration) var(--ease);
+}
+.find-btn:hover { background:var(--bg-hover); color:var(--text-primary); }
+
+/* ===== Zen Mode ===== */
+.zen-mode .toolbar,
+.zen-mode .statusbar,
+.zen-mode .outline-sidebar,
+.zen-mode .pane-head,
+.zen-mode .format-bar,
+.zen-mode .find-bar,
+.zen-mode .divider,
+.zen-mode .preview-pane { display:none !important; }
+
+.zen-mode .editor-pane {
+    max-width:720px; margin:0 auto;
+}
+.zen-mode #editor {
+    padding:60px 40px; font-size:16px; line-height:2;
+}
+
+/* ===== Drag & Drop Overlay ===== */
+.drop-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    backdrop-filter:blur(10px); display:flex; align-items:center;
+    justify-content:center; z-index:9999;
+    opacity:0; visibility:hidden; transition:all 0.2s;
+}
+.drop-overlay.active { opacity:1; visibility:visible; }
+.drop-box {
+    padding:48px 56px; background:var(--bg-surface);
+    border:2px dashed var(--accent); border-radius:20px;
+    text-align:center; transform:scale(0.92);
+    transition:transform 0.3s var(--ease-spring);
+}
+.drop-overlay.active .drop-box { transform:scale(1); }
+.drop-title { font:700 20px var(--font-display); color:var(--text-heading); margin:12px 0 6px; }
+.drop-sub { font:14px var(--font-body); color:var(--text-secondary); }
+
+/* ===== Toast ===== */
+.toast-wrap {
+    position:fixed; bottom:40px; right:20px; z-index:10000;
+    display:flex; flex-direction:column; gap:6px;
+}
+.toast {
+    display:flex; align-items:center; gap:8px;
+    padding:10px 16px; background:var(--bg-surface);
+    border:1px solid var(--border-strong); border-radius:var(--radius);
+    box-shadow:var(--shadow-md); font-size:12px; color:var(--text-primary);
+    animation:toastIn 0.25s var(--ease) forwards;
+}
+.toast.out { animation:toastOut 0.2s var(--ease) forwards; }
+@keyframes toastIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(8px)} }
+
+/* ===== Animations ===== */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.app { animation:fadeIn 0.35s var(--ease); }
+
+/* ===== Save Indicator ===== */
+.save-dot {
+    width:8px; height:8px; border-radius:50%;
+    display:inline-block; margin-right:2px; flex-shrink:0;
+    transition: background 0.3s var(--ease);
+}
+.save-dot.clean { background:var(--success); }
+.save-dot.dirty { background:var(--warning); }
+.save-dot.no-file { background:var(--text-muted); }
+
+.tb .save-badge {
+    font:600 9px var(--font-mono);
+    padding:1px 4px; border-radius:3px; margin-left:2px;
+}
+.tb .save-badge.dirty {
+    background:rgba(251,191,36,0.2); color:var(--warning);
+}
+
+.sb-filepath {
+    max-width:300px; overflow:hidden;
+    text-overflow:ellipsis; white-space:nowrap;
+    cursor:pointer; opacity:0.7;
+    transition: opacity 0.15s;
+}
+.sb-filepath:hover { opacity:1; }
+
+/* ===== Hidden ===== */
+#file-input { display:none; }
+
+/* ===== Responsive ===== */
+@media(max-width:768px) {
+    .toolbar-section.center { display:none; }
+    #preview-scroll { padding:20px; }
+    .slide-card { padding:32px; }
+    .outline-sidebar.open { width:180px; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ===== Toolbar ===== -->
+<div class="toolbar">
+  <div class="toolbar-section">
+    <div class="logo">
+      <div class="logo-mark">Mv</div>
+      <span class="logo-name">MarkVue</span>
+    </div>
+    <div class="sep"></div>
+    <button class="tb" onclick="openFile()" data-tip="Ctrl+O">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="13 2 13 9 20 9"/></svg>
+      Open
+    </button>
+    <button class="tb" id="btn-save" onclick="saveFile()" data-tip="Ctrl+S">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save<span class="save-badge" id="save-badge"></span>
+    </button>
+    <div class="dropdown" id="dd-export">
+      <button class="tb" onclick="toggleDD('dd-export')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        导出
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="dd-menu">
+        <button class="dd-item" onclick="exportMD()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Markdown (.md)<span class="shortcut">⌘⇧S</span></button>
+        <button class="dd-item" onclick="exportHTML()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>HTML (.html)<span class="shortcut">⌘⇧E</span></button>
+        <button class="dd-item" onclick="exportPDF()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>PDF (.pdf)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar-section center">
+    <button class="tb tb-icon view-btn active" data-view="split" onclick="setView('split')" data-tip="分屏">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+    </button>
+    <button class="tb tb-icon view-btn" data-view="editor-only" onclick="setView('editor-only')" data-tip="编辑">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="13" y2="12"/><line x1="8" y1="16" x2="11" y2="16"/></svg>
+    </button>
+    <button class="tb tb-icon view-btn" data-view="preview-only" onclick="setView('preview-only')" data-tip="预览">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+  </div>
+
+  <div class="toolbar-section">
+    <button class="tb" id="btn-outline" onclick="toggleOutline()" data-tip="大纲 ⌘⇧O">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      大纲
+    </button>
+    <button class="tb" id="btn-sync" onclick="toggleSync()" data-tip="同步滚动">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+    </button>
+    <button class="tb" onclick="enterSlideMode()" data-tip="幻灯片模式">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    </button>
+    <div class="sep"></div>
+    <button class="tb tb-icon" onclick="toggleZen()" data-tip="禅模式">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5.11 5.11A9 9 0 1018.89 18.89 9 9 0 005.11 5.11z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+    </button>
+    <button class="tb tb-icon" onclick="toggleTheme()" data-tip="切换主题">
+      <svg id="ico-sun" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg id="ico-moon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    </button>
+    <button class="tb tb-icon" onclick="openCmdPalette()" data-tip="命令面板 ⌘K">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ===== Main Content ===== -->
+<div class="main-wrap" id="main">
+  <!-- Outline Sidebar -->
+  <div class="outline-sidebar" id="outline-sidebar">
+    <div class="outline-header">
+      <span>📑 目录大纲</span>
+      <button class="pane-btn" onclick="toggleOutline()">✕</button>
+    </div>
+    <ul class="outline-list" id="outline-list"></ul>
+  </div>
+
+  <!-- Editor Pane -->
+  <div class="pane editor-pane">
+    <div class="pane-head">
+      <span class="pane-label">✏️ Editor</span>
+      <div class="pane-actions">
+        <button class="pane-btn" onclick="toggleFindBar()" title="查找替换 Ctrl+F">🔍 查找</button>
+        <button class="pane-btn" onclick="copyMD()">📋 复制</button>
+        <button class="pane-btn" onclick="clearEditor()">🗑 清空</button>
+      </div>
+    </div>
+    <!-- Formatting Toolbar -->
+    <div class="format-bar" id="format-bar">
+      <button class="fmt-btn" onclick="fmt('**','**')" title="粗体 Ctrl+B"><b>B</b></button>
+      <button class="fmt-btn" onclick="fmt('*','*')" title="斜体 Ctrl+I"><i>I</i></button>
+      <button class="fmt-btn" onclick="fmt('~~','~~')" title="删除线"><s>S</s></button>
+      <button class="fmt-btn" onclick="fmt('`','`')" title="行内代码">&lt;/&gt;</button>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn" onclick="fmtLine('# ')" title="一级标题">H1</button>
+      <button class="fmt-btn" onclick="fmtLine('## ')" title="二级标题">H2</button>
+      <button class="fmt-btn" onclick="fmtLine('## ')" title="三级标题">H3</button>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn" onclick="fmtLine('- ')" title="无序列表">•</button>
+      <button class="fmt-btn" onclick="fmtLine('1. ')" title="有序列表">1.</button>
+      <button class="fmt-btn" onclick="fmtLine('- [ ] ')" title="任务列表">☐</button>
+      <button class="fmt-btn" onclick="fmtLine('> ')" title="引用">❝</button>
+      <div class="fmt-sep"></div>
+      <button class="fmt-btn" onclick="insertLink()" title="链接">🔗</button>
+      <button class="fmt-btn" onclick="insertImage()" title="图片">🖼</button>
+      <button class="fmt-btn" onclick="insertTable()" title="表格">▦</button>
+      <button class="fmt-btn" onclick="insertCodeBlock()" title="代码块">{ }</button>
+      <button class="fmt-btn" onclick="fmtLine('---')" title="分割线">—</button>
+    </div>
+    <!-- Find & Replace -->
+    <div class="find-bar" id="find-bar">
+      <input class="find-input" id="find-input" placeholder="查找..." oninput="doFind()">
+      <input class="find-input" id="replace-input" placeholder="替换..." style="width:160px">
+      <span class="find-count" id="find-count"></span>
+      <button class="find-btn" onclick="findNext()">下一个</button>
+      <button class="find-btn" onclick="findPrev()">上一个</button>
+      <button class="find-btn" onclick="doReplace()">替换</button>
+      <button class="find-btn" onclick="doReplaceAll()">全部替换</button>
+      <button class="find-btn" onclick="toggleFindBar()">✕</button>
+    </div>
+    <textarea id="editor" spellcheck="false" placeholder="在此输入 Markdown...&#10;&#10;按 Ctrl+K 打开命令面板&#10;按 Ctrl+F 查找替换&#10;可拖放 .md 文件&#10;可粘贴剪贴板图片"></textarea>
+  </div>
+
+  <!-- Divider -->
+  <div class="divider" id="divider"></div>
+
+  <!-- Preview Pane -->
+  <div class="pane preview-pane">
+    <div class="pane-head">
+      <span class="pane-label">👁 Preview</span>
+      <div class="pane-actions">
+        <button class="pane-btn" onclick="copyHTML()">📄 HTML</button>
+      </div>
+    </div>
+    <div id="preview-scroll">
+      <div class="welcome" id="welcome">
+        <div class="welcome-big">MarkVue</div>
+        <div class="welcome-sub">
+          在左侧输入 Markdown，或拖入 <kbd>.md</kbd> 文件。<br>
+          按 <kbd>Ctrl+K</kbd> 打开命令面板探索所有功能。
+        </div>
+      </div>
+      <div class="md-body" id="preview-body" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="statusbar">
+  <div class="sb-group">
+    <span class="sb-item"><span class="save-dot no-file" id="sb-dot"></span></span>
+    <span class="sb-item" id="sb-file">Untitled</span>
+    <span class="sb-item sb-filepath" id="sb-path" title="" onclick="copyFilePath()" style="display:none"></span>
+    <span class="sb-item sb-saved" id="sb-autosave" style="display:none">auto-saved</span>
+  </div>
+  <div class="sb-group">
+    <span class="sb-item" id="sb-words">0 词</span>
+    <span class="sb-item" id="sb-chars">0 字符</span>
+    <span class="sb-item" id="sb-lines">0 行</span>
+    <span class="sb-item" id="sb-read">~0 min</span>
+  </div>
+</div>
+</div>
+
+<!-- ===== Command Palette ===== -->
+<div class="cmd-overlay" id="cmd-overlay" onclick="if(event.target===this)closeCmdPalette()">
+  <div class="cmd-box">
+    <div class="cmd-input-wrap">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="cmd-input" placeholder="输入命令或搜索..." autocomplete="off">
+    </div>
+    <div class="cmd-list" id="cmd-list"></div>
+    <div class="cmd-footer">
+      <span>↑↓ 导航</span><span>↵ 执行</span><span>Esc 关闭</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Slide Mode ===== -->
+<div class="slide-overlay" id="slide-overlay">
+  <div class="slide-toolbar">
+    <div class="slide-info">
+      <span class="slide-counter" id="slide-counter">1 / 1</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="tb" onclick="exitSlideMode()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        退出
+      </button>
+    </div>
+  </div>
+  <div class="slide-viewport">
+    <div class="slide-card">
+      <div class="md-body" id="slide-content"></div>
+    </div>
+  </div>
+  <div class="slide-nav">
+    <button class="slide-nav-btn" onclick="slideNav(-1)">← 上一页</button>
+    <div class="slide-dots" id="slide-dots"></div>
+    <button class="slide-nav-btn" onclick="slideNav(1)">下一页 →</button>
+  </div>
+</div>
+
+<!-- Overlays -->
+<div class="drop-overlay" id="drop-overlay">
+  <div class="drop-box">
+    <div style="font-size:48px">📂</div>
+    <div class="drop-title">释放以打开文件</div>
+    <div class="drop-sub">支持 .md .markdown .txt</div>
+  </div>
+</div>
+<div class="toast-wrap" id="toast-wrap"></div>
+<input type="file" id="file-input" accept=".md,.markdown,.txt,.text">
+
+<script>
+// ==========================================================
+// MARKVUE v2 — Application Logic
+// ==========================================================
+
+// ===== State =====
+const S = {
+    syncScroll: true,
+    view: 'split',
+    filename: 'Untitled',
+    zen: false,
+    outlineOpen: false,
+    slides: [],
+    slideIdx: 0,
+    findMatches: [],
+    findIdx: -1,
+    autosaveTimer: null,
+    renderTimer: null,
+    scrollLock: false,
+    // === File Save ===
+    fileHandle: null,       // File System Access API handle (Chrome/Edge)
+    serverFilePath: null,   // File path when opened via Python server
+    dirty: false,           // Has unsaved changes?
+    savedContent: '',       // Content at last save, for dirty detection
+};
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', () => {
+    initMarked();
+    initMermaid();
+    initEditor();
+    initDivider();
+    initDragDrop();
+    initKeyboard();
+    initPasteImage();
+    initCmdPalette();
+    loadAutoSave();
+    updateSyncBtn();
+});
+
+// ===== Marked =====
+function initMarked() {
+    const r = new marked.Renderer();
+    r.code = function(code, lang) {
+        if (typeof code === 'object') { lang = code.lang; code = code.text; }
+        if (lang === 'mermaid') return `<div class="mermaid">${esc(code)}</div>`;
+        const l = lang || 'text';
+        const h = lang && hljs.getLanguage(lang)
+            ? hljs.highlight(code, {language:lang}).value
+            : hljs.highlightAuto(code).value;
+        return `<pre><div class="code-head"><span>${l}</span><button class="copy-btn" onclick="copyCode(this)">复制</button></div><code class="hljs language-${l}">${h}</code></pre>`;
+    };
+    r.listitem = function(text) {
+        if (typeof text === 'object' && text.tokens) {
+            let c = '';
+            for (const t of text.tokens) c += t.raw || t.text || '';
+            text = c;
+        }
+        if (typeof text === 'string' && /^\s*\[[ x]\]/.test(text)) {
+            const chk = text.includes('[x]');
+            const ct = text.replace(/^\s*\[[ x]\]\s*/, '');
+            return `<li class="task-list-item"><input type="checkbox" ${chk?'checked':''} disabled> ${ct}</li>`;
+        }
+        return `<li>${text}</li>`;
+    };
+    // Add IDs to headings for outline navigation
+    let headingIdx = 0;
+    r.heading = function(text, level) {
+        if (typeof text === 'object') { level = text.depth; text = text.text; }
+        const id = 'heading-' + (headingIdx++);
+        return `<h${level} id="${id}">${text}</h${level}>`;
+    };
+    marked.setOptions({ renderer:r, gfm:true, breaks:true });
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function initMermaid() {
+    const t = document.documentElement.getAttribute('data-theme');
+    mermaid.initialize({ startOnLoad:false, theme:t==='dark'?'dark':'default', securityLevel:'loose' });
+}
+
+// ===== Editor =====
+function initEditor() {
+    const ed = $('editor');
+    ed.addEventListener('input', () => {
+        clearTimeout(S.renderTimer);
+        S.renderTimer = setTimeout(render, 100);
+        scheduleAutoSave();
+        markDirty();
+    });
+    ed.addEventListener('keydown', e => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const s = ed.selectionStart, end = ed.selectionEnd;
+            ed.value = ed.value.substring(0,s) + '    ' + ed.value.substring(end);
+            ed.selectionStart = ed.selectionEnd = s + 4;
+            render();
+        }
+        // Ctrl+B bold
+        if ((e.ctrlKey||e.metaKey) && e.key === 'b') { e.preventDefault(); fmt('**','**'); }
+        // Ctrl+I italic
+        if ((e.ctrlKey||e.metaKey) && e.key === 'i') { e.preventDefault(); fmt('*','*'); }
+    });
+    // Sync scroll
+    ed.addEventListener('scroll', () => {
+        if (!S.syncScroll || S.scrollLock) return;
+        S.scrollLock = true;
+        const p = $('preview-scroll');
+        const ratio = ed.scrollTop / (ed.scrollHeight - ed.clientHeight || 1);
+        p.scrollTop = ratio * (p.scrollHeight - p.clientHeight);
+        setTimeout(() => S.scrollLock = false, 40);
+    });
+    $('preview-scroll').addEventListener('scroll', () => {
+        if (!S.syncScroll || S.scrollLock) return;
+        S.scrollLock = true;
+        const p = $('preview-scroll');
+        const ratio = p.scrollTop / (p.scrollHeight - p.clientHeight || 1);
+        ed.scrollTop = ratio * (ed.scrollHeight - ed.clientHeight);
+        setTimeout(() => S.scrollLock = false, 40);
+    });
+}
+
+// ===== Render =====
+async function render() {
+    const ed = $('editor'), content = ed.value;
+    const welcome = $('welcome'), body = $('preview-body');
+
+    if (!content.trim()) {
+        welcome.style.display = 'flex'; body.style.display = 'none';
+        updateStats(''); buildOutline('');
+        return;
+    }
+    welcome.style.display = 'none'; body.style.display = 'block';
+
+    // Protect math
+    let proc = content; const maths = [];
+    proc = proc.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => { maths.push({t:'block',c:m}); return `<div class="math-ph" data-i="${maths.length-1}"></div>`; });
+    proc = proc.replace(/\$([^\$\n]+?)\$/g, (_, m) => { maths.push({t:'inline',c:m}); return `<span class="math-ph" data-i="${maths.length-1}"></span>`; });
+
+    // Reset heading index
+    let hi = 0;
+    marked.use({ renderer: { heading(text, level) {
+        if (typeof text === 'object') { level = text.depth; text = text.text; }
+        const id = 'heading-' + (hi++);
+        return `<h${level} id="${id}">${text}</h${level}>`;
+    }}});
+
+    let html = marked.parse(proc);
+    html = DOMPurify.sanitize(html, { ADD_TAGS:['div','span','input'], ADD_ATTR:['class','data-i','type','checked','disabled','id'] });
+    body.innerHTML = html;
+
+    // Render math
+    body.querySelectorAll('.math-ph').forEach(el => {
+        const i = +el.getAttribute('data-i');
+        if (i < maths.length) {
+            try {
+                const r = katex.renderToString(maths[i].c, { displayMode:maths[i].t==='block', throwOnError:false });
+                el.outerHTML = maths[i].t === 'block' ? `<div class="katex-display">${r}</div>` : r;
+            } catch(e) { el.outerHTML = `<span style="color:var(--danger)">${esc(maths[i].c)}</span>`; }
+        }
+    });
+
+    // Render mermaid
+    for (const el of body.querySelectorAll('.mermaid')) {
+        try {
+            const id = 'mm-' + Math.random().toString(36).substr(2,8);
+            const { svg } = await mermaid.render(id, el.textContent);
+            el.innerHTML = svg;
+        } catch(e) { el.innerHTML = `<span style="color:var(--danger)">Mermaid error</span>`; }
+    }
+
+    updateStats(content);
+    buildOutline(content);
+}
+
+// ===== Stats =====
+function updateStats(c) {
+    const t = c.trim();
+    // Count CJK chars as words too
+    const cjk = (t.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g) || []).length;
+    const eng = t ? t.replace(/[\u4e00-\u9fff\u3400-\u4dbf]/g, ' ').split(/\s+/).filter(Boolean).length : 0;
+    const words = cjk + eng;
+    const chars = t.length;
+    const lines = t ? t.split('\n').length : 0;
+    const mins = Math.max(1, Math.ceil(words / 300));
+    $('sb-words').textContent = `${words} 词`;
+    $('sb-chars').textContent = `${chars} 字符`;
+    $('sb-lines').textContent = `${lines} 行`;
+    $('sb-read').textContent = `~${mins} min`;
+}
+
+// ===== Outline =====
+function buildOutline() {
+    const list = $('outline-list');
+    list.innerHTML = '';
+    const headings = $('preview-body').querySelectorAll('h1,h2,h3,h4');
+    headings.forEach((h, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'outline-item';
+        btn.dataset.level = h.tagName[1];
+        btn.textContent = h.textContent;
+        btn.onclick = () => {
+            h.scrollIntoView({ behavior:'smooth', block:'start' });
+            list.querySelectorAll('.outline-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        };
+        list.appendChild(btn);
+    });
+}
+
+function toggleOutline() {
+    S.outlineOpen = !S.outlineOpen;
+    $('outline-sidebar').classList.toggle('open', S.outlineOpen);
+    $('btn-outline').classList.toggle('active', S.outlineOpen);
+}
+
+// ===== Formatting Toolbar =====
+function fmt(before, after) {
+    const ed = $('editor');
+    const s = ed.selectionStart, e = ed.selectionEnd;
+    const sel = ed.value.substring(s, e) || '文本';
+    ed.value = ed.value.substring(0,s) + before + sel + after + ed.value.substring(e);
+    ed.selectionStart = s + before.length;
+    ed.selectionEnd = s + before.length + sel.length;
+    ed.focus(); render();
+}
+
+function fmtLine(prefix) {
+    const ed = $('editor');
+    const s = ed.selectionStart;
+    const lineStart = ed.value.lastIndexOf('\n', s - 1) + 1;
+    ed.value = ed.value.substring(0, lineStart) + prefix + ed.value.substring(lineStart);
+    ed.selectionStart = ed.selectionEnd = s + prefix.length;
+    ed.focus(); render();
+}
+
+function insertLink() { fmt('[', '](https://url)'); }
+function insertImage() { fmt('![alt', '](https://image-url)'); }
+function insertTable() {
+    const t = '\n| 列1 | 列2 | 列3 |\n|------|------|------|\n| 内容 | 内容 | 内容 |\n';
+    insertText(t);
+}
+function insertCodeBlock() { insertText('\n```language\n代码\n```\n'); }
+
+function insertText(text) {
+    const ed = $('editor'), s = ed.selectionStart;
+    ed.value = ed.value.substring(0,s) + text + ed.value.substring(ed.selectionEnd);
+    ed.selectionStart = ed.selectionEnd = s + text.length;
+    ed.focus(); render();
+}
+
+// ===== Find & Replace =====
+function toggleFindBar() {
+    const bar = $('find-bar');
+    const isOpen = bar.classList.toggle('open');
+    if (isOpen) $('find-input').focus();
+}
+
+function doFind() {
+    const ed = $('editor'), q = $('find-input').value;
+    S.findMatches = []; S.findIdx = -1;
+    if (!q) { $('find-count').textContent = ''; return; }
+    let idx = 0;
+    while (true) {
+        const pos = ed.value.indexOf(q, idx);
+        if (pos === -1) break;
+        S.findMatches.push(pos);
+        idx = pos + 1;
+    }
+    $('find-count').textContent = S.findMatches.length ? `${S.findMatches.length} 个匹配` : '无匹配';
+    if (S.findMatches.length) findNext();
+}
+
+function findNext() {
+    if (!S.findMatches.length) return;
+    S.findIdx = (S.findIdx + 1) % S.findMatches.length;
+    highlightFind();
+}
+
+function findPrev() {
+    if (!S.findMatches.length) return;
+    S.findIdx = (S.findIdx - 1 + S.findMatches.length) % S.findMatches.length;
+    highlightFind();
+}
+
+function highlightFind() {
+    const ed = $('editor'), pos = S.findMatches[S.findIdx];
+    const q = $('find-input').value;
+    ed.focus();
+    ed.selectionStart = pos;
+    ed.selectionEnd = pos + q.length;
+    // Scroll to selection
+    const linesBefore = ed.value.substring(0, pos).split('\n').length;
+    const lineHeight = 24.5;
+    ed.scrollTop = Math.max(0, linesBefore * lineHeight - ed.clientHeight / 2);
+    $('find-count').textContent = `${S.findIdx+1} / ${S.findMatches.length}`;
+}
+
+function doReplace() {
+    if (S.findIdx < 0 || !S.findMatches.length) return;
+    const ed = $('editor'), q = $('find-input').value, r = $('replace-input').value;
+    const pos = S.findMatches[S.findIdx];
+    ed.value = ed.value.substring(0, pos) + r + ed.value.substring(pos + q.length);
+    render(); doFind();
+}
+
+function doReplaceAll() {
+    const ed = $('editor'), q = $('find-input').value, r = $('replace-input').value;
+    if (!q) return;
+    const count = (ed.value.match(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g')) || []).length;
+    ed.value = ed.value.split(q).join(r);
+    render(); doFind();
+    toast('✅', `已替换 ${count} 处`);
+}
+
+// ===== Paste Image =====
+function initPasteImage() {
+    $('editor').addEventListener('paste', e => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+        for (const item of items) {
+            if (item.type.startsWith('image/')) {
+                e.preventDefault();
+                const file = item.getAsFile();
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    const md = `![粘贴图片](${ev.target.result})\n`;
+                    insertText(md);
+                    toast('🖼️', '图片已粘贴为 Base64');
+                };
+                reader.readAsDataURL(file);
+                break;
+            }
+        }
+    });
+}
+
+// ===== Auto Save =====
+function scheduleAutoSave() {
+    clearTimeout(S.autosaveTimer);
+    S.autosaveTimer = setTimeout(() => {
+        try {
+            localStorage.setItem('markvue-content', $('editor').value);
+            localStorage.setItem('markvue-filename', S.filename);
+            const el = $('sb-autosave');
+            el.style.display = 'inline';
+            setTimeout(() => el.style.display = 'none', 2000);
+        } catch(e) {}
+    }, 1500);
+}
+
+async function loadAutoSave() {
+    // Check server mode: initial file from Python launcher
+    if (window.location.search.includes('file=1')) {
+        try {
+            const resp = await fetch('/api/initial-file');
+            if (resp.ok) {
+                const data = await resp.json();
+                $('editor').value = data.content;
+                S.filename = data.filename;
+                S.serverFilePath = data.path || null;
+                S.savedContent = data.content;
+                S.dirty = false;
+                updateFileUI(); render();
+                toast('✅', `Opened: ${data.filename}`);
+                return;
+            }
+        } catch(e) {}
+    }
+    // Try localStorage
+    try {
+        const saved = localStorage.getItem('markvue-content');
+        const name = localStorage.getItem('markvue-filename');
+        if (saved) {
+            $('editor').value = saved;
+            if (name) S.filename = name;
+            S.savedContent = saved;
+            S.dirty = false;
+            updateFileUI(); render();
+        } else {
+            $('editor').value = getSample();
+            S.savedContent = $('editor').value;
+            updateFileUI(); render();
+        }
+    } catch(e) {
+        $('editor').value = getSample();
+        S.savedContent = $('editor').value;
+        updateFileUI(); render();
+    }
+}
+
+// ===== Slide / Presentation Mode =====
+function enterSlideMode() {
+    const content = $('editor').value;
+    if (!content.trim()) { toast('⚠️', '没有内容可展示'); return; }
+    // Split by --- on its own line
+    S.slides = content.split(/\n---+\n/).map(s => s.trim()).filter(Boolean);
+    if (S.slides.length < 2) {
+        // Also split by H1/H2
+        const parts = content.split(/(?=^#{1,2}\s)/m).filter(s => s.trim());
+        if (parts.length >= 2) S.slides = parts;
+    }
+    S.slideIdx = 0;
+    renderSlide();
+    $('slide-overlay').classList.add('open');
+    document.addEventListener('keydown', slideKeyHandler);
+}
+
+function exitSlideMode() {
+    $('slide-overlay').classList.remove('open');
+    document.removeEventListener('keydown', slideKeyHandler);
+}
+
+function slideKeyHandler(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') slideNav(1);
+    else if (e.key === 'ArrowLeft') slideNav(-1);
+    else if (e.key === 'Escape') exitSlideMode();
+}
+
+function slideNav(dir) {
+    S.slideIdx = Math.max(0, Math.min(S.slides.length - 1, S.slideIdx + dir));
+    renderSlide();
+}
+
+async function renderSlide() {
+    const content = S.slides[S.slideIdx] || '';
+
+    // Process math same as main render
+    let proc = content; const maths = [];
+    proc = proc.replace(/\$\$([\s\S]*?)\$\$/g, (_, m) => { maths.push({t:'block',c:m}); return `<div class="math-ph" data-i="${maths.length-1}"></div>`; });
+    proc = proc.replace(/\$([^\$\n]+?)\$/g, (_, m) => { maths.push({t:'inline',c:m}); return `<span class="math-ph" data-i="${maths.length-1}"></span>`; });
+
+    let html = marked.parse(proc);
+    html = DOMPurify.sanitize(html, { ADD_TAGS:['div','span','input'], ADD_ATTR:['class','data-i','type','checked','disabled','id'] });
+    $('slide-content').innerHTML = html;
+
+    // Render math in slides
+    $('slide-content').querySelectorAll('.math-ph').forEach(el => {
+        const i = +el.getAttribute('data-i');
+        if (i < maths.length) {
+            try {
+                const r = katex.renderToString(maths[i].c, { displayMode:maths[i].t==='block', throwOnError:false });
+                el.outerHTML = maths[i].t === 'block' ? `<div class="katex-display">${r}</div>` : r;
+            } catch(e) {}
+        }
+    });
+
+    // Render mermaid in slides
+    for (const el of $('slide-content').querySelectorAll('.mermaid')) {
+        try {
+            const id = 'mm-s-' + Math.random().toString(36).substr(2,8);
+            const { svg } = await mermaid.render(id, el.textContent);
+            el.innerHTML = svg;
+        } catch(e) {}
+    }
+
+    $('slide-counter').textContent = `${S.slideIdx + 1} / ${S.slides.length}`;
+
+    // Dots
+    const dots = $('slide-dots');
+    dots.innerHTML = '';
+    S.slides.forEach((_, i) => {
+        const d = document.createElement('button');
+        d.className = 'slide-dot' + (i === S.slideIdx ? ' active' : '');
+        d.onclick = () => { S.slideIdx = i; renderSlide(); };
+        dots.appendChild(d);
+    });
+
+    // Animate card
+    const card = $('slide-content').parentElement;
+    card.style.animation = 'none';
+    card.offsetHeight; // reflow
+    card.style.animation = 'slideIn 0.35s var(--ease-spring)';
+}
+
+// ===== Zen Mode =====
+function toggleZen() {
+    S.zen = !S.zen;
+    $('app').classList.toggle('zen-mode', S.zen);
+    if (S.zen) {
+        setView('editor-only');
+        toast('🧘', '禅模式 — 按 Ctrl+K → "禅模式" 退出');
+    } else {
+        setView('split');
+    }
+}
+
+// ===== Command Palette =====
+const COMMANDS = [
+    { name:'Open File', icon:'📂', shortcut:'Ctrl+O', fn: openFile },
+    { name:'Save', icon:'💾', shortcut:'Ctrl+S', fn: saveFile },
+    { name:'Export Markdown', icon:'📥', shortcut:'⌘⇧S', fn: exportMD },
+    { name:'Export HTML', icon:'📄', shortcut:'⌘⇧E', fn: exportHTML },
+    { name:'Export PDF', icon:'📑', fn: exportPDF },
+    { name:'Toggle Theme', icon:'🌓', fn: toggleTheme },
+    { name:'Zen Mode', icon:'🧘', fn: toggleZen },
+    { name:'Slide Mode', icon:'📊', fn: enterSlideMode },
+    { name:'Outline Sidebar', icon:'📑', shortcut:'⌘⇧O', fn: toggleOutline },
+    { name:'Find & Replace', icon:'🔍', shortcut:'Ctrl+F', fn: toggleFindBar },
+    { name:'Sync Scroll On/Off', icon:'🔗', fn: toggleSync },
+    { name:'Split View', icon:'◫', fn:()=>setView('split') },
+    { name:'Editor Only', icon:'✏️', fn:()=>setView('editor-only') },
+    { name:'Preview Only', icon:'👁', fn:()=>setView('preview-only') },
+    { name:'Insert Table', icon:'▦', fn: insertTable },
+    { name:'Insert Code Block', icon:'{ }', fn: insertCodeBlock },
+    { name:'Insert Link', icon:'🔗', fn: insertLink },
+    { name:'Clear Editor', icon:'🗑', fn: clearEditor },
+    { name:'Copy Markdown', icon:'📋', fn: copyMD },
+    { name:'Copy HTML', icon:'📋', fn: copyHTML },
+];
+
+let cmdIdx = 0;
+
+function initCmdPalette() {
+    const input = $('cmd-input');
+    input.addEventListener('input', filterCmds);
+    input.addEventListener('keydown', e => {
+        const items = $('cmd-list').querySelectorAll('.cmd-item');
+        if (e.key === 'ArrowDown') { e.preventDefault(); cmdIdx = Math.min(cmdIdx+1, items.length-1); updateCmdSel(items); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); cmdIdx = Math.max(cmdIdx-1, 0); updateCmdSel(items); }
+        else if (e.key === 'Enter') { e.preventDefault(); if (items[cmdIdx]) items[cmdIdx].click(); }
+        else if (e.key === 'Escape') closeCmdPalette();
+    });
+}
+
+function openCmdPalette() {
+    const o = $('cmd-overlay');
+    o.classList.add('open');
+    $('cmd-input').value = '';
+    filterCmds();
+    setTimeout(() => $('cmd-input').focus(), 50);
+}
+
+function closeCmdPalette() { $('cmd-overlay').classList.remove('open'); }
+
+function filterCmds() {
+    const q = $('cmd-input').value.toLowerCase();
+    const list = $('cmd-list');
+    list.innerHTML = '';
+    cmdIdx = 0;
+    const filtered = COMMANDS.filter(c => c.name.toLowerCase().includes(q));
+    filtered.forEach((c, i) => {
+        const div = document.createElement('div');
+        div.className = 'cmd-item' + (i === 0 ? ' selected' : '');
+        div.innerHTML = `<span>${c.icon}</span><span>${c.name}</span>${c.shortcut ? `<span class="cmd-shortcut">${c.shortcut}</span>` : ''}`;
+        div.onclick = () => { closeCmdPalette(); setTimeout(c.fn, 80); };
+        list.appendChild(div);
+    });
+}
+
+function updateCmdSel(items) {
+    items.forEach((it, i) => it.classList.toggle('selected', i === cmdIdx));
+    if (items[cmdIdx]) items[cmdIdx].scrollIntoView({ block:'nearest' });
+}
+
+// ===== Theme =====
+function toggleTheme() {
+    const root = document.documentElement;
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    $('ico-sun').style.display = next === 'dark' ? 'block' : 'none';
+    $('ico-moon').style.display = next === 'light' ? 'block' : 'none';
+    $('hljs-theme').href = next === 'dark'
+        ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+        : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+    mermaid.initialize({ startOnLoad:false, theme:next==='dark'?'dark':'default', securityLevel:'loose' });
+    try { localStorage.setItem('markvue-theme', next); } catch(e) {}
+    render();
+}
+
+// Load saved theme
+try {
+    const t = localStorage.getItem('markvue-theme');
+    if (t && t !== document.documentElement.getAttribute('data-theme')) toggleTheme();
+} catch(e) {}
+
+// ===== View =====
+function setView(mode) {
+    S.view = mode;
+    const m = $('main');
+    m.className = 'main-wrap ' + (mode === 'split' ? '' : mode);
+    if (mode === 'split') {
+        m.querySelector('.editor-pane').style.flex = '1';
+        m.querySelector('.preview-pane').style.flex = '1';
+    }
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
+}
+
+// ===== Sync Scroll =====
+function toggleSync() {
+    S.syncScroll = !S.syncScroll;
+    updateSyncBtn();
+    toast(S.syncScroll ? '🔗' : '🔓', S.syncScroll ? '同步滚动已开启' : '同步滚动已关闭');
+}
+function updateSyncBtn() { $('btn-sync').classList.toggle('active', S.syncScroll); }
+
+// ===== Divider =====
+function initDivider() {
+    const div = $('divider'), main = $('main');
+    let drag = false;
+    div.addEventListener('mousedown', e => { drag = true; div.classList.add('dragging'); document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; e.preventDefault(); });
+    document.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const rect = main.getBoundingClientRect();
+        const ratio = Math.max(0.15, Math.min(0.85, (e.clientX - rect.left) / rect.width));
+        main.querySelector('.editor-pane').style.flex = String(ratio);
+        main.querySelector('.preview-pane').style.flex = String(1 - ratio);
+    });
+    document.addEventListener('mouseup', () => { if (drag) { drag = false; div.classList.remove('dragging'); document.body.style.cursor = ''; document.body.style.userSelect = ''; }});
+}
+
+// ===== Drag & Drop =====
+function initDragDrop() {
+    let dc = 0;
+    const o = $('drop-overlay');
+    document.addEventListener('dragenter', e => { e.preventDefault(); dc++; o.classList.add('active'); });
+    document.addEventListener('dragleave', e => { e.preventDefault(); dc--; if (dc <= 0) { dc = 0; o.classList.remove('active'); }});
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', e => { e.preventDefault(); dc = 0; o.classList.remove('active'); const f = e.dataTransfer.files[0]; if (f) loadFile(f); });
+}
+
+// ===== File Operations =====
+async function openFile() {
+    // Try File System Access API first (Chrome/Edge 86+)
+    if (window.showOpenFilePicker) {
+        try {
+            const [handle] = await window.showOpenFilePicker({
+                types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md', '.markdown', '.txt'] }}],
+                multiple: false,
+            });
+            const file = await handle.getFile();
+            const content = await file.text();
+            $('editor').value = content;
+            S.fileHandle = handle;
+            S.serverFilePath = null;
+            S.filename = file.name;
+            S.savedContent = content;
+            S.dirty = false;
+            updateFileUI();
+            render();
+            toast('✅', `Opened: ${file.name}`);
+            return;
+        } catch (e) {
+            if (e.name === 'AbortError') return; // user cancelled
+        }
+    }
+    // Fallback: classic file input
+    const inp = $('file-input');
+    inp.onchange = e => { const f = e.target.files[0]; if (f) loadFileFallback(f); inp.value = ''; };
+    inp.click();
+}
+
+function loadFileFallback(file) {
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!['.md','.markdown','.txt','.text'].includes(ext)) { toast('⚠️', 'Unsupported format'); return; }
+    const r = new FileReader();
+    r.onload = e => {
+        $('editor').value = e.target.result;
+        S.fileHandle = null;
+        S.serverFilePath = null;
+        S.filename = file.name;
+        S.savedContent = e.target.result;
+        S.dirty = false;
+        updateFileUI();
+        render();
+        toast('✅', `Opened: ${file.name}`);
+    };
+    r.readAsText(file);
+}
+
+// Called from drag-and-drop
+function loadFile(file) {
+    // If browser supports, try to get a handle for save-back
+    loadFileFallback(file);
+}
+
+// ===== Save =====
+async function saveFile() {
+    const content = $('editor').value;
+
+    // 1) File System Access API handle exists -> write directly
+    if (S.fileHandle) {
+        try {
+            const writable = await S.fileHandle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            S.savedContent = content;
+            S.dirty = false;
+            updateFileUI();
+            toast('💾', `Saved: ${S.filename}`);
+            return;
+        } catch (e) {
+            // Permission denied or handle stale -> fall through
+            if (e.name !== 'AbortError') {
+                toast('⚠️', 'Save failed, trying Save As...');
+            }
+        }
+    }
+
+    // 2) Server mode -> POST to /api/save
+    if (S.serverFilePath) {
+        try {
+            const resp = await fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: S.serverFilePath, content: content }),
+            });
+            if (resp.ok) {
+                S.savedContent = content;
+                S.dirty = false;
+                updateFileUI();
+                toast('💾', `Saved: ${S.filename}`);
+                return;
+            }
+        } catch (e) {}
+        toast('⚠️', 'Server save failed, trying Save As...');
+    }
+
+    // 3) Fallback: Save As via File System Access API
+    if (window.showSaveFilePicker) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: S.filename === 'Untitled' ? 'document.md' : S.filename,
+                types: [{ description: 'Markdown', accept: { 'text/markdown': ['.md'] }}],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            S.fileHandle = handle;
+            S.serverFilePath = null;
+            S.filename = handle.name;
+            S.savedContent = content;
+            S.dirty = false;
+            updateFileUI();
+            toast('💾', `Saved: ${handle.name}`);
+            return;
+        } catch (e) {
+            if (e.name === 'AbortError') return;
+        }
+    }
+
+    // 4) Last resort: download
+    exportMD();
+}
+
+function markDirty() {
+    if (!S.dirty && $('editor').value !== S.savedContent) {
+        S.dirty = true;
+        updateFileUI();
+    }
+}
+
+function updateFileUI() {
+    // Title bar
+    const label = S.dirty ? `● ${S.filename}` : S.filename;
+    document.title = `${label} — MarkVue`;
+    // Status bar filename
+    $('sb-file').textContent = label;
+    // Status bar dot
+    const dot = $('sb-dot');
+    dot.className = 'save-dot ' + (
+        (!S.fileHandle && !S.serverFilePath) ? 'no-file' :
+        S.dirty ? 'dirty' : 'clean'
+    );
+    // Save badge
+    const badge = $('save-badge');
+    if (S.dirty) {
+        badge.textContent = '●';
+        badge.className = 'save-badge dirty';
+    } else {
+        badge.textContent = '';
+        badge.className = 'save-badge';
+    }
+    // File path hint
+    const pathEl = $('sb-path');
+    if (S.serverFilePath) {
+        pathEl.textContent = S.serverFilePath;
+        pathEl.title = S.serverFilePath;
+        pathEl.style.display = '';
+    } else if (S.fileHandle) {
+        pathEl.textContent = S.filename;
+        pathEl.title = 'Local file (File System Access)';
+        pathEl.style.display = '';
+    } else {
+        pathEl.style.display = 'none';
+    }
+}
+
+function copyFilePath() {
+    const p = S.serverFilePath || S.filename;
+    navigator.clipboard.writeText(p).then(() => toast('📋', 'Path copied'));
+}
+
+function exportMD() {
+    const fn = S.filename.endsWith('.md') ? S.filename : S.filename.replace(/\.[^.]+$/, '') + '.md';
+    dl($('editor').value, fn, 'text/markdown');
+    toast('✅', `已导出: ${fn}`); closeDD();
+}
+
+function exportHTML() {
+    const html = `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${esc(S.filename)}</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"><style>body{max-width:820px;margin:40px auto;padding:0 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.7;color:#1f2937}h1,h2{border-bottom:1px solid #e5e7eb;padding-bottom:8px}code{background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:.9em}pre{background:#f3f4f6;padding:16px;border-radius:8px;overflow-x:auto}pre code{background:none;padding:0}blockquote{border-left:4px solid #3b82f6;padding:8px 16px;margin:16px 0;background:#eff6ff}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #e5e7eb;padding:10px 16px}th{background:#f9fafb}img{max-width:100%;border-radius:8px}a{color:#2563eb}</style></head><body>${$('preview-body').innerHTML}</body></html>`;
+    const fn = S.filename.replace(/\.[^.]+$/, '') + '.html';
+    dl(html, fn, 'text/html');
+    toast('✅', `已导出: ${fn}`); closeDD();
+}
+
+async function exportPDF() {
+    toast('⏳', '正在生成 PDF...'); closeDD();
+    try {
+        const canvas = await html2canvas($('preview-body'), { scale:2, useCORS:true, backgroundColor:'#ffffff' });
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p','mm','a4');
+        const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+        const iw = pw - 20, ih = (canvas.height * iw) / canvas.width;
+        let left = ih, pos = 10;
+        pdf.addImage(canvas.toDataURL('image/png'),'PNG',10,pos,iw,ih);
+        left -= (ph - 20);
+        while (left > 0) { pos = left - ih + 10; pdf.addPage(); pdf.addImage(canvas.toDataURL('image/png'),'PNG',10,pos,iw,ih); left -= (ph - 20); }
+        pdf.save(S.filename.replace(/\.[^.]+$/, '') + '.pdf');
+        toast('✅', 'PDF 导出成功');
+    } catch(e) { toast('❌', 'PDF 导出失败'); }
+}
+
+// ===== Copy =====
+function copyMD() { navigator.clipboard.writeText($('editor').value).then(() => toast('📋','Markdown 已复制')); }
+function copyHTML() { navigator.clipboard.writeText($('preview-body').innerHTML).then(() => toast('📋','HTML 已复制')); }
+function copyCode(btn) {
+    const code = btn.closest('pre').querySelector('code').textContent;
+    navigator.clipboard.writeText(code).then(() => { btn.textContent = '✓ 已复制'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500); });
+}
+function clearEditor() {
+    $('editor').value = '';
+    S.filename = 'Untitled'; S.fileHandle = null; S.serverFilePath = null;
+    S.savedContent = ''; S.dirty = false;
+    updateFileUI(); render();
+}
+
+// ===== Dropdown =====
+function toggleDD(id) { $(id).classList.toggle('open'); }
+function closeDD() { document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open')); }
+document.addEventListener('click', e => { if (!e.target.closest('.dropdown')) closeDD(); });
+
+// ===== Keyboard Shortcuts =====
+function initKeyboard() {
+    document.addEventListener('keydown', e => {
+        const ck = e.ctrlKey || e.metaKey;
+        if (ck && e.key === 'o') { e.preventDefault(); openFile(); }
+        if (ck && !e.shiftKey && e.key === 's') { e.preventDefault(); saveFile(); }
+        if (ck && e.shiftKey && e.key === 's') { e.preventDefault(); exportMD(); }
+        if (ck && !e.shiftKey && e.key === 'e') { e.preventDefault(); exportHTML(); }
+        if (ck && e.key === 'k') { e.preventDefault(); openCmdPalette(); }
+        if (ck && e.key === 'f' && !e.target.closest('.cmd-overlay')) { e.preventDefault(); toggleFindBar(); }
+        if (ck && e.shiftKey && (e.key === 'o' || e.key === 'O')) { e.preventDefault(); toggleOutline(); }
+        if (e.key === 'Escape') { closeDD(); closeCmdPalette(); }
+    });
+}
+
+// ===== Helpers =====
+function $(id) { return document.getElementById(id); }
+function dl(content, name, mime) {
+    const b = new Blob([content], {type:mime+';charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+function toast(icon, msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    $('toast-wrap').appendChild(t);
+    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 200); }, 2500);
+}
+
+// ===== Sample =====
+function getSample() {
+    return `# 欢迎使用 MarkVue ✨
+
+一款功能丰富的本地 Markdown 编辑器。**双击 HTML 文件即可运行**，无需任何依赖。
+
+---
+
+## 🚀 独有功能
+
+- ⌨️ **命令面板** — 按 \`Ctrl+K\` 快速搜索并执行任何命令
+- 📑 **大纲导航** — 自动生成目录侧栏，点击跳转
+- 📊 **幻灯片模式** — 用 \`---\` 分隔内容，一键变成演示文稿
+- 🖼️ **剪贴板粘贴图片** — 截图后直接粘贴，自动转为 Base64
+- 🔍 **查找替换** — 支持全文搜索与批量替换
+- 🧘 **禅模式** — 全屏无干扰写作环境
+- 🎨 **格式工具栏** — 快捷插入标题、列表、表格等
+- 💾 **自动保存** — 内容自动保存到浏览器，关闭后仍在
+- 🌓 **主题记忆** — 深色/浅色偏好自动保留
+- 📐 **智能字数统计** — 自动识别中英文混合内容
+
+---
+
+## 📊 幻灯片演示
+
+用 \`---\` 分割的每个部分会变成一张幻灯片。
+点击工具栏的 📊 按钮或使用命令面板试试！
+
+---
+
+## 📐 数学公式
+
+行内公式：$E = mc^2$，$\\sum_{i=1}^n i = \\frac{n(n+1)}{2}$
+
+块级公式：
+
+$$
+\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}
+$$
+
+---
+
+## 💻 代码高亮
+
+\`\`\`rust
+fn main() {
+    let greet = |name: &str| format!("Hello, {}! 🦀", name);
+    println!("{}", greet("MarkVue"));
+    
+    // Iterator magic
+    let sum: i32 = (1..=100).filter(|x| x % 2 == 0).sum();
+    println!("偶数之和: {}", sum);
+}
+\`\`\`
+
+\`\`\`python
+from dataclasses import dataclass
+
+@dataclass
+class Article:
+    title: str
+    words: int
+    
+    @property
+    def read_time(self) -> str:
+        minutes = max(1, self.words // 300)
+        return f"~{minutes} min read"
+
+article = Article("MarkVue Guide", 1500)
+print(f"{article.title} — {article.read_time}")
+\`\`\`
+
+---
+
+## 📊 Mermaid 图表
+
+\`\`\`mermaid
+graph LR
+    A[编辑 Markdown] --> B{选择操作}
+    B --> C[实时预览]
+    B --> D[幻灯片]
+    B --> E[导出文件]
+    C --> F[GitHub 风格渲染]
+    D --> G[箭头键翻页]
+    E --> H[MD / HTML / PDF]
+    style A fill:#63b3ed,color:#fff
+    style F fill:#c4b5fd,color:#fff
+    style G fill:#86efac,color:#000
+    style H fill:#fbbf24,color:#000
+\`\`\`
+
+---
+
+## 📋 功能对照表
+
+| 功能 | MarkVue | 普通编辑器 |
+|------|:-------:|:----------:|
+| 命令面板 | ✅ | ❌ |
+| 大纲导航 | ✅ | ❌ |
+| 幻灯片模式 | ✅ | ❌ |
+| 粘贴图片 | ✅ | ❌ |
+| 查找替换 | ✅ | ❌ |
+| 禅模式 | ✅ | ❌ |
+| 自动保存 | ✅ | ❌ |
+| 零依赖运行 | ✅ | ❌ |
+| 数学公式 | ✅ | ❌ |
+| Mermaid 图表 | ✅ | ❌ |
+
+---
+
+## ✅ 任务清单
+
+- [x] 命令面板 (Ctrl+K)
+- [x] 大纲导航侧栏
+- [x] 幻灯片演示模式
+- [x] 剪贴板图片粘贴
+- [x] 查找与替换
+- [x] 禅模式 (Zen Mode)
+- [x] Markdown 格式工具栏
+- [x] localStorage 自动保存
+- [x] 深色/浅色主题 + 记忆
+- [x] 中英文字数智能统计
+- [ ] 自定义 CSS 主题
+- [ ] 多标签页编辑
+
+---
+
+> **提示**：试试按 \`Ctrl+K\` 打开命令面板，探索所有功能！
+
+*用 ❤️ 打造的本地 Markdown 工具。*
+`;
+}
+</script>
+</body>
+</html>
