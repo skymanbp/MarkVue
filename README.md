@@ -1,86 +1,103 @@
 # MarkVue — Local Markdown Viewer / 本地 Markdown 查看器
 
-> **A fast, beautiful, feature-rich local Markdown editor and previewer.**
-> Build once as EXE, set as default app, double-click any .md file to open.
+> **A native desktop Markdown editor and previewer.**
+> Build as EXE, set as default app, double-click any .md file to open.
+> No browser, no server, no port. Just a normal application.
 >
-> **快速、美观、功能丰富的本地 Markdown 编辑器与预览器。**
-> 一次打包为 EXE，设为默认程序，双击 .md 文件即可打开。
+> **原生桌面 Markdown 编辑器与预览器。**
+> 打包为 EXE，设为默认程序，双击 .md 文件即可打开。
+> 不需要浏览器、不启动服务器、不占用端口。就是一个普通软件。
 
 ---
 
-## Quick Start: Use as Default App / 快速上手：设为默认程序
-
-The recommended workflow to use MarkVue like a normal desktop application:
-
-推荐流程，让 MarkVue 像普通软件一样使用：
+## Quick Start / 快速上手
 
 **Step 1** -- Build the EXE / 构建 EXE
 
 ```
-Double-click "Build EXE.bat"
-Wait 1-2 minutes -> dist/MarkVue.exe is created
-
-双击 "Build EXE.bat"
-等待 1-2 分钟 -> 生成 dist/MarkVue.exe
+Double-click "Build EXE.bat", wait 2-3 minutes.
+双击 "Build EXE.bat"，等待 2-3 分钟。
 ```
 
-**Step 2** -- Move EXE to a permanent location / 把 EXE 放到固定位置
+**Step 2** -- Move to a permanent location / 放到固定位置
 
 ```
-Example: C:\Tools\MarkVue.exe
-示例：C:\Tools\MarkVue.exe
+Move dist/MarkVue.exe to e.g. C:\Tools\MarkVue.exe
+将 dist/MarkVue.exe 移动到如 C:\Tools\MarkVue.exe
 ```
 
-**Step 3** -- Associate .md files / 关联 .md 文件
+**Step 3** -- Set as default app / 设为默认程序
 
 ```
-Copy "Associate .md Files.bat" next to MarkVue.exe, then double-click it.
-Or: right-click any .md file -> "Open with" -> "Choose another app"
-    -> select MarkVue.exe -> check "Always use this app"
+Copy "Associate .md Files.bat" next to MarkVue.exe, double-click it.
+把 "Associate .md Files.bat" 复制到 MarkVue.exe 旁边，双击运行。
 
-把 "Associate .md Files.bat" 复制到 MarkVue.exe 旁边，然后双击运行。
-或者：右键任意 .md 文件 -> "打开方式" -> "选择其他应用"
-      -> 选择 MarkVue.exe -> 勾选"始终使用此应用"
+Or: right-click any .md file -> Open with -> Choose another app
+    -> select MarkVue -> check "Always use this app"
+或者：右键 .md 文件 -> 打开方式 -> 选择其他应用
+      -> 选 MarkVue -> 勾选"始终使用此应用"
 ```
 
-**Done.** Now double-click any `.md` file and it opens in MarkVue.
+**Done.** Double-click any `.md` file and it opens in MarkVue.
 
-**完成。** 现在双击任意 `.md` 文件即可在 MarkVue 中打开。
+**完成。** 双击任意 `.md` 文件即可在 MarkVue 中打开。
+
+---
+
+## Architecture / 架构
+
+MarkVue v3 uses pywebview to embed a browser engine directly inside a native
+window. The HTML/CSS/JS rendering runs locally in the window, not in an
+external browser. File open and save use native system dialogs through a
+Python-to-JavaScript bridge.
+
+MarkVue v3 使用 pywebview 将浏览器引擎直接嵌入原生窗口中。HTML/CSS/JS 渲染
+在窗口内部运行，不打开外部浏览器。文件打开和保存通过 Python-JS 桥接调用系统
+原生对话框。
+
+```
+Previous versions            v3 (current)
+  Python HTTP server           No server
+  -> browser on localhost      -> native window (pywebview)
+  -> port 8899                 -> no port
+  -> depends on Chrome         -> self-contained
+```
 
 ---
 
 ## All Launch Methods / 所有启动方式
 
-### 1. Double-click HTML (simplest, zero dependencies)
+### 1. MarkVue.exe (recommended)
 
-Open `MarkVue.html` directly in any browser. All features work immediately.
+A standalone native application. Double-click to launch, or double-click
+any .md file after setting up file association.
 
-直接双击 `MarkVue.html`，在浏览器中打开，全部功能可用。
+独立原生应用。双击启动，或设置文件关联后双击 .md 文件打开。
 
-### 2. Double-click BAT (recommended for Windows without EXE)
+### 2. Launch MarkVue.bat
 
-Double-click `Launch MarkVue.bat`. It detects Python automatically:
-if found, starts a local server; otherwise opens the HTML directly.
+Detects Python and available libraries automatically:
+- If pywebview is installed: opens native window
+- If only Python: starts server mode (opens in browser)
+- If no Python: opens MarkVue.html directly in browser
 
-双击 `Launch MarkVue.bat`，自动检测 Python 并选择最佳模式。
+自动检测 Python 和可用的库：
+- 如果装了 pywebview：打开原生窗口
+- 如果只有 Python：启动服务器模式（在浏览器中打开）
+- 如果没有 Python：直接在浏览器中打开 HTML
 
-### 3. MarkVue.exe (recommended, works like a normal app)
+### 3. Double-click MarkVue.html
 
-After building with `Build EXE.bat`:
-- Double-click `MarkVue.exe` to launch.
-- Drag `.md` files onto it to open.
-- Set as default app for `.md` files (see above).
-- Single file, no dependencies, can be copied anywhere.
+Opens in any browser. All features work. No dependencies.
 
-构建后即可像普通软件一样使用，支持关联文件类型。
+在任何浏览器中打开。全部功能可用。无依赖。
 
-### 4. Python server mode (advanced)
+### 4. Python server mode
 
 ```bash
 python markvue.py                  # Launch / 启动
-python markvue.py README.md        # Open a specific file / 打开指定文件
+python markvue.py README.md        # Open file / 打开文件
 python markvue.py -p 3000          # Custom port / 指定端口
-python markvue.py -n               # No auto-open browser / 不自动打开浏览器
 ```
 
 ---
@@ -93,28 +110,23 @@ python markvue.py -n               # No auto-open browser / 不自动打开浏�
 |----------------|---------------------|
 | GitHub-style rendering | Full GFM syntax / 完整 GFM 语法 |
 | Real-time preview | 100ms debounce / 输入即渲染 |
-| Code highlighting | 100+ languages, one-click copy / 100+ 语言，一键复制 |
-| LaTeX math | KaTeX, inline `$...$` and block `$$...$$` / 行内与块级公式 |
+| Code highlighting | 100+ languages, copy button / 100+ 语言，一键复制 |
+| LaTeX math | KaTeX, inline and block / 行内与块级公式 |
 | Mermaid diagrams | Flowcharts, sequence, gantt / 流程图、时序图、甘特图 |
-| Tables and task lists | GFM extensions / 扩展语法 |
+| Native file dialogs | Open, save, save-as / 原生打开、保存、另存为对话框 |
 
-### Unique / 独有功能
+### Extended / 扩展功能
 
 | Feature / 功能 | Description / 说明 |
 |----------------|---------------------|
-| Command palette | `Ctrl+K` fuzzy search / 模糊搜索执行命令 |
-| Outline navigation | Auto TOC sidebar / 自动大纲侧栏 |
-| Slide mode | Split by `---`, keyboard nav / 一键演示文稿 |
-| Clipboard image paste | Ctrl+V screenshot to Base64 / 粘贴截图 |
-| Find and replace | Full-text search and replace / 全文查找替换 |
-| Zen mode | Distraction-free writing / 专注写作模式 |
-| Save to file | `Ctrl+S` writes back to original file / 直接保存回原文件 |
-| Auto-save | localStorage backup / 浏览器自动保存 |
-| Resizable split | Drag divider / 拖动分隔条 |
-
-### Export / 导出
-
-- Markdown (.md) / HTML (.html) / PDF (.pdf)
+| Command palette | `Ctrl+K` fuzzy search / 模糊搜索命令 |
+| Outline navigation | Auto TOC sidebar / 大纲侧栏 |
+| Slide mode | Split by `---` / 幻灯片模式 |
+| Clipboard image paste | Ctrl+V screenshot / 粘贴截图 |
+| Find and replace | Full-text / 全文查找替换 |
+| Zen mode | Focused writing / 专注写作 |
+| Save to file | Ctrl+S native save / 原生保存 |
+| Resizable split | Drag divider / 拖动分栏 |
 
 ---
 
@@ -125,41 +137,47 @@ python markvue.py -n               # No auto-open browser / 不自动打开浏�
 | `Ctrl+K` | Command palette / 命令面板 |
 | `Ctrl+O` | Open file / 打开文件 |
 | `Ctrl+S` | Save / 保存 |
-| `Ctrl+Shift+S` | Export Markdown / 导出 Markdown |
-| `Ctrl+Shift+E` | Export HTML / 导出 HTML |
+| `Ctrl+Shift+S` | Save as / 另存为 |
 | `Ctrl+F` | Find and replace / 查找替换 |
 | `Ctrl+B` | Bold / 粗体 |
 | `Ctrl+I` | Italic / 斜体 |
-| `Ctrl+Shift+O` | Outline sidebar / 大纲侧栏 |
+| `Ctrl+Shift+O` | Outline / 大纲 |
 
 ---
 
-## Build EXE / 打包为 EXE
+## Build EXE / 构建 EXE
 
-### Requirements / 前提
+Requirements: Python 3.8+ (only for building; EXE runs independently).
+前提：Python 3.8+（仅构建时需要，EXE 独立运行）。
 
-- Python 3.7+ (only needed to build; the EXE runs without Python)
-- Python 3.7+（仅构建时需要，EXE 运行无需 Python）
+```
+1. Double-click "Build EXE.bat"  /  双击 "Build EXE.bat"
+2. Wait 2-3 minutes  /  等待 2-3 分钟
+3. Output: dist/MarkVue.exe  /  生成 dist/MarkVue.exe
+```
 
-### Steps / 步骤
+For troubleshooting, build with console: `Build EXE.bat --debug`
 
-1. Double-click `Build EXE.bat`. / 双击 `Build EXE.bat`。
-2. Wait 1-2 minutes. / 等待 1-2 分钟。
-3. Output: `dist/MarkVue.exe`. / 生成于 `dist/MarkVue.exe`。
+排查问题时用调试模式：`Build EXE.bat --debug`
 
-### After building / 构建后
+---
 
-- Move `MarkVue.exe` to a permanent location (e.g. `C:\Tools\`).
-- Copy `Associate .md Files.bat` next to it and run it.
-- Now `.md` files open with MarkVue when double-clicked.
+## File Association / 文件关联
 
-- 将 `MarkVue.exe` 移动到固定位置（如 `C:\Tools\`）。
-- 把 `Associate .md Files.bat` 复制到旁边并运行。
-- 此后双击 `.md` 文件即可用 MarkVue 打开。
+After building the EXE:
 
-To undo the association, run `Remove File Association.bat`.
+1. Put `MarkVue.exe` and `Associate .md Files.bat` in the same folder.
+2. Double-click `Associate .md Files.bat`.
+3. Now .md files open with MarkVue when double-clicked.
 
-取消关联请运行 `Remove File Association.bat`。
+To undo: run `Remove File Association.bat`.
+
+构建后：
+1. 将 `MarkVue.exe` 和 `Associate .md Files.bat` 放在同一文件夹。
+2. 双击 `Associate .md Files.bat`。
+3. 此后 .md 文件双击用 MarkVue 打开。
+
+撤销：运行 `Remove File Association.bat`。
 
 ---
 
@@ -167,20 +185,20 @@ To undo the association, run `Remove File Association.bat`.
 
 ```
 MarkVue/
-  MarkVue.html                Core app (single file, browser-ready)
-                              核心应用（单文件，浏览器直接打开）
-  Launch MarkVue.bat          Windows launcher (zero dependencies)
-                              Windows 启动器（零依赖）
-  markvue.py                  Python server mode (optional)
-                              Python 服务器模式（可选）
-  markvue_app.py              Source for EXE packaging
-                              EXE 打包源码
+  MarkVue.html                Core rendering engine
+                              核心渲染引擎
+  markvue_app.py              Native app source (pywebview)
+                              原生应用源码
+  markvue.py                  Server mode (optional, browser-based)
+                              服务器模式（可选）
   Build EXE.bat               Build standalone EXE
-                              一键构建 EXE
-  Associate .md Files.bat     Set MarkVue as default for .md
-                              将 MarkVue 设为 .md 默认程序
-  Remove File Association.bat Undo the association
-                              取消文件关联
+                              构建 EXE
+  Launch MarkVue.bat          Smart launcher
+                              智能启动器
+  Associate .md Files.bat     Set as default for .md
+                              设为默认程序
+  Remove File Association.bat Undo association
+                              撤销关联
   README.md                   This file / 本文件
 ```
 
@@ -188,12 +206,13 @@ MarkVue/
 
 ## Tech Stack / 技术栈
 
+- Native window: pywebview (EdgeChromium on Windows)
 - Markdown: Marked.js
-- Code highlighting: highlight.js
+- Code: highlight.js
 - Math: KaTeX
 - Diagrams: Mermaid
-- Sanitization: DOMPurify
-- PDF export: html2canvas + jsPDF
+- Security: DOMPurify
+- PDF: html2canvas + jsPDF
 
 ---
 
