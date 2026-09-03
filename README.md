@@ -114,7 +114,7 @@ python markvue.py -p 3000          # Custom port / 指定端口
 |----------------|---------------------|
 | GitHub-style rendering | Full GFM syntax / 完整 GFM 语法 |
 | Real-time preview | 100ms debounce / 输入即渲染 |
-| Code highlighting | 36 languages bundled by highlight.js 11.9.0, copy button / highlight.js 11.9.0 内置 36 种语言，一键复制 |
+| Code highlighting | 36 languages bundled by highlight.js 11.9.0, copy button / highlight.js 11.9.0 默认包内置 36 种语言，一键复制 |
 | LaTeX math | KaTeX, inline and block / 行内与块级公式 |
 | Mermaid diagrams | Flowcharts, sequence, gantt / 流程图、时序图、甘特图 |
 | File dialogs | WebView open/save pickers / WebView 打开、保存选择器 |
