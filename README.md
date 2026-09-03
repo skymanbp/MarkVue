@@ -17,8 +17,8 @@
 ```
 https://github.com/skymanbp/MarkVue/releases/latest
 
-Download MarkVue.exe. For step 3, also download "Associate .md Files.bat".
-下载 MarkVue.exe。需要第 3 步的话，一并下载 "Associate .md Files.bat"。
+Download MarkVue.exe. For step 3, also download Associate.md.Files.bat.
+下载 MarkVue.exe。需要第 3 步的话，一并下载 Associate.md.Files.bat。
 ```
 
 Current release / 当前版本 **v0.0.5**
@@ -40,8 +40,8 @@ Move MarkVue.exe to e.g. C:\Tools\MarkVue.exe
 **Step 3** -- Set as default app / 设为默认程序
 
 ```
-Copy "Associate .md Files.bat" next to MarkVue.exe, double-click it.
-把 "Associate .md Files.bat" 复制到 MarkVue.exe 旁边，双击运行。
+Copy Associate.md.Files.bat next to MarkVue.exe, double-click it.
+把 Associate.md.Files.bat 复制到 MarkVue.exe 旁边，双击运行。
 
 Or: right-click any .md file -> Open with -> Choose another app
     -> select MarkVue -> check "Always use this app"
