@@ -46,18 +46,18 @@ Or: right-click any .md file -> Open with -> Choose another app
 
 ## Architecture / 架构
 
-MarkVue v3 uses pywebview to embed a browser engine directly inside a native
+MarkVue uses pywebview to embed a browser engine directly inside a native
 window. The HTML/CSS/JS rendering runs locally in the window, not in an
 external browser. File open and save use the WebView's File System Access
 pickers; a file the app was launched with is written back through the app's
 local /api/save endpoint.
 
-MarkVue v3 使用 pywebview 将浏览器引擎直接嵌入原生窗口中。HTML/CSS/JS 渲染
+MarkVue 使用 pywebview 将浏览器引擎直接嵌入原生窗口中。HTML/CSS/JS 渲染
 在窗口内部运行，不打开外部浏览器。文件打开和保存使用 WebView 的 File System
 Access 选择器；启动时传入的文件通过应用本地的 /api/save 接口写回。
 
 ```
-Server mode (markvue.py)     v3 (current)
+Server mode (markvue.py)     Native mode (current)
   Python HTTP server           Embedded HTTP server
   -> browser on localhost      -> native window (pywebview)
   -> port 8899                 -> port 18737+, loopback only

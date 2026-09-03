@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-MarkVue — Native Desktop Application v3.1
-==========================================
+MarkVue — Native Desktop Application
+====================================
 Architecture:
   - Hidden embedded HTTP server on localhost (random port)
   - pywebview native window loads from http://127.0.0.1:{port}
@@ -28,7 +28,7 @@ from functools import partial
 from datetime import datetime
 
 APP_NAME = "MarkVue"
-VERSION = "3.1.0"
+VERSION = "0.0.4"
 DEFAULT_PORT = 18737  # obscure port to avoid conflicts
 
 # ========== Logging ==========

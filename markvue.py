@@ -27,7 +27,7 @@ from pathlib import Path
 from functools import partial
 
 APP_NAME = "MarkVue"
-VERSION = "2.2.0"
+VERSION = "0.0.4"
 DEFAULT_PORT = 8899
 SCRIPT_DIR = Path(__file__).parent.resolve()
 HTML_FILE = SCRIPT_DIR / "MarkVue.html"
