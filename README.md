@@ -12,18 +12,29 @@
 
 ## Quick Start / 快速上手
 
-**Step 1** -- Build the EXE / 构建 EXE
+**Step 1** -- Download MarkVue.exe / 下载 MarkVue.exe
 
 ```
-Double-click "Build EXE.bat", wait 2-3 minutes.
-双击 "Build EXE.bat"，等待 2-3 分钟。
+https://github.com/skymanbp/MarkVue/releases/latest
+
+Download MarkVue.exe. For step 3, also download "Associate .md Files.bat".
+下载 MarkVue.exe。需要第 3 步的话，一并下载 "Associate .md Files.bat"。
 ```
+
+Current release / 当前版本 **v0.0.5**
+
+```
+SHA-256  1867e037d8495aa4121fcad3e1c65a2be221dffa49d35ddc833805a39e12b93a  MarkVue.exe
+```
+
+Check it with `Get-FileHash MarkVue.exe -Algorithm SHA256` in PowerShell.
+在 PowerShell 中用 `Get-FileHash MarkVue.exe -Algorithm SHA256` 核对。
 
 **Step 2** -- Move to a permanent location / 放到固定位置
 
 ```
-Move dist/MarkVue.exe to e.g. C:\Tools\MarkVue.exe
-将 dist/MarkVue.exe 移动到如 C:\Tools\MarkVue.exe
+Move MarkVue.exe to e.g. C:\Tools\MarkVue.exe
+将 MarkVue.exe 移动到如 C:\Tools\MarkVue.exe
 ```
 
 **Step 3** -- Set as default app / 设为默认程序
@@ -41,6 +52,9 @@ Or: right-click any .md file -> Open with -> Choose another app
 **Done.** Double-click any `.md` file and it opens in MarkVue.
 
 **完成。** 双击任意 `.md` 文件即可在 MarkVue 中打开。
+
+Building from source instead: see [Build EXE](#build-exe--构建-exe).
+想从源码自己构建：见 [Build EXE](#build-exe--构建-exe)。
 
 ---
 
@@ -152,7 +166,10 @@ python markvue.py -p 3000          # Custom port / 指定端口
 
 ## Build EXE / 构建 EXE
 
+Optional — the release already ships a built MarkVue.exe (Quick Start step 1).
 Requirements: Python 3.8+ (only for building; EXE runs independently).
+
+可选 —— release 里已经有构建好的 MarkVue.exe（快速上手第 1 步）。
 前提：Python 3.8+（仅构建时需要，EXE 独立运行）。
 
 ```

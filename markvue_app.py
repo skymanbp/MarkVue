@@ -28,7 +28,7 @@ from functools import partial
 from datetime import datetime
 
 APP_NAME = "MarkVue"
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 DEFAULT_PORT = 18737  # obscure port to avoid conflicts
 
 # ========== Logging ==========
