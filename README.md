@@ -178,6 +178,13 @@ Requirements: Python 3.8+ (only for building; EXE runs independently).
 3. Output: dist/MarkVue.exe  /  生成 dist/MarkVue.exe
 ```
 
+The script excludes pywebview's Qt backend, so a build machine that happens
+to have PyQt5 installed still produces the small Edge WebView2 build
+(~18 MB, not ~53 MB).
+
+脚本会排除 pywebview 的 Qt 后端，所以构建机器上即使装了 PyQt5，产出的仍然是
+基于 Edge WebView2 的小体积版本（约 18 MB，而不是约 53 MB）。
+
 For troubleshooting, build with console: `Build EXE.bat --debug`
 
 排查问题时用调试模式：`Build EXE.bat --debug`
