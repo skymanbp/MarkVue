@@ -732,7 +732,7 @@ body::after {
       </button>
       <div class="dd-menu">
         <button class="dd-item" onclick="exportMD()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Markdown (.md)<span class="shortcut">⌘⇧S</span></button>
-        <button class="dd-item" onclick="exportHTML()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>HTML (.html)<span class="shortcut">⌘⇧E</span></button>
+        <button class="dd-item" onclick="exportHTML()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>HTML (.html)<span class="shortcut">⌘E</span></button>
         <button class="dd-item" onclick="exportPDF()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>PDF (.pdf)</button>
       </div>
     </div>
@@ -1416,7 +1416,7 @@ const COMMANDS = [
     { name:'Open File', icon:'📂', shortcut:'Ctrl+O', fn: openFile },
     { name:'Save', icon:'💾', shortcut:'Ctrl+S', fn: saveFile },
     { name:'Export Markdown', icon:'📥', shortcut:'⌘⇧S', fn: exportMD },
-    { name:'Export HTML', icon:'📄', shortcut:'⌘⇧E', fn: exportHTML },
+    { name:'Export HTML', icon:'📄', shortcut:'⌘E', fn: exportHTML },
     { name:'Export PDF', icon:'📑', fn: exportPDF },
     { name:'Toggle Theme', icon:'🌓', fn: toggleTheme },
     { name:'Zen Mode', icon:'🧘', fn: toggleZen },
@@ -1772,7 +1772,7 @@ function initKeyboard() {
         const ck = e.ctrlKey || e.metaKey;
         if (ck && e.key === 'o') { e.preventDefault(); openFile(); }
         if (ck && !e.shiftKey && e.key === 's') { e.preventDefault(); saveFile(); }
-        if (ck && e.shiftKey && e.key === 's') { e.preventDefault(); exportMD(); }
+        if (ck && e.shiftKey && (e.key === 's' || e.key === 'S')) { e.preventDefault(); exportMD(); }
         if (ck && !e.shiftKey && e.key === 'e') { e.preventDefault(); exportHTML(); }
         if (ck && e.key === 'k') { e.preventDefault(); openCmdPalette(); }
         if (ck && e.key === 'f' && !e.target.closest('.cmd-overlay')) { e.preventDefault(); toggleFindBar(); }

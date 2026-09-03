@@ -2,3 +2,8 @@
 # cc-enforcer index / cc-memory state: machine-local, never content
 .ce/
 .ccm/
+
+# PyInstaller build output ("Build EXE.bat")
+dist/
+build/
+*.spec

@@ -1,0 +1,25 @@
+MarkVue
+Copyright 2026 Zhe Zhang
+
+This product is a derivative work of Markdown-Viewer
+(https://github.com/ThisIs-Developer/Markdown-Viewer), Copyright 2024
+ThisIs-Developer and contributors, licensed under the Apache License,
+Version 2.0.
+
+MarkVue is distributed under the Apache License, Version 2.0. A copy of the
+license is in the LICENSE file at the root of this repository; you may also
+obtain a copy at http://www.apache.org/licenses/LICENSE-2.0
+
+Statement of changes (Apache License 2.0, section 4(b))
+-------------------------------------------------------
+Files in this repository are modified from the upstream project. MarkVue
+consists of:
+
+  MarkVue.html                 Single-file renderer and editor
+  markvue_app.py               Native desktop window via pywebview, backed by
+                               a loopback HTTP server on 127.0.0.1
+  markvue.py                   Local HTTP server mode
+  Build EXE.bat                PyInstaller build script producing MarkVue.exe
+  Launch MarkVue.bat           Python / pywebview launcher
+  Associate .md Files.bat      Windows file-association setup
+  Remove File Association.bat  Windows file-association removal

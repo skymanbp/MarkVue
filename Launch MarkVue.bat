@@ -27,16 +27,16 @@ if not exist "%HTML_FILE%" (
 :: Try native mode (pywebview)
 set "PY="
 where python >nul 2>&1
-if %errorlevel% equ 0 set "PY=python"
+if not errorlevel 1 set "PY=python"
 if not defined PY (
     where py >nul 2>&1
-    if %errorlevel% equ 0 set "PY=py"
+    if not errorlevel 1 set "PY=py"
 )
 
 if defined PY (
     if exist "%APP_FILE%" (
         %PY% -c "import webview" >nul 2>&1
-        if %errorlevel% equ 0 (
+        if not errorlevel 1 (
             echo   [OK] Starting native window...
             if defined OPEN_FILE (
                 %PY% "%APP_FILE%" "%OPEN_FILE%"

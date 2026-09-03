@@ -114,7 +114,7 @@ python markvue.py -p 3000          # Custom port / 指定端口
 |----------------|---------------------|
 | GitHub-style rendering | Full GFM syntax / 完整 GFM 语法 |
 | Real-time preview | 100ms debounce / 输入即渲染 |
-| Code highlighting | 100+ languages, copy button / 100+ 语言，一键复制 |
+| Code highlighting | 36 languages bundled by highlight.js 11.9.0, copy button / highlight.js 11.9.0 内置 36 种语言，一键复制 |
 | LaTeX math | KaTeX, inline and block / 行内与块级公式 |
 | Mermaid diagrams | Flowcharts, sequence, gantt / 流程图、时序图、甘特图 |
 | File dialogs | WebView open/save pickers / WebView 打开、保存选择器 |
@@ -141,6 +141,7 @@ python markvue.py -p 3000          # Custom port / 指定端口
 | `Ctrl+K` | Command palette / 命令面板 |
 | `Ctrl+O` | Open file / 打开文件 |
 | `Ctrl+S` | Save / 保存 |
+| `Ctrl+Shift+S` | Export Markdown / 导出 Markdown |
 | `Ctrl+E` | Export HTML / 导出 HTML |
 | `Ctrl+F` | Find and replace / 查找替换 |
 | `Ctrl+B` | Bold / 粗体 |
@@ -209,6 +210,10 @@ MarkVue/
   Remove File Association.bat Undo association
                               撤销关联
   README.md                   This file / 本文件
+  LICENSE                     Apache License 2.0
+                              Apache 2.0 许可证
+  NOTICE                      Attribution and statement of changes
+                              署名与改动说明
 ```
 
 ---
@@ -227,4 +232,13 @@ MarkVue/
 
 ## License / 许可证
 
-MIT License
+Apache License 2.0 — see [LICENSE](LICENSE).
+
+MarkVue is a fork of [ThisIs-Developer/Markdown-Viewer](https://github.com/ThisIs-Developer/Markdown-Viewer),
+which is licensed under Apache-2.0. Attribution and the statement of changes
+are in [NOTICE](NOTICE).
+
+Apache License 2.0 —— 见 [LICENSE](LICENSE)。
+
+MarkVue 派生自 [ThisIs-Developer/Markdown-Viewer](https://github.com/ThisIs-Developer/Markdown-Viewer)，
+该项目采用 Apache-2.0 许可。署名与改动说明见 [NOTICE](NOTICE)。
