@@ -8,3 +8,6 @@ dist/
 build/
 *.spec
 __pycache__/
+
+# local build virtualenv (owner ruling 2026-09-04: keep a clean venv for release builds)
+.venv-build/
