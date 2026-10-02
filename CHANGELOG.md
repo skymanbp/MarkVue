@@ -70,6 +70,11 @@
 - `tests/test_server.py` covers the server guards (stdlib only).
 
 ### UI / 界面
+- Colour pass: every text/background pair in both themes measured against WCAG (body ≥ 4.5:1,
+  muted ≥ 3:1); the light theme is a warm paper neutral, the dark theme a cool ink navy with
+  blue-grey borders; new tokens for inline code, code-block header, table header, mark,
+  tooltip and scrim; underlined links; refined blockquote, hr, kbd, palette and slide styling.
+  配色：双主题所有文字/背景对都按 WCAG 校验；浅色为暖纸色，深色为冷墨蓝；链接加下划线。
 - Consistent Chinese labels across toolbar, panes and palette (English names remain as
   search aliases); SVG icons replace emoji in the chrome; tooltips no longer fire instantly;
   view switcher is a segmented control; table and math blocks get horizontal scrolling;
