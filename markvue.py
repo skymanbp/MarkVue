@@ -2,8 +2,11 @@
 """
 MarkVue - Local Markdown Viewer (Server Mode)
 ==============================================
-Optional Python launcher with local HTTP server.
-Without Python, just double-click MarkVue.html.
+Optional Python launcher: serves MarkVue.html on 127.0.0.1 and opens it in
+your default browser. Without Python, just double-click MarkVue.html.
+
+The HTTP server itself lives in markvue_app.py and is shared with the
+native desktop app, so both modes have the same (locked-down) endpoints.
 
 Usage:
     python markvue.py                  # Launch
@@ -12,34 +15,34 @@ Usage:
     python markvue.py -n               # No auto-open browser
 """
 
-import http.server
-import socketserver
-import webbrowser
 import os
 import sys
-import json
-import threading
 import signal
 import argparse
-import urllib.parse
-import socket
+import threading
+import webbrowser
 from pathlib import Path
-from functools import partial
 
-APP_NAME = "MarkVue"
-VERSION = "0.0.5"
+sys.path.insert(0, str(Path(__file__).parent.resolve()))
+from markvue_app import (  # noqa: E402
+    APP_NAME, VERSION, DOC, find_free_port, load_initial_file,
+    start_server, wait_for_server,
+)
+
 DEFAULT_PORT = 8899
 SCRIPT_DIR = Path(__file__).parent.resolve()
 HTML_FILE = SCRIPT_DIR / "MarkVue.html"
+
 
 class C:
     B = '\033[94m'; G = '\033[92m'; Y = '\033[93m'
     CY = '\033[96m'; BD = '\033[1m'; DM = '\033[2m'; E = '\033[0m'
 
+
 def banner(port, filepath=None):
     print(f"""
 {C.CY}{C.BD}  ==========================================
-       MarkVue - Markdown Viewer v{VERSION}
+       {APP_NAME} - Markdown Viewer v{VERSION}
   =========================================={C.E}
 
   {C.G}OK{C.E} Server running
@@ -47,102 +50,6 @@ def banner(port, filepath=None):
     if filepath:
         print(f"  {C.B}>>{C.E} File: {C.BD}{os.path.basename(filepath)}{C.E}")
     print(f"  {C.DM}   Press Ctrl+C to stop{C.E}\n")
-
-
-class Handler(http.server.SimpleHTTPRequestHandler):
-    def __init__(self, *args, initial_file=None, **kwargs):
-        self.initial_file = initial_file
-        super().__init__(*args, **kwargs)
-
-    def do_GET(self):
-        path = urllib.parse.urlparse(self.path).path
-
-        if path == '/api/initial-file':
-            if self.initial_file and os.path.isfile(self.initial_file):
-                try:
-                    with open(self.initial_file, 'r', encoding='utf-8', errors='replace') as f:
-                        content = f.read()
-                    self._json(200, {
-                        'content': content,
-                        'filename': os.path.basename(self.initial_file),
-                        'path': os.path.abspath(self.initial_file),
-                    })
-                except Exception as e:
-                    self._json(500, {'error': str(e)})
-                return
-            self.send_response(204)
-            self.end_headers()
-            return
-
-        if path in ('/', '/index.html'):
-            self.path = '/' + HTML_FILE.name
-        super().do_GET()
-
-    def do_POST(self):
-        path = urllib.parse.urlparse(self.path).path
-
-        if path == '/api/save':
-            try:
-                length = int(self.headers.get('Content-Length', 0))
-                body = json.loads(self.rfile.read(length).decode('utf-8'))
-                filepath = body.get('path', '')
-                content = body.get('content', '')
-
-                if not filepath:
-                    self._json(400, {'error': 'No path'})
-                    return
-
-                fp = os.path.abspath(filepath)
-                parent = os.path.dirname(fp)
-                if not os.path.isdir(parent):
-                    self._json(400, {'error': 'Parent directory does not exist'})
-                    return
-
-                with open(fp, 'w', encoding='utf-8', newline='') as f:
-                    f.write(content)
-
-                self._json(200, {'ok': True, 'path': fp})
-                print(f"  {C.G}>>{C.E} Saved: {fp}")
-            except Exception as e:
-                self._json(500, {'error': str(e)})
-            return
-
-        self.send_error(404)
-
-    def _json(self, code, data):
-        body = json.dumps(data, ensure_ascii=False).encode('utf-8')
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self.send_header('Content-Length', str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def translate_path(self, path):
-        path = urllib.parse.unquote(path.split('?', 1)[0].split('#', 1)[0]).strip('/')
-        if not path or path == 'index.html':
-            return str(HTML_FILE)
-        return str(SCRIPT_DIR / path)
-
-    def log_message(self, fmt, *args):
-        pass
-
-
-def find_port(start):
-    for p in range(start, start + 100):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.bind(('127.0.0.1', p))
-                return p
-        except OSError:
-            continue
-    return start
-
-
-def serve(port, initial_file=None):
-    handler = partial(Handler, initial_file=initial_file, directory=str(SCRIPT_DIR))
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", port), handler) as httpd:
-        httpd.serve_forever()
 
 
 def main():
@@ -159,18 +66,25 @@ def main():
     initial_file = None
     if args.file:
         fp = Path(args.file).resolve()
-        if not fp.exists():
+        if not fp.is_file():
             print(f"ERROR: File not found: {args.file}")
             sys.exit(1)
-        initial_file = str(fp)
+        initial_file = load_initial_file(str(fp))
+        if initial_file is None:
+            print(f"ERROR: Could not read: {args.file}")
+            sys.exit(1)
 
-    port = find_port(args.port)
+    port = find_free_port(args.port)
+    if port is None:
+        print(f"ERROR: No free port in {args.port}-{args.port + 99} on 127.0.0.1")
+        sys.exit(1)
     banner(port, initial_file)
 
-    t = threading.Thread(target=serve, args=(port, initial_file), daemon=True)
+    t = threading.Thread(target=start_server, args=(port, str(SCRIPT_DIR)), daemon=True)
     t.start()
+    wait_for_server(port)
 
-    url = f"http://localhost:{port}" + ("?file=1" if initial_file else "")
+    url = f"http://localhost:{port}/" + ("?file=1" if initial_file else "")
     if not args.no_browser:
         webbrowser.open(url)
 

@@ -21,7 +21,8 @@ Download MarkVue.exe. For step 3, also download Associate.md.Files.bat.
 下载 MarkVue.exe。需要第 3 步的话，一并下载 Associate.md.Files.bat。
 ```
 
-Current release / 当前版本 **v0.0.5**
+Current release / 当前版本 **v0.0.5** (source is at v0.1.0 — a new EXE and
+hash follow the next release / 源码已是 v0.1.0，新的 EXE 与校验值随下一次 release 发布)
 
 ```
 SHA-256  1867e037d8495aa4121fcad3e1c65a2be221dffa49d35ddc833805a39e12b93a  MarkVue.exe
@@ -62,13 +63,38 @@ Building from source instead: see [Build EXE](#build-exe--构建-exe).
 
 MarkVue uses pywebview to embed a browser engine directly inside a native
 window. The HTML/CSS/JS rendering runs locally in the window, not in an
-external browser. File open and save use the WebView's File System Access
-pickers; a file the app was launched with is written back through the app's
-local /api/save endpoint.
+external browser. In the native app, Open / Save / Save As go through
+pywebview's JS bridge to real OS file dialogs, so the open file stays linked
+by path (drag-and-drop from Explorer links it too). In plain-browser mode the
+File System Access pickers are used, and a file passed on the command line is
+written back through the local /api/save endpoint.
 
 MarkVue 使用 pywebview 将浏览器引擎直接嵌入原生窗口中。HTML/CSS/JS 渲染
-在窗口内部运行，不打开外部浏览器。文件打开和保存使用 WebView 的 File System
-Access 选择器；启动时传入的文件通过应用本地的 /api/save 接口写回。
+在窗口内部运行，不打开外部浏览器。原生应用里，打开 / 保存 / 另存为通过
+pywebview 的 JS 桥接调用系统文件对话框，打开的文件按路径保持关联（从资源管理
+器拖入的文件同样关联）。纯浏览器模式使用 File System Access 选择器；命令行传入
+的文件通过本地 /api/save 接口写回。
+
+The embedded server is locked down / 内置服务器做了最小化与加固:
+
+- Only `/` (MarkVue.html), `/api/initial-file`, `/api/save` and `/asset/<file>`
+  exist; nothing else in the program folder is reachable.
+- Every request needs a loopback `Host` header (DNS-rebinding guard).
+- `/api/save` accepts only same-origin `application/json`, and only writes
+  files that MarkVue itself opened — never an arbitrary path.
+- `/asset/` serves images that sit next to the open document (so relative
+  `![](img.png)` works) and refuses to leave that folder.
+
+- 只有 `/`（MarkVue.html）、`/api/initial-file`、`/api/save`、`/asset/<文件>` 四个
+  路径，程序目录中的其他文件一律不可访问。
+- 所有请求必须带回环地址的 `Host` 头（防 DNS 重绑定）。
+- `/api/save` 只接受同源的 `application/json`，且只写 MarkVue 自己打开过的文件。
+- `/asset/` 提供文档同目录下的图片（相对路径 `![](img.png)` 可用），不会越出该目录。
+
+Both launch methods share this one server implementation (markvue.py imports
+it from markvue_app.py). `python -m unittest tests/test_server.py` checks the
+guards. / 两种启动方式共用同一份服务器实现（markvue.py 从 markvue_app.py 导入），
+`python -m unittest tests/test_server.py` 可验证这些防护。
 
 ```
 Server mode (markvue.py)     Native mode (current)
@@ -126,25 +152,33 @@ python markvue.py -p 3000          # Custom port / 指定端口
 
 | Feature / 功能 | Description / 说明 |
 |----------------|---------------------|
-| GitHub-style rendering | Full GFM syntax / 完整 GFM 语法 |
-| Real-time preview | 100ms debounce / 输入即渲染 |
+| GitHub-style rendering | Full GFM syntax, heading anchors (`#标题` links work) / 完整 GFM 语法，标题锚点可跳转 |
+| Real-time preview | 120ms debounce, stale renders discarded / 输入即渲染，丢弃过期渲染 |
 | Code highlighting | 36 languages bundled by highlight.js 11.9.0, copy button / highlight.js 11.9.0 默认包内置 36 种语言，一键复制 |
-| LaTeX math | KaTeX, inline and block / 行内与块级公式 |
-| Mermaid diagrams | Flowcharts, sequence, gantt / 流程图、时序图、甘特图 |
-| File dialogs | WebView open/save pickers / WebView 打开、保存选择器 |
+| LaTeX math | KaTeX `$…$` / `$$…$$`; `$5 and $6` and `$HOME` in code stay text / 行内与块级公式，货币符号与代码里的 `$` 不会误判 |
+| Mermaid diagrams | Flowcharts, sequence, gantt; rendered once and cached / 流程图、时序图、甘特图，结果缓存 |
+| Clickable task lists | Tick a box in the preview, the source updates / 预览里勾选，源码同步 |
+| Relative images | `![](img.png)` next to the open file just works / 文档同目录图片直接显示 |
+| Links | http(s) links open in the system browser, `#anchors` jump inside the preview / 外链用系统浏览器打开，锚点在预览内跳转 |
+| File dialogs | Native dialogs in the app, WebView pickers in a browser / 原生对话框，浏览器里用 WebView 选择器 |
+| Offline | Works without the CDN: shell loads, preview shows plain text with a notice / 无网络时界面照常，预览降级为纯文本并提示 |
 
 ### Extended / 扩展功能
 
 | Feature / 功能 | Description / 说明 |
 |----------------|---------------------|
-| Command palette | `Ctrl+K` filter by name / 按名称筛选命令 |
-| Outline navigation | Auto TOC sidebar / 大纲侧栏 |
-| Slide mode | Split by `---` / 幻灯片模式 |
+| Command palette | `Ctrl+K`, searchable in Chinese or English / 中英文都能搜 |
+| Outline navigation | Auto TOC sidebar, highlights the section you are reading / 大纲侧栏，随滚动高亮 |
+| Slide mode | Split by `---`, arrow keys, Home/End, progress bar / 幻灯片模式 |
 | Clipboard image paste | Ctrl+V screenshot / 粘贴截图 |
-| Find and replace | Full-text / 全文查找替换 |
-| Zen mode | Focused writing / 专注写作 |
-| Save to file | Ctrl+S writes back to the open file / 写回已打开的文件 |
-| Resizable split | Drag divider / 拖动分栏 |
+| Find and replace | Case toggle, regex toggle, Enter / Shift+Enter to step / 区分大小写、正则，回车逐个跳转 |
+| Smart editing | Enter continues lists and quotes, Tab / Shift+Tab indents blocks, Ctrl+B toggles bold off again, undo keeps working / 列表自动续写，块缩进，加粗可切换，撤销有效 |
+| Zen mode | Focused writing, Esc leaves / 专注写作，Esc 退出 |
+| Save / Save As | Ctrl+S writes back, Ctrl+Shift+S picks a new location / 写回或另存 |
+| Unsaved-change guard | Asks before closing, opening or creating over unsaved work / 关闭、打开、新建前提醒未保存 |
+| Export | Markdown, standalone HTML, real text PDF via the print dialog / Markdown、独立 HTML、通过打印对话框生成可选择文字的 PDF |
+| Theme | Follows the OS until you pick one; no flash on start / 跟随系统，启动不闪烁 |
+| Resizable split | Drag divider, double-click to reset, remembered / 拖动分栏，双击复位，自动记忆 |
 
 ---
 
@@ -153,14 +187,22 @@ python markvue.py -p 3000          # Custom port / 指定端口
 | Shortcut / 快捷键 | Action / 功能 |
 |--------------------|----------------|
 | `Ctrl+K` | Command palette / 命令面板 |
+| `Ctrl+N` | New file / 新建 |
 | `Ctrl+O` | Open file / 打开文件 |
 | `Ctrl+S` | Save / 保存 |
-| `Ctrl+Shift+S` | Export Markdown / 导出 Markdown |
+| `Ctrl+Shift+S` | Save as / 另存为 |
 | `Ctrl+E` | Export HTML / 导出 HTML |
-| `Ctrl+F` | Find and replace / 查找替换 |
-| `Ctrl+B` | Bold / 粗体 |
-| `Ctrl+I` | Italic / 斜体 |
+| `Ctrl+P` | Export PDF (print dialog) / 导出 PDF（打印对话框） |
+| `Ctrl+F` / `Ctrl+H` | Find / replace / 查找、替换 |
+| `Ctrl+B` / `Ctrl+I` / `` Ctrl+` `` | Bold / italic / inline code (toggle) / 粗体、斜体、行内代码（可切换） |
+| `Ctrl+1` ~ `Ctrl+3` | Heading level / 标题级别 |
+| `Ctrl+Shift+L` | Insert link / 插入链接 |
+| `Tab` / `Shift+Tab` | Indent / outdent (multi-line) / 缩进、反缩进 |
 | `Ctrl+Shift+O` | Outline / 大纲 |
+| `Ctrl+\` | Split ⇄ preview only / 分屏与仅预览切换 |
+| `Esc` | Close palette, find bar, slides, zen / 关闭面板、查找栏、幻灯片、禅模式 |
+
+On macOS use `⌘` instead of `Ctrl`. / macOS 上用 `⌘` 代替 `Ctrl`。
 
 ---
 
@@ -233,6 +275,9 @@ MarkVue/
                               设为默认程序
   Remove File Association.bat Undo association
                               撤销关联
+  tests/test_server.py        Server guard tests (stdlib unittest)
+                              服务器防护测试
+  CHANGELOG.md                Release notes / 更新日志
   README.md                   This file / 本文件
   LICENSE                     Apache License 2.0
                               Apache 2.0 许可证
@@ -245,12 +290,12 @@ MarkVue/
 ## Tech Stack / 技术栈
 
 - Native window: pywebview (EdgeChromium on Windows)
-- Markdown: Marked.js
-- Code: highlight.js
-- Math: KaTeX
-- Diagrams: Mermaid
-- Security: DOMPurify
-- PDF: html2canvas + jsPDF
+- Markdown: Marked.js 15 (pinned)
+- Code: highlight.js 11.9
+- Math: KaTeX 0.16
+- Diagrams: Mermaid 10
+- Security: DOMPurify 3.4 (every rendered fragment is sanitized)
+- PDF: the WebView's own print engine (text stays selectable, pages break cleanly)
 
 ---
 

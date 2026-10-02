@@ -23,3 +23,4 @@ files are:
   Launch MarkVue.bat           Python / pywebview launcher
   Associate .md Files.bat      Windows file-association setup
   Remove File Association.bat  Windows file-association removal
+  tests/test_server.py         Tests for the loopback server's guards
