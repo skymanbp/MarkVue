@@ -178,6 +178,7 @@ python markvue.py -p 3000          # Custom port / 指定端口
 | Unsaved-change guard | Asks before closing, opening or creating over unsaved work / 关闭、打开、新建前提醒未保存 |
 | Export | Markdown, standalone HTML, real text PDF via the print dialog / Markdown、独立 HTML、通过打印对话框生成可选择文字的 PDF |
 | Theme | Follows the OS until you pick one; no flash on start / 跟随系统，启动不闪烁 |
+| Language | English by default; one click (toolbar `中` / `EN`, status bar, or palette) switches the whole UI and sample to 中文, remembered / 默认英文，一键切换中文并记忆 |
 | Resizable split | Drag divider, double-click to reset, remembered / 拖动分栏，双击复位，自动记忆 |
 
 ---
@@ -201,6 +202,11 @@ python markvue.py -p 3000          # Custom port / 指定端口
 | `Ctrl+Shift+O` | Outline / 大纲 |
 | `Ctrl+\` | Split ⇄ preview only / 分屏与仅预览切换 |
 | `Esc` | Close palette, find bar, slides, zen / 关闭面板、查找栏、幻灯片、禅模式 |
+
+The interface is English by default; the `中` button in the toolbar (or the
+status bar, or the palette command "Language") switches it to Chinese and the
+choice is remembered. / 界面默认英文，工具栏的 `中` 按钮（或状态栏、命令面板的
+"语言"）切换为中文，选择会被记住。
 
 On macOS use `⌘` instead of `Ctrl`. / macOS 上用 `⌘` 代替 `Ctrl`。
 

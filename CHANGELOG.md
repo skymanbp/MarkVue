@@ -45,6 +45,9 @@
 - DOMPurify bumped 3.0.6 → 3.4.16; Mermaid runs with `securityLevel: strict`.
 
 ### Added / 新增
+- Bilingual interface: English by default, 中文 one click away (toolbar / status bar /
+  palette), remembered across launches. The sample document exists in both languages.
+  界面双语：默认英文，一键切换中文并记忆；示例文档中英各一份。
 - Native Open / Save / Save As dialogs in the desktop app via the pywebview bridge
   (previously unused); the open file stays linked by path, drag-and-drop from Explorer too.
   桌面应用使用原生文件对话框，文件按路径关联。
