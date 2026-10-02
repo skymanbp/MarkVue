@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -252,6 +252,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 .tb:disabled { opacity: 0.45; cursor: not-allowed; }
 .tb svg { width:15px; height:15px; flex-shrink:0; }
 .tb-icon { padding: 6px; width: 30px; justify-content: center; }
+.tb-lang { font: 700 11px var(--font-body); letter-spacing: 0.02em; }
 .toolbar-section.center .tb-icon { height: 26px; width: 30px; }
 
 /* Tooltip */
@@ -853,74 +854,75 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
       <span class="logo-name">MarkVue</span>
     </div>
     <div class="sep"></div>
-    <button class="tb" onclick="newFile()" data-tip="新建 (Ctrl+N)">
+    <button class="tb" onclick="newFile()" data-i18n-tip="tip.new">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      <span class="tb-label">新建</span>
+      <span class="tb-label" data-i18n="btn.new"></span>
     </button>
-    <button class="tb" onclick="openFile()" data-tip="打开 (Ctrl+O)">
+    <button class="tb" onclick="openFile()" data-i18n-tip="tip.open">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-      <span class="tb-label">打开</span>
+      <span class="tb-label" data-i18n="btn.open"></span>
     </button>
-    <button class="tb" id="btn-save" onclick="saveFile()" data-tip="保存 (Ctrl+S)">
+    <button class="tb" id="btn-save" onclick="saveFile()" data-i18n-tip="tip.save">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-      <span class="tb-label">保存</span><span class="save-badge" id="save-badge"></span>
+      <span class="tb-label" data-i18n="btn.save"></span><span class="save-badge" id="save-badge"></span>
     </button>
     <div class="dropdown" id="dd-export">
       <button class="tb" onclick="toggleDD('dd-export')" aria-haspopup="true">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span class="tb-label">导出</span>
+        <span class="tb-label" data-i18n="btn.export"></span>
         <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="dd-menu" role="menu">
-        <button class="dd-item" onclick="saveFileAs()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>另存为…<span class="shortcut" data-sc="Ctrl+Shift+S"></span></button>
+        <button class="dd-item" onclick="saveFileAs()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg><span data-i18n="menu.saveAs"></span><span class="shortcut" data-sc="Ctrl+Shift+S"></span></button>
         <div class="dd-divider"></div>
-        <button class="dd-item" onclick="exportMD()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>下载 Markdown (.md)</button>
-        <button class="dd-item" onclick="exportHTML()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>导出 HTML (.html)<span class="shortcut" data-sc="Ctrl+E"></span></button>
-        <button class="dd-item" onclick="exportPDF()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>导出 PDF / 打印<span class="shortcut" data-sc="Ctrl+P"></span></button>
+        <button class="dd-item" onclick="exportMD()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span data-i18n="menu.downloadMd"></span></button>
+        <button class="dd-item" onclick="exportHTML()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><span data-i18n="menu.exportHtml"></span><span class="shortcut" data-sc="Ctrl+E"></span></button>
+        <button class="dd-item" onclick="exportPDF()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span data-i18n="menu.exportPdf"></span><span class="shortcut" data-sc="Ctrl+P"></span></button>
       </div>
     </div>
   </div>
 
-  <div class="toolbar-section center" role="group" aria-label="视图">
-    <button class="tb tb-icon view-btn active" data-view="split" onclick="setView('split')" data-tip="分屏">
+  <div class="toolbar-section center" role="group" aria-label="View">
+    <button class="tb tb-icon view-btn active" data-view="split" onclick="setView('split')" data-i18n-tip="tip.split">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
     </button>
-    <button class="tb tb-icon view-btn" data-view="editor-only" onclick="setView('editor-only')" data-tip="仅编辑">
+    <button class="tb tb-icon view-btn" data-view="editor-only" onclick="setView('editor-only')" data-i18n-tip="tip.editorOnly">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="13" y2="12"/><line x1="8" y1="16" x2="11" y2="16"/></svg>
     </button>
-    <button class="tb tb-icon view-btn" data-view="preview-only" onclick="setView('preview-only')" data-tip="仅预览">
+    <button class="tb tb-icon view-btn" data-view="preview-only" onclick="setView('preview-only')" data-i18n-tip="tip.previewOnly">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
     </button>
   </div>
 
   <div class="toolbar-section">
-    <button class="tb" id="btn-outline" onclick="toggleOutline()" data-tip="大纲 (Ctrl+Shift+O)">
+    <button class="tb" id="btn-outline" onclick="toggleOutline()" data-i18n-tip="tip.outline">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-      <span class="tb-label">大纲</span>
+      <span class="tb-label" data-i18n="btn.outline"></span>
     </button>
-    <button class="tb tb-icon" id="btn-sync" onclick="toggleSync()" data-tip="同步滚动">
+    <button class="tb tb-icon" id="btn-sync" onclick="toggleSync()" data-i18n-tip="tip.sync">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
     </button>
-    <button class="tb tb-icon" onclick="enterSlideMode()" data-tip="幻灯片模式">
+    <button class="tb tb-icon" id="btn-slides" onclick="enterSlideMode()" data-i18n-tip="tip.slides">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
     </button>
     <div class="sep"></div>
-    <button class="tb tb-icon" onclick="toggleZen()" data-tip="禅模式">
+    <button class="tb tb-icon" id="btn-zen" onclick="toggleZen()" data-i18n-tip="tip.zen">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3"/><path d="M21 8V5a2 2 0 00-2-2h-3"/><path d="M3 16v3a2 2 0 002 2h3"/><path d="M16 21h3a2 2 0 002-2v-3"/></svg>
     </button>
-    <button class="tb tb-icon" onclick="toggleTheme()" data-tip="切换主题">
+    <button class="tb tb-icon" id="btn-theme" onclick="toggleTheme()" data-i18n-tip="tip.theme">
       <svg id="ico-sun" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       <svg id="ico-moon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
     </button>
-    <button class="tb tb-icon" onclick="openCmdPalette()" data-tip="命令面板 (Ctrl+K)">
+    <button class="tb tb-icon tb-lang" id="btn-lang" onclick="toggleLang()" data-i18n-tip="tip.lang"></button>
+    <button class="tb tb-icon" onclick="openCmdPalette()" data-i18n-tip="tip.palette">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </button>
   </div>
 </div>
 
 <div class="notice" id="notice" role="alert">
-  <span>⚠️</span><span id="notice-text">渲染库加载失败（需要联网访问 CDN）。预览以纯文本显示。</span>
-  <button onclick="location.reload()">重试</button>
+  <span>⚠️</span><span id="notice-text" data-i18n="notice.libs"></span>
+  <button onclick="location.reload()" data-i18n="notice.retry"></button>
 </div>
 
 <!-- ===== Main Content ===== -->
@@ -928,8 +930,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   <!-- Outline Sidebar -->
   <div class="outline-sidebar" id="outline-sidebar">
     <div class="outline-header">
-      <span>目录大纲</span>
-      <button class="pane-btn" onclick="toggleOutline()" title="关闭大纲">✕</button>
+      <span data-i18n="outline.title"></span>
+      <button class="pane-btn" onclick="toggleOutline()" data-i18n-title="outline.close">✕</button>
     </div>
     <ul class="outline-list" id="outline-list"></ul>
   </div>
@@ -939,74 +941,74 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     <div class="pane-head">
       <span class="pane-label">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg>
-        编辑
+        <span data-i18n="pane.editor"></span>
       </span>
       <div class="pane-actions">
-        <button class="pane-btn" id="btn-find" onclick="toggleFindBar()" title="查找替换 (Ctrl+F)">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>查找
+        <button class="pane-btn" id="btn-find" onclick="toggleFindBar()" data-i18n-title="title.find">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span data-i18n="pane.find"></span>
         </button>
-        <button class="pane-btn" onclick="copyMD()" title="复制全部 Markdown">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>复制
+        <button class="pane-btn" onclick="copyMD()" data-i18n-title="title.copyMd">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg><span data-i18n="pane.copy"></span>
         </button>
       </div>
     </div>
     <!-- Formatting Toolbar -->
     <div class="format-bar" id="format-bar">
-      <button class="fmt-btn" onclick="fmt('**','**')" title="粗体 (Ctrl+B)"><b>B</b></button>
-      <button class="fmt-btn" onclick="fmt('*','*')" title="斜体 (Ctrl+I)"><i>I</i></button>
-      <button class="fmt-btn" onclick="fmt('~~','~~')" title="删除线"><s>S</s></button>
-      <button class="fmt-btn" onclick="fmt('`','`')" title="行内代码 (Ctrl+`)">&lt;/&gt;</button>
+      <button class="fmt-btn" onclick="fmt('**','**')" data-i18n-title="fmt.bold"><b>B</b></button>
+      <button class="fmt-btn" onclick="fmt('*','*')" data-i18n-title="fmt.italic"><i>I</i></button>
+      <button class="fmt-btn" onclick="fmt('~~','~~')" data-i18n-title="fmt.strike"><s>S</s></button>
+      <button class="fmt-btn" onclick="fmt('`','`')" data-i18n-title="fmt.code">&lt;/&gt;</button>
       <div class="fmt-sep"></div>
-      <button class="fmt-btn" onclick="fmtHeading(1)" title="一级标题 (Ctrl+1)">H1</button>
-      <button class="fmt-btn" onclick="fmtHeading(2)" title="二级标题 (Ctrl+2)">H2</button>
-      <button class="fmt-btn" onclick="fmtHeading(3)" title="三级标题 (Ctrl+3)">H3</button>
+      <button class="fmt-btn" onclick="fmtHeading(1)" data-i18n-title="fmt.h1">H1</button>
+      <button class="fmt-btn" onclick="fmtHeading(2)" data-i18n-title="fmt.h2">H2</button>
+      <button class="fmt-btn" onclick="fmtHeading(3)" data-i18n-title="fmt.h3">H3</button>
       <div class="fmt-sep"></div>
-      <button class="fmt-btn" onclick="fmtLine('- ')" title="无序列表">•</button>
-      <button class="fmt-btn" onclick="fmtLine('1. ')" title="有序列表">1.</button>
-      <button class="fmt-btn" onclick="fmtLine('- [ ] ')" title="任务列表">☐</button>
-      <button class="fmt-btn" onclick="fmtLine('> ')" title="引用">❝</button>
+      <button class="fmt-btn" onclick="fmtLine('- ')" data-i18n-title="fmt.ul">•</button>
+      <button class="fmt-btn" onclick="fmtLine('1. ')" data-i18n-title="fmt.ol">1.</button>
+      <button class="fmt-btn" onclick="fmtLine('- [ ] ')" data-i18n-title="fmt.task">☐</button>
+      <button class="fmt-btn" onclick="fmtLine('> ')" data-i18n-title="fmt.quote">❝</button>
       <div class="fmt-sep"></div>
-      <button class="fmt-btn" onclick="insertLink()" title="链接 (Ctrl+Shift+L)">
+      <button class="fmt-btn" onclick="insertLink()" data-i18n-title="fmt.link">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
       </button>
-      <button class="fmt-btn" onclick="insertImage()" title="图片">
+      <button class="fmt-btn" onclick="insertImage()" data-i18n-title="fmt.image">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       </button>
-      <button class="fmt-btn" onclick="insertTable()" title="表格">
+      <button class="fmt-btn" onclick="insertTable()" data-i18n-title="fmt.table">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
       </button>
-      <button class="fmt-btn" onclick="insertCodeBlock()" title="代码块">{ }</button>
-      <button class="fmt-btn" onclick="insertMath()" title="数学公式">∑</button>
-      <button class="fmt-btn" onclick="insertText('\n---\n')" title="分割线">—</button>
+      <button class="fmt-btn" onclick="insertCodeBlock()" data-i18n-title="fmt.codeBlock">{ }</button>
+      <button class="fmt-btn" onclick="insertMath()" data-i18n-title="fmt.math">∑</button>
+      <button class="fmt-btn" onclick="insertText('\n---\n')" data-i18n-title="fmt.hr">—</button>
     </div>
     <!-- Find & Replace -->
     <div class="find-bar" id="find-bar">
-      <input class="find-input" id="find-input" placeholder="查找…" oninput="doFind()" aria-label="查找">
-      <button class="find-btn toggle" id="find-case" onclick="toggleFindOpt('case')" title="区分大小写">Aa</button>
-      <button class="find-btn toggle" id="find-regex" onclick="toggleFindOpt('regex')" title="正则表达式">.*</button>
+      <input class="find-input" id="find-input" oninput="doFind()" data-i18n-placeholder="find.find" data-i18n-aria="find.find">
+      <button class="find-btn toggle" id="find-case" onclick="toggleFindOpt('case')" data-i18n-title="find.case">Aa</button>
+      <button class="find-btn toggle" id="find-regex" onclick="toggleFindOpt('regex')" data-i18n-title="find.regex">.*</button>
       <span class="find-count" id="find-count"></span>
-      <button class="find-btn" onclick="findPrev()" title="上一个 (Shift+Enter)">↑</button>
-      <button class="find-btn" onclick="findNext()" title="下一个 (Enter)">↓</button>
-      <input class="find-input" id="replace-input" placeholder="替换为…" aria-label="替换">
-      <button class="find-btn" onclick="doReplace()">替换</button>
-      <button class="find-btn" onclick="doReplaceAll()">全部替换</button>
-      <button class="find-btn" onclick="toggleFindBar(false)" title="关闭 (Esc)">✕</button>
+      <button class="find-btn" onclick="findPrev()" data-i18n-title="find.prev">↑</button>
+      <button class="find-btn" onclick="findNext()" data-i18n-title="find.next">↓</button>
+      <input class="find-input" id="replace-input" data-i18n-placeholder="find.replaceWith" data-i18n-aria="find.replace">
+      <button class="find-btn" id="btn-replace" onclick="doReplace()" data-i18n="find.replace"></button>
+      <button class="find-btn" id="btn-replace-all" onclick="doReplaceAll()" data-i18n="find.replaceAll"></button>
+      <button class="find-btn" onclick="toggleFindBar(false)" data-i18n-title="find.close">✕</button>
     </div>
-    <textarea id="editor" spellcheck="false" aria-label="Markdown 编辑器" placeholder="在此输入 Markdown…&#10;&#10;Ctrl+K  命令面板&#10;Ctrl+F  查找替换&#10;Ctrl+O  打开文件&#10;也可以把 .md 文件拖进来，或直接粘贴剪贴板里的图片"></textarea>
+    <textarea id="editor" spellcheck="false" data-i18n-aria="editor.aria" data-i18n-placeholder="editor.placeholder"></textarea>
   </div>
 
   <!-- Divider -->
-  <div class="divider" id="divider" title="拖动调整分栏，双击复位"></div>
+  <div class="divider" id="divider" data-i18n-title="divider.title"></div>
 
   <!-- Preview Pane -->
   <div class="pane preview-pane">
     <div class="pane-head">
       <span class="pane-label">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        预览
+        <span data-i18n="pane.preview"></span>
       </span>
       <div class="pane-actions">
-        <button class="pane-btn" onclick="copyHTML()" title="复制渲染后的 HTML">
+        <button class="pane-btn" onclick="copyHTML()" data-i18n-title="title.copyHtml">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>HTML
         </button>
       </div>
@@ -1014,19 +1016,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     <div id="preview-scroll">
       <div class="welcome" id="welcome">
         <div class="welcome-big">MarkVue</div>
-        <div class="welcome-sub">
-          在左侧输入 Markdown，或把 <kbd>.md</kbd> 文件拖进窗口。<br>
-          预览会随输入实时更新。
-        </div>
+        <div class="welcome-sub" data-i18n-html="welcome.sub"></div>
         <div class="welcome-keys">
-          <span><kbd data-kbd="Ctrl+K">Ctrl+K</kbd></span><span>命令面板，搜索所有功能</span>
-          <span><kbd data-kbd="Ctrl+O">Ctrl+O</kbd></span><span>打开文件</span>
-          <span><kbd data-kbd="Ctrl+S">Ctrl+S</kbd></span><span>保存</span>
-          <span><kbd data-kbd="Ctrl+F">Ctrl+F</kbd></span><span>查找替换</span>
+          <span><kbd data-kbd="Ctrl+K">Ctrl+K</kbd></span><span data-i18n="welcome.kPalette"></span>
+          <span><kbd data-kbd="Ctrl+O">Ctrl+O</kbd></span><span data-i18n="welcome.kOpen"></span>
+          <span><kbd data-kbd="Ctrl+S">Ctrl+S</kbd></span><span data-i18n="welcome.kSave"></span>
+          <span><kbd data-kbd="Ctrl+F">Ctrl+F</kbd></span><span data-i18n="welcome.kFind"></span>
         </div>
         <div class="welcome-actions">
-          <button class="tb" onclick="openFile()">打开文件</button>
-          <button class="tb" onclick="loadSample()">载入示例文档</button>
+          <button class="tb" onclick="openFile()" data-i18n="welcome.open"></button>
+          <button class="tb" onclick="loadSample()" data-i18n="welcome.sample"></button>
         </div>
       </div>
       <div class="md-body" id="preview-body" style="display:none"></div>
@@ -1039,31 +1038,32 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   <div class="sb-group">
     <span class="sb-item"><span class="save-dot no-file" id="sb-dot"></span></span>
     <span class="sb-item" id="sb-file">Untitled</span>
-    <span class="sb-item sb-btn sb-filepath" id="sb-path" title="点击复制路径" onclick="copyFilePath()" style="display:none"></span>
-    <span class="sb-item sb-saved" id="sb-autosave" style="display:none">草稿已暂存</span>
+    <span class="sb-item sb-btn sb-filepath" id="sb-path" onclick="copyFilePath()" style="display:none"></span>
+    <span class="sb-item sb-saved" id="sb-autosave" style="display:none" data-i18n="sb.draft"></span>
   </div>
   <div class="sb-group sb-stats">
-    <span class="sb-item" id="sb-pos">行 1, 列 1</span>
-    <span class="sb-item" id="sb-words">0 词</span>
-    <span class="sb-item" id="sb-chars">0 字符</span>
-    <span class="sb-item" id="sb-lines">0 行</span>
-    <span class="sb-item" id="sb-read">~0 min</span>
-    <span class="sb-item sb-btn" id="sb-theme" onclick="toggleTheme()" title="切换主题"></span>
+    <span class="sb-item" id="sb-pos"></span>
+    <span class="sb-item" id="sb-words"></span>
+    <span class="sb-item" id="sb-chars"></span>
+    <span class="sb-item" id="sb-lines"></span>
+    <span class="sb-item" id="sb-read"></span>
+    <span class="sb-item sb-btn" id="sb-theme" onclick="toggleTheme()" data-i18n-title="tip.theme"></span>
+    <span class="sb-item sb-btn" id="sb-lang" onclick="toggleLang()" data-i18n-title="tip.lang"></span>
   </div>
 </div>
-<div class="zen-exit">Esc 退出禅模式</div>
+<div class="zen-exit" data-i18n="zen.exit"></div>
 </div>
 
 <!-- ===== Command Palette ===== -->
 <div class="cmd-overlay" id="cmd-overlay" onclick="if(event.target===this)closeCmdPalette()">
-  <div class="cmd-box" role="dialog" aria-label="命令面板">
+  <div class="cmd-box" role="dialog" data-i18n-aria="tip.palette">
     <div class="cmd-input-wrap">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="cmd-input" placeholder="输入命令（中文或英文）…" autocomplete="off" spellcheck="false">
+      <input id="cmd-input" autocomplete="off" spellcheck="false" data-i18n-placeholder="cmd.placeholder">
     </div>
     <div class="cmd-list" id="cmd-list"></div>
     <div class="cmd-footer">
-      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span><span><kbd>↵</kbd> 执行</span><span><kbd>Esc</kbd> 关闭</span>
+      <span><kbd>↑</kbd><kbd>↓</kbd> <span data-i18n="cmd.select"></span></span><span><kbd>↵</kbd> <span data-i18n="cmd.run"></span></span><span><kbd>Esc</kbd> <span data-i18n="cmd.close"></span></span>
     </div>
   </div>
 </div>
@@ -1073,12 +1073,12 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   <div class="slide-toolbar">
     <div class="slide-info">
       <span class="slide-counter" id="slide-counter">1 / 1</span>
-      <span class="slide-hint">← → 翻页 · Home/End 首末页 · Esc 退出</span>
+      <span class="slide-hint" data-i18n="slide.hint"></span>
     </div>
     <div style="display:flex;gap:8px">
       <button class="tb" onclick="exitSlideMode()">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        退出
+        <span data-i18n="slide.exit"></span>
       </button>
     </div>
   </div>
@@ -1089,9 +1089,9 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
     </div>
   </div>
   <div class="slide-nav">
-    <button class="slide-nav-btn" id="slide-prev" onclick="slideNav(-1)">← 上一页</button>
+    <button class="slide-nav-btn" id="slide-prev" onclick="slideNav(-1)" data-i18n="slide.prev"></button>
     <div class="slide-dots" id="slide-dots"></div>
-    <button class="slide-nav-btn" id="slide-next" onclick="slideNav(1)">下一页 →</button>
+    <button class="slide-nav-btn" id="slide-next" onclick="slideNav(1)" data-i18n="slide.next"></button>
   </div>
 </div>
 
@@ -1099,8 +1099,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 <div class="drop-overlay" id="drop-overlay">
   <div class="drop-box">
     <div style="font-size:48px">📂</div>
-    <div class="drop-title">释放以打开文件</div>
-    <div class="drop-sub">支持 .md .markdown .txt .mdx .rmd</div>
+    <div class="drop-title" data-i18n="drop.title"></div>
+    <div class="drop-sub" data-i18n="drop.sub"></div>
   </div>
 </div>
 <div class="toast-wrap" id="toast-wrap" aria-live="polite"></div>
@@ -1111,6 +1111,150 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 // MARKVUE — Application Logic
 // ==========================================================
 'use strict';
+
+// ===== i18n (English default, Chinese available; persisted) =====
+const I18N = {
+en: {
+  'btn.new': 'New', 'btn.open': 'Open', 'btn.save': 'Save', 'btn.export': 'Export', 'btn.outline': 'Outline',
+  'tip.new': 'New (Ctrl+N)', 'tip.open': 'Open (Ctrl+O)', 'tip.save': 'Save (Ctrl+S)',
+  'tip.split': 'Split', 'tip.editorOnly': 'Editor only', 'tip.previewOnly': 'Preview only',
+  'tip.outline': 'Outline (Ctrl+Shift+O)', 'tip.sync': 'Sync scroll', 'tip.slides': 'Slide mode', 'tip.zen': 'Zen mode',
+  'tip.theme': 'Toggle theme', 'tip.lang': '切换到中文', 'tip.palette': 'Command palette (Ctrl+K)',
+  'menu.saveAs': 'Save As…', 'menu.downloadMd': 'Download Markdown (.md)', 'menu.exportHtml': 'Export HTML (.html)', 'menu.exportPdf': 'Export PDF / Print',
+  'notice.libs': 'Rendering libraries failed to load (CDN access needed). Preview shows plain text.', 'notice.retry': 'Retry',
+  'outline.title': 'Outline', 'outline.close': 'Close outline', 'outline.empty': 'No headings yet<br>Lines starting with # appear here',
+  'pane.editor': 'Editor', 'pane.preview': 'Preview', 'pane.find': 'Find', 'pane.copy': 'Copy',
+  'title.find': 'Find & replace (Ctrl+F)', 'title.copyMd': 'Copy all Markdown', 'title.copyHtml': 'Copy rendered HTML',
+  'fmt.bold': 'Bold (Ctrl+B)', 'fmt.italic': 'Italic (Ctrl+I)', 'fmt.strike': 'Strikethrough', 'fmt.code': 'Inline code (Ctrl+`)',
+  'fmt.h1': 'Heading 1 (Ctrl+1)', 'fmt.h2': 'Heading 2 (Ctrl+2)', 'fmt.h3': 'Heading 3 (Ctrl+3)',
+  'fmt.ul': 'Bullet list', 'fmt.ol': 'Numbered list', 'fmt.task': 'Task list', 'fmt.quote': 'Quote',
+  'fmt.link': 'Link (Ctrl+Shift+L)', 'fmt.image': 'Image', 'fmt.table': 'Table', 'fmt.codeBlock': 'Code block', 'fmt.math': 'Math', 'fmt.hr': 'Horizontal rule',
+  'find.find': 'Find…', 'find.replaceWith': 'Replace with…', 'find.replace': 'Replace', 'find.replaceAll': 'Replace all',
+  'find.case': 'Match case', 'find.regex': 'Regular expression', 'find.prev': 'Previous (Shift+Enter)', 'find.next': 'Next (Enter)', 'find.close': 'Close (Esc)',
+  'find.none': 'No matches', 'find.badRegex': 'Invalid regex', 'find.nothing': 'Nothing to replace', 'find.replaced': 'Replaced {n} occurrence(s)',
+  'editor.aria': 'Markdown editor',
+  'editor.placeholder': 'Type Markdown here…\n\nCtrl+K  command palette\nCtrl+F  find & replace\nCtrl+O  open a file\nYou can also drop a .md file here, or paste an image from the clipboard',
+  'divider.title': 'Drag to resize, double-click to reset',
+  'welcome.sub': 'Type Markdown on the left, or drop a <kbd>.md</kbd> file into the window.<br>The preview updates as you type.',
+  'welcome.kPalette': 'Command palette, search every feature', 'welcome.kOpen': 'Open a file', 'welcome.kSave': 'Save', 'welcome.kFind': 'Find & replace',
+  'welcome.open': 'Open file', 'welcome.sample': 'Load sample document',
+  'sb.draft': 'Draft saved locally', 'sb.pos': 'Ln {line}, Col {col}', 'sb.sel': ' ({n} selected)',
+  'sb.words': '{n} words', 'sb.chars': '{n} chars', 'sb.lines': '{n} lines', 'sb.read': '~{n} min',
+  'sb.dark': '◐ Dark', 'sb.light': '◑ Light',
+  'sb.copyPath': 'Click to copy path', 'sb.unlinked': 'Not linked to a file (Save will ask where)', 'sb.dirty': 'Unsaved changes', 'sb.clean': 'Saved',
+  'sb.localFile': 'Local file', 'sb.localFileTip': 'Opened through the browser file picker',
+  'zen.exit': 'Esc to leave zen mode',
+  'cmd.placeholder': 'Type a command (English or 中文)…', 'cmd.select': 'select', 'cmd.run': 'run', 'cmd.close': 'close', 'cmd.empty': 'No matching command',
+  'slide.hint': '← → navigate · Home/End first/last · Esc exit', 'slide.exit': 'Exit', 'slide.prev': '← Previous', 'slide.next': 'Next →', 'slide.page': 'Slide {n}',
+  'slide.empty': 'Nothing to present',
+  'drop.title': 'Drop to open', 'drop.sub': 'Supports .md .markdown .txt .mdx .rmd',
+  'toast.opened': 'Opened: {name}', 'toast.openedUnlinked': 'Opened: {name} (not linked to a path; Save will ask where)',
+  'toast.openFailed': 'Open failed: {err}', 'toast.unsupported': 'Unsupported file type: {name}', 'toast.readFailed': 'Could not read the file',
+  'toast.saved': 'Saved: {name}', 'toast.saveFailed': 'Save failed: {err}', 'toast.saveFailedAs': 'Save failed: {err}, trying Save As…',
+  'toast.writeFailedAs': 'Write failed, trying Save As…', 'toast.serverSaveFailed': 'Server save failed: {err}', 'toast.serverSaveFailedAs': 'Server save failed, trying Save As…',
+  'toast.downloaded': 'Downloaded: {name}', 'toast.exported': 'Exported: {name}', 'toast.nothingToExport': 'Nothing to export',
+  'toast.printHint': 'Choose "Save as PDF" in the print dialog', 'toast.printUnsupported': 'Printing is not available here',
+  'toast.imagePasted': 'Image embedded (Base64, {kb} KB)', 'toast.syncOn': 'Sync scroll on', 'toast.syncOff': 'Sync scroll off',
+  'toast.zen': 'Zen mode — press Esc to leave', 'toast.anchorMissing': 'Anchor #{id} not found', 'toast.linkKind': 'Only http(s) and mailto links open',
+  'toast.taskUnmapped': 'Could not locate this task item in the source',
+  'toast.mdCopied': 'Markdown copied', 'toast.htmlCopied': 'HTML copied', 'toast.pathCopied': 'Path copied', 'toast.copyFailed': 'Copy failed',
+  'toast.lang': 'Language: English',
+  'confirm.openReplace': 'The current document has unsaved changes. Opening {name} will replace it. Continue?',
+  'confirm.open': 'The current document has unsaved changes. Opening another file will replace it. Continue?',
+  'confirm.new': 'The current document has unsaved changes. New file will discard them. Continue?',
+  'confirm.sample': 'The current document has unsaved changes. Loading the sample will replace it. Continue?',
+  'code.copy': 'Copy', 'code.copied': '✓ Copied',
+  'mermaid.missing': 'Mermaid not loaded (CDN access needed)', 'mermaid.error': 'Mermaid syntax error', 'render.error': 'Render error',
+  'fmt.placeholder': 'text', 'tbl.col': 'Col', 'tbl.cell': 'cell', 'img.broken': 'Image failed to load',
+},
+zh: {
+  'btn.new': '新建', 'btn.open': '打开', 'btn.save': '保存', 'btn.export': '导出', 'btn.outline': '大纲',
+  'tip.new': '新建 (Ctrl+N)', 'tip.open': '打开 (Ctrl+O)', 'tip.save': '保存 (Ctrl+S)',
+  'tip.split': '分屏', 'tip.editorOnly': '仅编辑', 'tip.previewOnly': '仅预览',
+  'tip.outline': '大纲 (Ctrl+Shift+O)', 'tip.sync': '同步滚动', 'tip.slides': '幻灯片模式', 'tip.zen': '禅模式',
+  'tip.theme': '切换主题', 'tip.lang': 'Switch to English', 'tip.palette': '命令面板 (Ctrl+K)',
+  'menu.saveAs': '另存为…', 'menu.downloadMd': '下载 Markdown (.md)', 'menu.exportHtml': '导出 HTML (.html)', 'menu.exportPdf': '导出 PDF / 打印',
+  'notice.libs': '渲染库加载失败（需要联网访问 CDN）。预览以纯文本显示。', 'notice.retry': '重试',
+  'outline.title': '目录大纲', 'outline.close': '关闭大纲', 'outline.empty': '暂无标题<br>用 # 开头的行会出现在这里',
+  'pane.editor': '编辑', 'pane.preview': '预览', 'pane.find': '查找', 'pane.copy': '复制',
+  'title.find': '查找替换 (Ctrl+F)', 'title.copyMd': '复制全部 Markdown', 'title.copyHtml': '复制渲染后的 HTML',
+  'fmt.bold': '粗体 (Ctrl+B)', 'fmt.italic': '斜体 (Ctrl+I)', 'fmt.strike': '删除线', 'fmt.code': '行内代码 (Ctrl+`)',
+  'fmt.h1': '一级标题 (Ctrl+1)', 'fmt.h2': '二级标题 (Ctrl+2)', 'fmt.h3': '三级标题 (Ctrl+3)',
+  'fmt.ul': '无序列表', 'fmt.ol': '有序列表', 'fmt.task': '任务列表', 'fmt.quote': '引用',
+  'fmt.link': '链接 (Ctrl+Shift+L)', 'fmt.image': '图片', 'fmt.table': '表格', 'fmt.codeBlock': '代码块', 'fmt.math': '数学公式', 'fmt.hr': '分割线',
+  'find.find': '查找…', 'find.replaceWith': '替换为…', 'find.replace': '替换', 'find.replaceAll': '全部替换',
+  'find.case': '区分大小写', 'find.regex': '正则表达式', 'find.prev': '上一个 (Shift+Enter)', 'find.next': '下一个 (Enter)', 'find.close': '关闭 (Esc)',
+  'find.none': '无匹配', 'find.badRegex': '正则无效', 'find.nothing': '没有可替换的匹配', 'find.replaced': '已替换 {n} 处',
+  'editor.aria': 'Markdown 编辑器',
+  'editor.placeholder': '在此输入 Markdown…\n\nCtrl+K  命令面板\nCtrl+F  查找替换\nCtrl+O  打开文件\n也可以把 .md 文件拖进来，或直接粘贴剪贴板里的图片',
+  'divider.title': '拖动调整分栏，双击复位',
+  'welcome.sub': '在左侧输入 Markdown，或把 <kbd>.md</kbd> 文件拖进窗口。<br>预览会随输入实时更新。',
+  'welcome.kPalette': '命令面板，搜索所有功能', 'welcome.kOpen': '打开文件', 'welcome.kSave': '保存', 'welcome.kFind': '查找替换',
+  'welcome.open': '打开文件', 'welcome.sample': '载入示例文档',
+  'sb.draft': '草稿已暂存', 'sb.pos': '行 {line}, 列 {col}', 'sb.sel': ' (选中 {n})',
+  'sb.words': '{n} 词', 'sb.chars': '{n} 字符', 'sb.lines': '{n} 行', 'sb.read': '~{n} 分钟',
+  'sb.dark': '◐ 深色', 'sb.light': '◑ 浅色',
+  'sb.copyPath': '点击复制路径', 'sb.unlinked': '未关联文件（保存时会询问位置）', 'sb.dirty': '有未保存的更改', 'sb.clean': '已保存',
+  'sb.localFile': '本地文件', 'sb.localFileTip': '通过浏览器文件选择器打开',
+  'zen.exit': 'Esc 退出禅模式',
+  'cmd.placeholder': '输入命令（中文或 English）…', 'cmd.select': '选择', 'cmd.run': '执行', 'cmd.close': '关闭', 'cmd.empty': '没有匹配的命令',
+  'slide.hint': '← → 翻页 · Home/End 首末页 · Esc 退出', 'slide.exit': '退出', 'slide.prev': '← 上一页', 'slide.next': '下一页 →', 'slide.page': '第 {n} 页',
+  'slide.empty': '没有内容可展示',
+  'drop.title': '释放以打开文件', 'drop.sub': '支持 .md .markdown .txt .mdx .rmd',
+  'toast.opened': '已打开: {name}', 'toast.openedUnlinked': '已打开: {name}（未关联路径，保存时会询问位置）',
+  'toast.openFailed': '打开失败: {err}', 'toast.unsupported': '不支持的文件类型: {name}', 'toast.readFailed': '读取文件失败',
+  'toast.saved': '已保存: {name}', 'toast.saveFailed': '保存失败: {err}', 'toast.saveFailedAs': '保存失败: {err}，改为另存为…',
+  'toast.writeFailedAs': '写入失败，改为另存为…', 'toast.serverSaveFailed': '服务器保存失败: {err}', 'toast.serverSaveFailedAs': '服务器保存失败，改为另存为…',
+  'toast.downloaded': '已下载: {name}', 'toast.exported': '已导出: {name}', 'toast.nothingToExport': '没有内容可导出',
+  'toast.printHint': '在打印对话框中选择"另存为 PDF"', 'toast.printUnsupported': '当前环境不支持打印',
+  'toast.imagePasted': '图片已嵌入 (Base64, {kb} KB)', 'toast.syncOn': '同步滚动已开启', 'toast.syncOff': '同步滚动已关闭',
+  'toast.zen': '禅模式 — 按 Esc 退出', 'toast.anchorMissing': '找不到锚点 #{id}', 'toast.linkKind': '只会打开 http(s) 与 mailto 链接',
+  'toast.taskUnmapped': '无法定位到源码中的任务项',
+  'toast.mdCopied': 'Markdown 已复制', 'toast.htmlCopied': 'HTML 已复制', 'toast.pathCopied': '路径已复制', 'toast.copyFailed': '复制失败',
+  'toast.lang': '语言：中文',
+  'confirm.openReplace': '当前文档有未保存的更改。打开 {name} 会替换它，继续？',
+  'confirm.open': '当前文档有未保存的更改。打开新文件会替换它，继续？',
+  'confirm.new': '当前文档有未保存的更改。新建会丢弃它们，继续？',
+  'confirm.sample': '当前文档有未保存的更改，载入示例会替换它。继续？',
+  'code.copy': '复制', 'code.copied': '✓ 已复制',
+  'mermaid.missing': 'Mermaid 未加载（需要联网）', 'mermaid.error': 'Mermaid 语法错误', 'render.error': '渲染出错',
+  'fmt.placeholder': '文本', 'tbl.col': '列', 'tbl.cell': '内容', 'img.broken': '图片加载失败',
+},
+};
+let LANG = 'en';
+try { const l = localStorage.getItem('markvue-lang'); if (l === 'zh' || l === 'en') LANG = l; } catch (e) {}
+
+function t(key, vars) {
+    let s = (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key;
+    if (vars) for (const k in vars) s = s.split('{' + k + '}').join(String(vars[k]));
+    return s;
+}
+
+function applyLang() {
+    document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+    document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+    document.querySelectorAll('[data-i18n-title]').forEach(el => el.title = t(el.dataset.i18nTitle));
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.dataset.i18nPlaceholder));
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+    document.querySelectorAll('[data-i18n-tip]').forEach(el => el.dataset.tip = shortcutLabel(t(el.dataset.i18nTip)));
+    $('btn-lang').textContent = LANG === 'zh' ? 'EN' : '中';
+    $('sb-lang').textContent = LANG === 'zh' ? '中文' : 'EN';
+    applyThemeUI(document.documentElement.getAttribute('data-theme'));
+}
+
+function setLang(lang) {
+    if (lang !== 'zh' && lang !== 'en') return;
+    const ed = $('editor');
+    const wasSample = !S.dirty && !S.filePath && !S.fileHandle && ed.value === getSample(LANG);
+    LANG = lang;
+    try { localStorage.setItem('markvue-lang', lang); } catch (e) {}
+    applyLang();
+    if (wasSample) { ed.value = getSample(LANG); S.savedContent = ed.value; }
+    updateFileUI(); updateCursorPos(); render();
+    if ($('cmd-overlay').classList.contains('open')) filterCmds();
+}
+function toggleLang() { setLang(LANG === 'zh' ? 'en' : 'zh'); toast('🌐', t('toast.lang')); }
 
 // ===== State =====
 const S = {
@@ -1138,7 +1282,6 @@ const S = {
 };
 
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform);
-const MOD = IS_MAC ? '⌘' : 'Ctrl';
 const MD_EXT = ['.md', '.markdown', '.txt', '.text', '.mdx', '.rmd'];
 
 // window.pywebview.api when running inside the native desktop app
@@ -1146,6 +1289,7 @@ function native() { return (window.pywebview && window.pywebview.api) || null; }
 
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', () => {
+    applyLang();
     S.libsOK = initMarked();
     if (!S.libsOK) $('notice').classList.add('show');
     initMermaid();
@@ -1157,14 +1301,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initCmdPalette();
     initPreviewInteractions();
     initShortcutLabels();
-    applyThemeUI(document.documentElement.getAttribute('data-theme'));
     updateSyncBtn();
     try { const v = localStorage.getItem('markvue-view'); if (v === 'editor-only' || v === 'preview-only') setView(v); } catch (e) {}
     loadInitial();
 });
 
-// Exposed for the native app (close confirmation).
-window.MarkVue = { isDirty: () => S.dirty, version: '0.1.0' };
+// Exposed for the native app (close confirmation) and tests.
+window.MarkVue = { isDirty: () => S.dirty, version: '0.1.0', setLang, lang: () => LANG };
 
 // ===== Markdown engine =====
 let MD = null;               // marked.Marked instance
@@ -1227,7 +1370,7 @@ function initMarked() {
                 else if (!l && text.length < 20000) { const r = hljs.highlightAuto(text); html = r.value; cls = r.language || 'text'; }
                 else html = esc(text);
             } else html = esc(text);
-            return `<pre><div class="code-head"><span class="code-lang">${esc(cls)}</span><button type="button" class="copy-btn">复制</button></div><code class="hljs language-${esc(cls)}">${html}</code></pre>\n`;
+            return `<pre><div class="code-head"><span class="code-lang">${esc(cls)}</span><button type="button" class="copy-btn">${esc(t('code.copy'))}</button></div><code class="hljs language-${esc(cls)}">${html}</code></pre>\n`;
         },
         heading({ tokens, depth }) {
             const inner = this.parser.parseInline(tokens);
@@ -1252,9 +1395,9 @@ function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 function initMermaid() {
     if (typeof mermaid === 'undefined') return;
-    const t = document.documentElement.getAttribute('data-theme');
+    const th = document.documentElement.getAttribute('data-theme');
     try {
-        mermaid.initialize({ startOnLoad: false, theme: t === 'dark' ? 'dark' : 'default', securityLevel: 'strict', fontFamily: 'DM Sans, Noto Sans SC, sans-serif' });
+        mermaid.initialize({ startOnLoad: false, theme: th === 'dark' ? 'dark' : 'default', securityLevel: 'strict', fontFamily: 'DM Sans, Noto Sans SC, sans-serif' });
     } catch (e) {}
 }
 
@@ -1264,7 +1407,7 @@ function markdownToHTML(src) {
     slugCounts.clear();
     let html;
     try { html = MD.parse(src); }
-    catch (e) { html = `<pre class="mermaid-error">渲染出错 / Render error:\n${esc(e.message || e)}</pre><pre style="white-space:pre-wrap">${esc(src)}</pre>`; }
+    catch (e) { html = `<pre class="mermaid-error">${esc(t('render.error'))}:\n${esc(e.message || e)}</pre><pre style="white-space:pre-wrap">${esc(src)}</pre>`; }
     return DOMPurify.sanitize(html, {
         ADD_ATTR: ['checked'],
         FORBID_TAGS: ['style', 'form'],
@@ -1285,14 +1428,14 @@ async function postProcess(container, seq) {
         });
     }
     container.querySelectorAll('img').forEach(img => {
-        img.addEventListener('error', () => { img.classList.add('broken'); img.alt = img.alt || '图片加载失败'; }, { once: true });
+        img.addEventListener('error', () => { img.classList.add('broken'); img.alt = img.alt || t('img.broken'); }, { once: true });
     });
 
     // Mermaid (async, cached by source)
     const blocks = Array.from(container.querySelectorAll('.mermaid'));
     if (!blocks.length) return;
     if (typeof mermaid === 'undefined') {
-        blocks.forEach(el => { el.classList.remove('pending'); el.classList.add('mermaid-error'); el.textContent = 'Mermaid 未加载（需要联网）\n' + el.textContent; });
+        blocks.forEach(el => { el.classList.remove('pending'); el.classList.add('mermaid-error'); el.textContent = t('mermaid.missing') + '\n' + el.textContent; });
         return;
     }
     for (const el of blocks) {
@@ -1312,7 +1455,7 @@ async function postProcess(container, seq) {
                 svg = null;
                 if (seq !== undefined && seq !== S.renderSeq) return;
                 el.classList.remove('pending');
-                el.innerHTML = `<div class="mermaid-error">Mermaid 语法错误 / syntax error\n${esc((e && e.message) || e)}</div>`;
+                el.innerHTML = `<div class="mermaid-error">${esc(t('mermaid.error'))}\n${esc((e && e.message) || e)}</div>`;
                 continue;
             }
         }
@@ -1459,7 +1602,7 @@ function updateCursorPos() {
     const line = (before.match(/\n/g) || []).length + 1;
     const col = pos - before.lastIndexOf('\n');
     const sel = ed.selectionEnd - ed.selectionStart;
-    $('sb-pos').textContent = `行 ${line}, 列 ${col}` + (sel ? ` (选中 ${sel})` : '');
+    $('sb-pos').textContent = t('sb.pos', { line, col }) + (sel ? t('sb.sel', { n: sel }) : '');
 }
 
 // ===== Render =====
@@ -1485,17 +1628,17 @@ async function render() {
 
 // ===== Stats =====
 function updateStats(c) {
-    const t = c.trim();
-    const cjk = (t.match(/[一-鿿㐀-䶿぀-ヿ가-힯]/g) || []).length;
-    const eng = t ? t.replace(/[一-鿿㐀-䶿぀-ヿ가-힯]/g, ' ').split(/\s+/).filter(Boolean).length : 0;
+    const tx = c.trim();
+    const cjk = (tx.match(/[一-鿿㐀-䶿぀-ヿ가-힯]/g) || []).length;
+    const eng = tx ? tx.replace(/[一-鿿㐀-䶿぀-ヿ가-힯]/g, ' ').split(/\s+/).filter(Boolean).length : 0;
     const words = cjk + eng;
-    const chars = Array.from(t).length;
+    const chars = Array.from(tx).length;
     const lines = c ? c.split('\n').length : 0;
     const mins = words ? Math.max(1, Math.ceil(words / 300)) : 0;
-    $('sb-words').textContent = `${words} 词`;
-    $('sb-chars').textContent = `${chars} 字符`;
-    $('sb-lines').textContent = `${lines} 行`;
-    $('sb-read').textContent = `~${mins} min`;
+    $('sb-words').textContent = t('sb.words', { n: words });
+    $('sb-chars').textContent = t('sb.chars', { n: chars });
+    $('sb-lines').textContent = t('sb.lines', { n: lines });
+    $('sb-read').textContent = t('sb.read', { n: mins });
 }
 
 // ===== Outline =====
@@ -1504,7 +1647,7 @@ function buildOutline() {
     list.innerHTML = '';
     const headings = $('preview-body').querySelectorAll('h1,h2,h3,h4');
     if (!headings.length) {
-        list.innerHTML = '<li class="outline-empty">暂无标题<br>用 # 开头的行会出现在这里</li>';
+        list.innerHTML = `<li class="outline-empty">${t('outline.empty')}</li>`;
         return;
     }
     headings.forEach(h => {
@@ -1563,7 +1706,7 @@ function fmt(before, after) {
         replaceRange(s, e, inner, s, s + inner.length);
         return;
     }
-    const text = sel || '文本';
+    const text = sel || t('fmt.placeholder');
     replaceRange(s, e, before + text + after, s + before.length, s + before.length + text.length);
 }
 
@@ -1590,7 +1733,8 @@ function fmtHeading(level) {
 function insertLink() { fmt('[', '](https://)'); }
 function insertImage() { fmt('![', '](https://)'); }
 function insertTable() {
-    insertText('\n| 列1 | 列2 | 列3 |\n|------|------|------|\n| 内容 | 内容 | 内容 |\n');
+    const c = t('tbl.col'), x = t('tbl.cell');
+    insertText(`\n| ${c}1 | ${c}2 | ${c}3 |\n|------|------|------|\n| ${x} | ${x} | ${x} |\n`);
 }
 function insertCodeBlock() {
     const ed = $('editor'), s = ed.selectionStart, e = ed.selectionEnd;
@@ -1601,7 +1745,7 @@ function insertCodeBlock() {
 function insertMath() {
     const ed = $('editor'), s = ed.selectionStart, e = ed.selectionEnd;
     const sel = ed.value.slice(s, e);
-    if (sel.includes('\n') || !sel) { const t = '\n$$\n' + (sel || 'E = mc^2') + '\n$$\n'; replaceRange(s, e, t, s + 4, s + t.length - 4); }
+    if (sel.includes('\n') || !sel) { const tx = '\n$$\n' + (sel || 'E = mc^2') + '\n$$\n'; replaceRange(s, e, tx, s + 4, s + tx.length - 4); }
     else fmt('$', '$');
 }
 
@@ -1648,7 +1792,7 @@ function doFind(keepIdx) {
     const prevStart = keepIdx && S.findMatches[S.findIdx] ? S.findMatches[S.findIdx].start : -1;
     S.findMatches = []; S.findIdx = -1;
     const cnt = $('find-count');
-    if (!re) { cnt.textContent = $('find-input').value && S.findRegex ? '正则无效' : ''; cnt.classList.toggle('none', !!$('find-input').value); return; }
+    if (!re) { cnt.textContent = $('find-input').value && S.findRegex ? t('find.badRegex') : ''; cnt.classList.toggle('none', !!$('find-input').value); return; }
     let m;
     while ((m = re.exec(ed.value)) !== null) {
         if (m[0].length === 0) { re.lastIndex++; continue; }
@@ -1656,7 +1800,7 @@ function doFind(keepIdx) {
         if (S.findMatches.length > 5000) break;
     }
     cnt.classList.toggle('none', !S.findMatches.length);
-    if (!S.findMatches.length) { cnt.textContent = '无匹配'; return; }
+    if (!S.findMatches.length) { cnt.textContent = t('find.none'); return; }
     // Start from the match at/after the caret
     const from = prevStart >= 0 ? prevStart : ed.selectionStart;
     let i = S.findMatches.findIndex(x => x.start >= from);
@@ -1712,12 +1856,12 @@ function doReplaceAll() {
     const ed = $('editor'), re = buildFindRegex(), r = $('replace-input').value;
     if (!re) return;
     const count = S.findMatches.length;
-    if (!count) { toast('ℹ️', '没有可替换的匹配'); return; }
+    if (!count) { toast('ℹ️', t('find.nothing')); return; }
     const out = ed.value.replace(re, r);
     replaceRange(0, ed.value.length, out, 0, 0);
     render();
     doFind();
-    toast('✅', `已替换 ${count} 处`);
+    toast('✅', t('find.replaced', { n: count }));
 }
 
 // ===== Paste Image =====
@@ -1732,8 +1876,8 @@ function initPasteImage() {
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = ev => {
-                    insertText(`![粘贴的图片](${ev.target.result})\n`);
-                    toast('🖼️', `图片已嵌入 (Base64, ${Math.round(file.size / 1024)} KB)`);
+                    insertText(`![image](${ev.target.result})\n`);
+                    toast('🖼️', t('toast.imagePasted', { kb: Math.round(file.size / 1024) }));
                 };
                 reader.readAsDataURL(file);
                 return;
@@ -1765,7 +1909,7 @@ async function loadInitial() {
             if (resp.ok && resp.status !== 204) {
                 const data = await resp.json();
                 setDocument(data.content, { filename: data.filename, path: data.path });
-                toast('📂', `已打开: ${data.filename}`);
+                toast('📂', t('toast.opened', { name: data.filename }));
                 return;
             }
         } catch (e) {}
@@ -1783,7 +1927,7 @@ async function loadInitial() {
 }
 
 function loadSample() {
-    if (S.dirty && !confirm('当前文档有未保存的更改，载入示例会替换它。继续？')) return;
+    if (S.dirty && !confirm(t('confirm.sample'))) return;
     setDocument(getSample(), { filename: 'Untitled' });
 }
 
@@ -1806,7 +1950,7 @@ function setDocument(content, { filename, path, handle } = {}) {
 // ===== Slide / Presentation Mode =====
 function enterSlideMode() {
     const content = $('editor').value;
-    if (!content.trim()) { toast('⚠️', '没有内容可展示'); return; }
+    if (!content.trim()) { toast('⚠️', t('slide.empty')); return; }
     S.slides = content.split(/\n[ \t]*(?:---+|\*\*\*+)[ \t]*\n/).map(s => s.trim()).filter(Boolean);
     if (S.slides.length < 2) {
         const parts = content.split(/\n(?=#{1,2}\s)/).map(s => s.trim()).filter(Boolean);
@@ -1854,7 +1998,7 @@ async function renderSlide(dir) {
         S.slides.forEach((_, i) => {
             const d = document.createElement('button');
             d.className = 'slide-dot' + (i === S.slideIdx ? ' active' : '');
-            d.title = `第 ${i + 1} 页`;
+            d.title = t('slide.page', { n: i + 1 });
             d.onclick = () => { const dd = i > S.slideIdx ? 1 : -1; S.slideIdx = i; renderSlide(dd); };
             dots.appendChild(d);
         });
@@ -1876,7 +2020,7 @@ function toggleZen() {
         S.viewBeforeZen = S.view;
         setView('editor-only');
         $('editor').focus();
-        toast('🧘', '禅模式 — 按 Esc 退出');
+        toast('🧘', t('toast.zen'));
     } else {
         setView(S.viewBeforeZen || 'split');
     }
@@ -1884,30 +2028,31 @@ function toggleZen() {
 
 // ===== Command Palette =====
 const COMMANDS = [
-    { name: '新建文件', en: 'New File', icon: '📄', shortcut: 'Ctrl+N', fn: newFile },
-    { name: '打开文件', en: 'Open File', icon: '📂', shortcut: 'Ctrl+O', fn: openFile },
-    { name: '保存', en: 'Save', icon: '💾', shortcut: 'Ctrl+S', fn: saveFile },
-    { name: '另存为', en: 'Save As', icon: '💾', shortcut: 'Ctrl+Shift+S', fn: saveFileAs },
-    { name: '下载 Markdown', en: 'Download Markdown', icon: '📥', fn: exportMD },
-    { name: '导出 HTML', en: 'Export HTML', icon: '🌐', shortcut: 'Ctrl+E', fn: exportHTML },
-    { name: '导出 PDF / 打印', en: 'Export PDF / Print', icon: '🖨️', shortcut: 'Ctrl+P', fn: exportPDF },
-    { name: '切换主题', en: 'Toggle Theme', icon: '🌓', fn: toggleTheme },
-    { name: '禅模式', en: 'Zen Mode', icon: '🧘', fn: toggleZen },
-    { name: '幻灯片模式', en: 'Slide Mode', icon: '📊', fn: enterSlideMode },
-    { name: '大纲侧栏', en: 'Outline Sidebar', icon: '📑', shortcut: 'Ctrl+Shift+O', fn: toggleOutline },
-    { name: '查找替换', en: 'Find & Replace', icon: '🔍', shortcut: 'Ctrl+F', fn: () => toggleFindBar(true) },
-    { name: '同步滚动 开/关', en: 'Sync Scroll On/Off', icon: '🔗', fn: toggleSync },
-    { name: '分屏视图', en: 'Split View', icon: '◫', shortcut: 'Ctrl+\\', fn: () => setView('split') },
-    { name: '仅编辑', en: 'Editor Only', icon: '✏️', fn: () => setView('editor-only') },
-    { name: '仅预览', en: 'Preview Only', icon: '👁', fn: () => setView('preview-only') },
-    { name: '插入表格', en: 'Insert Table', icon: '▦', fn: insertTable },
-    { name: '插入代码块', en: 'Insert Code Block', icon: '{ }', fn: insertCodeBlock },
-    { name: '插入链接', en: 'Insert Link', icon: '🔗', shortcut: 'Ctrl+Shift+L', fn: insertLink },
-    { name: '插入公式', en: 'Insert Math', icon: '∑', fn: insertMath },
-    { name: '复制 Markdown', en: 'Copy Markdown', icon: '📋', fn: copyMD },
-    { name: '复制 HTML', en: 'Copy HTML', icon: '📋', fn: copyHTML },
-    { name: '复制文件路径', en: 'Copy File Path', icon: '📋', fn: copyFilePath },
-    { name: '载入示例文档', en: 'Load Sample Document', icon: '✨', fn: loadSample },
+    { en: 'New File', zh: '新建文件', icon: '📄', shortcut: 'Ctrl+N', fn: newFile },
+    { en: 'Open File', zh: '打开文件', icon: '📂', shortcut: 'Ctrl+O', fn: openFile },
+    { en: 'Save', zh: '保存', icon: '💾', shortcut: 'Ctrl+S', fn: saveFile },
+    { en: 'Save As', zh: '另存为', icon: '💾', shortcut: 'Ctrl+Shift+S', fn: saveFileAs },
+    { en: 'Download Markdown', zh: '下载 Markdown', icon: '📥', fn: exportMD },
+    { en: 'Export HTML', zh: '导出 HTML', icon: '🌐', shortcut: 'Ctrl+E', fn: exportHTML },
+    { en: 'Export PDF / Print', zh: '导出 PDF / 打印', icon: '🖨️', shortcut: 'Ctrl+P', fn: exportPDF },
+    { en: 'Toggle Theme', zh: '切换主题', icon: '🌓', fn: toggleTheme },
+    { en: 'Language: 中文 / English', zh: '语言：中文 / English', icon: '🌐', fn: toggleLang },
+    { en: 'Zen Mode', zh: '禅模式', icon: '🧘', fn: toggleZen },
+    { en: 'Slide Mode', zh: '幻灯片模式', icon: '📊', fn: enterSlideMode },
+    { en: 'Outline Sidebar', zh: '大纲侧栏', icon: '📑', shortcut: 'Ctrl+Shift+O', fn: toggleOutline },
+    { en: 'Find & Replace', zh: '查找替换', icon: '🔍', shortcut: 'Ctrl+F', fn: () => toggleFindBar(true) },
+    { en: 'Sync Scroll On/Off', zh: '同步滚动 开/关', icon: '🔗', fn: toggleSync },
+    { en: 'Split View', zh: '分屏视图', icon: '◫', shortcut: 'Ctrl+\\', fn: () => setView('split') },
+    { en: 'Editor Only', zh: '仅编辑', icon: '✏️', fn: () => setView('editor-only') },
+    { en: 'Preview Only', zh: '仅预览', icon: '👁', fn: () => setView('preview-only') },
+    { en: 'Insert Table', zh: '插入表格', icon: '▦', fn: insertTable },
+    { en: 'Insert Code Block', zh: '插入代码块', icon: '{ }', fn: insertCodeBlock },
+    { en: 'Insert Link', zh: '插入链接', icon: '🔗', shortcut: 'Ctrl+Shift+L', fn: insertLink },
+    { en: 'Insert Math', zh: '插入公式', icon: '∑', fn: insertMath },
+    { en: 'Copy Markdown', zh: '复制 Markdown', icon: '📋', fn: copyMD },
+    { en: 'Copy HTML', zh: '复制 HTML', icon: '📋', fn: copyHTML },
+    { en: 'Copy File Path', zh: '复制文件路径', icon: '📋', fn: copyFilePath },
+    { en: 'Load Sample Document', zh: '载入示例文档', icon: '✨', fn: loadSample },
 ];
 
 let cmdIdx = 0;
@@ -1944,12 +2089,13 @@ function filterCmds() {
     const list = $('cmd-list');
     list.innerHTML = '';
     cmdIdx = 0;
-    const filtered = COMMANDS.filter(c => !q || c.name.toLowerCase().includes(q) || c.en.toLowerCase().includes(q) || (c.shortcut || '').toLowerCase().includes(q));
-    if (!filtered.length) { list.innerHTML = '<div class="cmd-empty">没有匹配的命令</div>'; return; }
+    const filtered = COMMANDS.filter(c => !q || c.en.toLowerCase().includes(q) || c.zh.toLowerCase().includes(q) || (c.shortcut || '').toLowerCase().includes(q));
+    if (!filtered.length) { list.innerHTML = `<div class="cmd-empty">${esc(t('cmd.empty'))}</div>`; return; }
     filtered.forEach((c, i) => {
+        const primary = LANG === 'zh' ? c.zh : c.en, secondary = LANG === 'zh' ? c.en : c.zh;
         const div = document.createElement('div');
         div.className = 'cmd-item' + (i === 0 ? ' selected' : '');
-        div.innerHTML = `<span class="cmd-ico">${c.icon}</span><span>${esc(c.name)}<span class="cmd-en"> ${esc(c.en)}</span></span>${c.shortcut ? `<span class="cmd-shortcut">${esc(shortcutLabel(c.shortcut))}</span>` : ''}`;
+        div.innerHTML = `<span class="cmd-ico">${c.icon}</span><span>${esc(primary)}<span class="cmd-en"> ${esc(secondary)}</span></span>${c.shortcut ? `<span class="cmd-shortcut">${esc(shortcutLabel(c.shortcut))}</span>` : ''}`;
         div.onclick = () => { closeCmdPalette(); setTimeout(c.fn, 60); };
         div.onmousemove = () => { if (cmdIdx !== i) { cmdIdx = i; updateCmdSel(list.querySelectorAll('.cmd-item')); } };
         list.appendChild(div);
@@ -1961,11 +2107,10 @@ function updateCmdSel(items) {
     if (items[cmdIdx]) items[cmdIdx].scrollIntoView({ block: 'nearest' });
 }
 
-function shortcutLabel(sc) { return IS_MAC ? sc.replace('Ctrl', '⌘') : sc; }
+function shortcutLabel(sc) { return IS_MAC ? sc.replace(/Ctrl/g, '⌘') : sc; }
 function initShortcutLabels() {
     document.querySelectorAll('[data-sc]').forEach(el => el.textContent = shortcutLabel(el.dataset.sc));
     document.querySelectorAll('[data-kbd]').forEach(el => el.textContent = shortcutLabel(el.dataset.kbd));
-    if (IS_MAC) document.querySelectorAll('[data-tip]').forEach(el => el.dataset.tip = el.dataset.tip.replace('Ctrl', '⌘'));
 }
 
 // ===== Theme =====
@@ -1974,7 +2119,7 @@ function applyThemeUI(theme) {
     $('ico-moon').style.display = theme === 'light' ? 'block' : 'none';
     $('hljs-dark').disabled = theme !== 'dark';
     $('hljs-light').disabled = theme !== 'light';
-    $('sb-theme').textContent = theme === 'dark' ? '◐ 深色' : '◑ 浅色';
+    $('sb-theme').textContent = theme === 'dark' ? t('sb.dark') : t('sb.light');
 }
 
 function toggleTheme() {
@@ -2014,7 +2159,7 @@ function setView(mode) {
 function toggleSync() {
     S.syncScroll = !S.syncScroll;
     updateSyncBtn();
-    toast(S.syncScroll ? '🔗' : '🔓', S.syncScroll ? '同步滚动已开启' : '同步滚动已关闭');
+    toast(S.syncScroll ? '🔗' : '🔓', S.syncScroll ? t('toast.syncOn') : t('toast.syncOff'));
 }
 function updateSyncBtn() { $('btn-sync').classList.toggle('active', S.syncScroll); }
 
@@ -2065,14 +2210,14 @@ function initDragDrop() {
 }
 
 async function loadDroppedFile(file) {
-    if (S.dirty && !confirm(`当前文档有未保存的更改。打开 ${file.name} 会替换它，继续？`)) return;
+    if (S.dirty && !confirm(t('confirm.openReplace', { name: file.name }))) return;
     // Native app: pywebview exposes the real path, so the file stays linked for saving.
     const api = native();
     const fullPath = file.pywebviewFullPath;
     if (api && fullPath && api.open_path) {
         try {
             const r = await api.open_path(fullPath);
-            if (r && !r.error) { setDocument(r.content, { filename: r.filename, path: r.path }); toast('📂', `已打开: ${r.filename}`); return; }
+            if (r && !r.error) { setDocument(r.content, { filename: r.filename, path: r.path }); toast('📂', t('toast.opened', { name: r.filename })); return; }
         } catch (e) {}
     }
     loadFileObject(file);
@@ -2082,7 +2227,7 @@ async function loadDroppedFile(file) {
 function hasExt(name) { return MD_EXT.includes('.' + name.split('.').pop().toLowerCase()); }
 
 async function openFile() {
-    if (S.dirty && !confirm('当前文档有未保存的更改。打开新文件会替换它，继续？')) return;
+    if (S.dirty && !confirm(t('confirm.open'))) return;
 
     // 1) Native desktop app: real file dialog, file stays linked by path
     const api = native();
@@ -2090,9 +2235,9 @@ async function openFile() {
         try {
             const r = await api.open_file_dialog();
             if (!r) return; // cancelled
-            if (r.error) { toast('❌', `打开失败: ${r.error}`, true); return; }
+            if (r.error) { toast('❌', t('toast.openFailed', { err: r.error }), true); return; }
             setDocument(r.content, { filename: r.filename, path: r.path });
-            toast('📂', `已打开: ${r.filename}`);
+            toast('📂', t('toast.opened', { name: r.filename }));
             return;
         } catch (e) { /* fall through to the web pickers */ }
     }
@@ -2107,7 +2252,7 @@ async function openFile() {
             const file = await handle.getFile();
             const content = await file.text();
             setDocument(content, { filename: file.name, handle });
-            toast('📂', `已打开: ${file.name}`);
+            toast('📂', t('toast.opened', { name: file.name }));
             return;
         } catch (e) {
             if (e.name === 'AbortError') return; // user cancelled
@@ -2120,18 +2265,18 @@ async function openFile() {
 }
 
 function loadFileObject(file) {
-    if (!hasExt(file.name) && !file.type.startsWith('text/')) { toast('⚠️', `不支持的文件类型: ${file.name}`, true); return; }
+    if (!hasExt(file.name) && !file.type.startsWith('text/')) { toast('⚠️', t('toast.unsupported', { name: file.name }), true); return; }
     const r = new FileReader();
     r.onload = e => {
         setDocument(e.target.result, { filename: file.name });
-        toast('📂', `已打开: ${file.name}（未关联路径，保存时会询问位置）`);
+        toast('📂', t('toast.openedUnlinked', { name: file.name }));
     };
-    r.onerror = () => toast('❌', '读取文件失败', true);
+    r.onerror = () => toast('❌', t('toast.readFailed'), true);
     r.readAsText(file);
 }
 
 function newFile() {
-    if (S.dirty && !confirm('当前文档有未保存的更改。新建会丢弃它们，继续？')) return;
+    if (S.dirty && !confirm(t('confirm.new'))) return;
     setDocument('', { filename: 'Untitled' });
     $('editor').focus();
 }
@@ -2146,7 +2291,7 @@ async function saveFile() {
         try {
             const r = await api.save_file(content, S.filePath);
             if (r && r.ok) { afterSave(content, r.filename, r.path); return; }
-            if (r && r.error) toast('⚠️', `保存失败: ${r.error}，改为另存为…`, true);
+            if (r && r.error) toast('⚠️', t('toast.saveFailedAs', { err: r.error }), true);
             if (r === null) return; // save-as dialog cancelled
         } catch (e) {}
     }
@@ -2161,7 +2306,7 @@ async function saveFile() {
             return;
         } catch (e) {
             if (e.name === 'AbortError') return;
-            toast('⚠️', '写入失败，改为另存为…', true);
+            toast('⚠️', t('toast.writeFailedAs'), true);
         }
     }
 
@@ -2175,8 +2320,8 @@ async function saveFile() {
             });
             if (resp.ok) { afterSave(content, S.filename, S.filePath); return; }
             const err = await resp.json().catch(() => ({}));
-            toast('⚠️', `服务器保存失败: ${err.error || resp.status}`, true);
-        } catch (e) { toast('⚠️', '服务器保存失败，改为另存为…', true); }
+            toast('⚠️', t('toast.serverSaveFailed', { err: err.error || resp.status }), true);
+        } catch (e) { toast('⚠️', t('toast.serverSaveFailedAs'), true); }
     }
 
     return saveFileAs();
@@ -2192,7 +2337,7 @@ async function saveFileAs() {
             const r = await api.save_file_as(content, S.filePath || suggested);
             if (r === null) return;
             if (r && r.ok) { afterSave(content, r.filename, r.path); return; }
-            if (r && r.error) { toast('❌', `保存失败: ${r.error}`, true); return; }
+            if (r && r.error) { toast('❌', t('toast.saveFailed', { err: r.error }), true); return; }
         } catch (e) {}
     }
 
@@ -2223,7 +2368,7 @@ function afterSave(content, filename, path) {
     if (filename) S.filename = filename;
     if (path) { S.filePath = path; S.fileHandle = null; }
     updateFileUI();
-    toast('💾', `已保存: ${S.filename}`);
+    toast('💾', t('toast.saved', { name: S.filename }));
     if (S.filePath) render(); // relative images may now resolve
 }
 
@@ -2241,10 +2386,10 @@ function updateFileUI() {
     if (api && api.set_dirty) { try { api.set_dirty(S.dirty); } catch (e) {} }
 
     $('sb-file').textContent = label;
-    $('sb-file').title = S.dirty ? '有未保存的更改' : '';
+    $('sb-file').title = S.dirty ? t('sb.dirty') : '';
     const linked = !!(S.fileHandle || S.filePath);
     $('sb-dot').className = 'save-dot ' + (!linked ? 'no-file' : S.dirty ? 'dirty' : 'clean');
-    $('sb-dot').title = !linked ? '未关联文件（保存时会询问位置）' : S.dirty ? '有未保存的更改' : '已保存';
+    $('sb-dot').title = !linked ? t('sb.unlinked') : S.dirty ? t('sb.dirty') : t('sb.clean');
 
     const badge = $('save-badge');
     badge.textContent = S.dirty ? '●' : '';
@@ -2252,9 +2397,9 @@ function updateFileUI() {
 
     const pathEl = $('sb-path');
     if (S.filePath) {
-        pathEl.textContent = S.filePath; pathEl.title = S.filePath + '（点击复制）'; pathEl.style.display = '';
+        pathEl.textContent = S.filePath; pathEl.title = S.filePath + ' — ' + t('sb.copyPath'); pathEl.style.display = '';
     } else if (S.fileHandle) {
-        pathEl.textContent = '本地文件'; pathEl.title = '通过浏览器文件选择器打开'; pathEl.style.display = '';
+        pathEl.textContent = t('sb.localFile'); pathEl.title = t('sb.localFileTip'); pathEl.style.display = '';
     } else {
         pathEl.style.display = 'none';
     }
@@ -2262,7 +2407,7 @@ function updateFileUI() {
 
 function copyFilePath() {
     const p = S.filePath || S.filename;
-    copyText(p, '路径已复制');
+    copyText(p, t('toast.pathCopied'));
 }
 
 // Warn before leaving the page with unsaved changes (browser mode).
@@ -2277,7 +2422,7 @@ function baseName() { return (S.filename === 'Untitled' ? 'document' : S.filenam
 function exportMD() {
     const fn = baseName() + '.md';
     dl($('editor').value, fn, 'text/markdown');
-    toast('📥', `已下载: ${fn}`); closeDD();
+    toast('📥', t('toast.downloaded', { name: fn })); closeDD();
 }
 
 function exportHTML() {
@@ -2286,7 +2431,7 @@ function exportHTML() {
     body.querySelectorAll('.copy-btn').forEach(b => b.remove());
     body.querySelectorAll('.task-cb').forEach(cb => cb.setAttribute('disabled', ''));
     const html = `<!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<html lang="${LANG === 'zh' ? 'zh-CN' : 'en'}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${esc(baseName())}</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -2306,21 +2451,21 @@ ${body.innerHTML}
 </body></html>`;
     const fn = baseName() + '.html';
     dl(html, fn, 'text/html');
-    toast('📥', `已导出: ${fn}`);
+    toast('📥', t('toast.exported', { name: fn }));
 }
 
 function exportPDF() {
     closeDD();
-    if (!$('editor').value.trim()) { toast('⚠️', '没有内容可导出'); return; }
+    if (!$('editor').value.trim()) { toast('⚠️', t('toast.nothingToExport')); return; }
     const root = document.documentElement;
     const prev = root.getAttribute('data-theme');
     const restore = () => { root.setAttribute('data-theme', prev); applyThemeUI(prev); window.removeEventListener('afterprint', restore); };
     window.addEventListener('afterprint', restore);
-    toast('🖨️', '在打印对话框中选择"另存为 PDF"');
+    toast('🖨️', t('toast.printHint'));
     root.setAttribute('data-theme', 'light'); applyThemeUI('light');
     setTimeout(() => {
         try { window.print(); }
-        catch (e) { restore(); toast('❌', '当前环境不支持打印', true); }
+        catch (e) { restore(); toast('❌', t('toast.printUnsupported'), true); }
         // Browsers that do not fire afterprint
         setTimeout(() => { if (root.getAttribute('data-theme') !== prev) restore(); }, 60000);
     }, 150);
@@ -2348,7 +2493,7 @@ function handleLinkClick(e, a, container) {
         try { id = decodeURIComponent(id); } catch (x) {}
         const target = container.querySelector(`[id="${CSS.escape(id)}"]`) || container.querySelector(`[id="${CSS.escape(slugLike(id))}"]`);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        else toast('ℹ️', `找不到锚点 #${id}`);
+        else toast('ℹ️', t('toast.anchorMissing', { id }));
         return;
     }
     if (/^(https?:|mailto:)/i.test(href)) {
@@ -2357,9 +2502,9 @@ function handleLinkClick(e, a, container) {
         window.open(href, '_blank', 'noopener');
         return;
     }
-    toast('ℹ️', '只会打开 http(s) 与 mailto 链接');
+    toast('ℹ️', t('toast.linkKind'));
 }
-function slugLike(t) { return t.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s+/g, '-'); }
+function slugLike(tx) { return tx.toLowerCase().replace(/[^\p{L}\p{N}\s_-]/gu, '').trim().replace(/\s+/g, '-'); }
 
 // Toggle "- [ ]" / "- [x]" in the source for the n-th task item of the preview.
 function toggleTask(cb) {
@@ -2383,15 +2528,16 @@ function toggleTask(cb) {
     }
     // Could not map the checkbox to a source line (e.g. task syntax inside HTML): undo the click.
     cb.checked = !cb.checked;
-    toast('ℹ️', '无法定位到源码中的任务项');
+    toast('ℹ️', t('toast.taskUnmapped'));
 }
 
 // ===== Copy =====
 function copyText(text, okMsg) {
     const done = () => toast('📋', okMsg);
+    const fail = () => toast('❌', t('toast.copyFailed'), true);
     if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text) ? done() : toast('❌', '复制失败', true));
-    } else { fallbackCopy(text) ? done() : toast('❌', '复制失败', true); }
+        navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text) ? done() : fail());
+    } else { fallbackCopy(text) ? done() : fail(); }
 }
 function fallbackCopy(text) {
     const ta = document.createElement('textarea');
@@ -2402,15 +2548,15 @@ function fallbackCopy(text) {
     ta.remove();
     return ok;
 }
-function copyMD() { copyText($('editor').value, 'Markdown 已复制'); }
+function copyMD() { copyText($('editor').value, t('toast.mdCopied')); }
 function copyHTML() {
     const body = $('preview-body').cloneNode(true);
     body.querySelectorAll('.copy-btn').forEach(b => b.remove());
-    copyText(body.innerHTML, 'HTML 已复制');
+    copyText(body.innerHTML, t('toast.htmlCopied'));
 }
 function copyCode(btn) {
     const code = btn.closest('pre').querySelector('code').textContent;
-    const ok = () => { btn.textContent = '✓ 已复制'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 1500); };
+    const ok = () => { btn.textContent = t('code.copied'); btn.classList.add('copied'); setTimeout(() => { btn.textContent = t('code.copy'); btn.classList.remove('copied'); }, 1500); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(ok, () => { if (fallbackCopy(code)) ok(); });
     else if (fallbackCopy(code)) ok();
 }
@@ -2471,18 +2617,135 @@ function toast(icon, msg, isError) {
     // Collapse identical consecutive toasts
     const last = wrap.lastElementChild;
     if (last && last.dataset.msg === msg && !last.classList.contains('out')) return;
-    const t = document.createElement('div');
-    t.className = 'toast' + (isError ? ' error' : '');
-    t.dataset.msg = msg;
-    t.innerHTML = `<span>${icon}</span><span>${esc(msg)}</span>`;
-    wrap.appendChild(t);
+    const el = document.createElement('div');
+    el.className = 'toast' + (isError ? ' error' : '');
+    el.dataset.msg = msg;
+    el.innerHTML = `<span>${icon}</span><span>${esc(msg)}</span>`;
+    wrap.appendChild(el);
     while (wrap.children.length > 4) wrap.firstElementChild.remove();
-    setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 200); }, isError ? 4000 : 2500);
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 200); }, isError ? 4000 : 2500);
 }
 
 // ===== Sample =====
-function getSample() {
-    return `# 欢迎使用 MarkVue ✨
+function getSample(lang) {
+    if ((lang || LANG) === 'zh') return SAMPLE_ZH;
+    return SAMPLE_EN;
+}
+
+const SAMPLE_EN = `# Welcome to MarkVue ✨
+
+A local Markdown editor and previewer. **Double-click any .md file to open it**, with a live preview as you type.
+
+---
+
+## 🚀 Features at a glance
+
+- ⌨️ **Command palette** — press \`Ctrl+K\` and search any command in English or 中文
+- 📑 **Outline** — auto-generated table of contents that follows your scrolling
+- 📊 **Slide mode** — separate sections with \`---\` and present them
+- 🖼️ **Paste images** — take a screenshot, press \`Ctrl+V\`, done
+- 🔍 **Find & replace** — with match-case and regular-expression toggles
+- 🧘 **Zen mode** — distraction-free writing, \`Esc\` to leave
+- ✅ **Clickable task lists** — tick a box in the preview, the source updates
+- 🖨️ **Export PDF** — real PDF with selectable text and proper page breaks
+- 💾 **Draft recovery** — unsaved work stays on this machine
+- 🌓 **Theme** — follows your OS; switch dark / light any time
+- 🌐 **Language** — English by default, 中文 one click away
+
+---
+
+## ✍️ Editing
+
+- Press \`Enter\` inside a list to continue it; press it again on an empty item to leave the list
+- \`Tab\` / \`Shift+Tab\` indent and outdent, including multi-line selections
+- Select text and press \`Ctrl+B\` to bold it; press again to undo the bold
+- \`Ctrl+1\` ~ \`Ctrl+3\` switch heading levels
+- Undo (\`Ctrl+Z\`) works for toolbar actions too
+
+---
+
+## 📐 Math
+
+Inline: $E = mc^2$, $\\sum_{i=1}^n i = \\frac{n(n+1)}{2}$. Prices like $5 and $6 are left alone.
+
+Display:
+
+$$
+\\nabla \\times \\mathbf{E} = -\\frac{\\partial \\mathbf{B}}{\\partial t}
+$$
+
+---
+
+## 💻 Code
+
+\`\`\`rust
+fn main() {
+    let greet = |name: &str| format!("Hello, {}! 🦀", name);
+    println!("{}", greet("MarkVue"));
+
+    // Iterator magic
+    let sum: i32 = (1..=100).filter(|x| x % 2 == 0).sum();
+    println!("Sum of evens: {}", sum);
+}
+\`\`\`
+
+\`\`\`bash
+# $HOME and $PATH inside code blocks are never treated as math
+echo "$HOME/notes/*.md" | xargs -n1 basename
+\`\`\`
+
+---
+
+## 📊 Mermaid diagrams
+
+\`\`\`mermaid
+graph LR
+    A[Write Markdown] --> B{Choose}
+    B --> C[Live preview]
+    B --> D[Slides]
+    B --> E[Export]
+    C --> F[GitHub-style rendering]
+    D --> G[Arrow keys to navigate]
+    E --> H[MD / HTML / PDF]
+    style A fill:#63b3ed,color:#fff
+    style F fill:#c4b5fd,color:#fff
+    style G fill:#86efac,color:#000
+    style H fill:#fbbf24,color:#000
+\`\`\`
+
+---
+
+## 📋 Tables
+
+| Feature | Shortcut | Notes |
+|---------|:--------:|-------|
+| Command palette | \`Ctrl+K\` | Search and run any command |
+| Open / Save | \`Ctrl+O\` / \`Ctrl+S\` | Native file dialogs |
+| Save As | \`Ctrl+Shift+S\` | Save to a new location |
+| Find & replace | \`Ctrl+F\` | Regex supported |
+| Outline | \`Ctrl+Shift+O\` | Table of contents sidebar |
+| Export PDF | \`Ctrl+P\` | Choose "Save as PDF" in the print dialog |
+
+---
+
+## ✅ Task list
+
+Click a checkbox in the preview and watch the source on the left change:
+
+- [x] Read this sample
+- [ ] Export it as a PDF
+- [ ] Play it through in slide mode
+- [ ] Press \`Ctrl+K\` and type "theme" to switch colours
+
+---
+
+> **Tip**: links open in your system browser, e.g. [MarkVue on GitHub](https://github.com/skymanbp/MarkVue);
+> in-document anchors such as [jump to Features](#features-at-a-glance) scroll the preview.
+
+*A local Markdown tool, made with ❤️.*
+`;
+
+const SAMPLE_ZH = `# 欢迎使用 MarkVue ✨
 
 一款本地 Markdown 编辑器与预览器。**双击 .md 文件即可打开**，实时预览，所见即所得。
 
@@ -2500,6 +2763,7 @@ function getSample() {
 - 🖨️ **导出 PDF** — 文字可选、分页正确的真正 PDF
 - 💾 **草稿暂存** — 未保存的内容自动留在本机
 - 🌓 **主题** — 跟随系统，深色 / 浅色一键切换
+- 🌐 **语言** — 默认英文，一键切换中文
 
 ---
 
@@ -2593,7 +2857,6 @@ graph LR
 
 *用 ❤️ 打造的本地 Markdown 工具。*
 `;
-}
 </script>
 </body>
 </html>
