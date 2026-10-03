@@ -7,10 +7,38 @@
 <title>MarkVue</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%2363b3ed'/><text x='50' y='68' text-anchor='middle' font-family='Georgia,serif' font-weight='800' font-size='54' fill='white'>Mv</text></svg>">
 <script>
+// Settings and the draft. Served by the app (or markvue.py), the page gets
+// window.MV_STORE and writes changes back to a settings file via /api/store:
+// the desktop window runs WebView2 in private mode, so localStorage would be
+// lost on close. Opened straight from disk, the page uses localStorage.
+window.mvStore = (function () {
+    var s = window.MV_STORE;
+    if (s && typeof s === 'object') {
+        var chain = Promise.resolve();          // keep writes in order
+        var put = function (key, value) {
+            chain = chain.then(function () {
+                return fetch('/api/store', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key: key, value: value }) });
+            }).catch(function () {});
+        };
+        return {
+            get: function (k) { return Object.prototype.hasOwnProperty.call(s, k) ? s[k] : null; },
+            set: function (k, v) { v = String(v); if (s[k] === v) return; s[k] = v; put(k, v); },
+            remove: function (k) { if (!(k in s)) return; delete s[k]; put(k, null); }
+        };
+    }
+    return {
+        get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+        set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+        remove: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+    };
+})();
+</script>
+<script>
 // Apply the saved / system theme before first paint (no flash of wrong theme).
 (function () {
     var t = null;
-    try { t = localStorage.getItem('markvue-theme'); } catch (e) {}
+    try { t = mvStore.get('markvue-theme'); } catch (e) {}
     if (t !== 'dark' && t !== 'light') {
         t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
     }
@@ -1264,7 +1292,7 @@ zh: {
 },
 };
 let LANG = 'en';
-try { const l = localStorage.getItem('markvue-lang'); if (l === 'zh' || l === 'en') LANG = l; } catch (e) {}
+try { const l = mvStore.get('markvue-lang'); if (l === 'zh' || l === 'en') LANG = l; } catch (e) {}
 
 function t(key, vars) {
     let s = (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key;
@@ -1290,7 +1318,7 @@ function setLang(lang) {
     const ed = $('editor');
     const wasSample = !S.dirty && !S.filePath && !S.fileHandle && ed.value === getSample(LANG);
     LANG = lang;
-    try { localStorage.setItem('markvue-lang', lang); } catch (e) {}
+    try { mvStore.set('markvue-lang', lang); } catch (e) {}
     applyLang();
     if (wasSample) { ed.value = getSample(LANG); S.savedContent = ed.value; }
     updateFileUI(); updateCursorPos(); render();
@@ -1344,7 +1372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPreviewInteractions();
     initShortcutLabels();
     updateSyncBtn();
-    try { const v = localStorage.getItem('markvue-view'); if (v === 'editor-only' || v === 'preview-only') setView(v); } catch (e) {}
+    try { const v = mvStore.get('markvue-view'); if (v === 'editor-only' || v === 'preview-only') setView(v); } catch (e) {}
     loadInitial();
 });
 
@@ -1928,13 +1956,13 @@ function initPasteImage() {
     });
 }
 
-// ===== Draft auto-save (localStorage) =====
+// ===== Draft auto-save (mvStore) =====
 function scheduleAutoSave() {
     clearTimeout(S.autosaveTimer);
     S.autosaveTimer = setTimeout(() => {
         try {
-            localStorage.setItem('markvue-content', $('editor').value);
-            localStorage.setItem('markvue-filename', S.filename);
+            mvStore.set('markvue-content', $('editor').value);
+            mvStore.set('markvue-filename', S.filename);
             const el = $('sb-autosave');
             el.style.display = 'inline';
             clearTimeout(S.autosaveHideTimer);
@@ -1958,8 +1986,8 @@ async function loadInitial() {
     }
     // Restore the last draft
     try {
-        const saved = localStorage.getItem('markvue-content');
-        const name = localStorage.getItem('markvue-filename');
+        const saved = mvStore.get('markvue-content');
+        const name = mvStore.get('markvue-filename');
         if (saved) {
             setDocument(saved, { filename: name || 'Untitled' });
             return;
@@ -2170,7 +2198,7 @@ function toggleTheme() {
     root.setAttribute('data-theme', next);
     applyThemeUI(next);
     initMermaid();
-    try { localStorage.setItem('markvue-theme', next); } catch (e) {}
+    try { mvStore.set('markvue-theme', next); } catch (e) {}
     render();
 }
 
@@ -2179,7 +2207,7 @@ try {
     const mq = window.matchMedia('(prefers-color-scheme: light)');
     mq.addEventListener('change', ev => {
         let saved = null;
-        try { saved = localStorage.getItem('markvue-theme'); } catch (e) {}
+        try { saved = mvStore.get('markvue-theme'); } catch (e) {}
         if (saved) return;
         const next = ev.matches ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
@@ -2194,7 +2222,7 @@ function setView(mode) {
     m.classList.remove('editor-only', 'preview-only');
     if (mode !== 'split') m.classList.add(mode);
     document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
-    try { localStorage.setItem('markvue-view', mode); } catch (e) {}
+    try { mvStore.set('markvue-view', mode); } catch (e) {}
 }
 
 // ===== Sync Scroll =====
@@ -2211,7 +2239,7 @@ function initDivider() {
     const edPane = main.querySelector('.editor-pane'), pvPane = main.querySelector('.preview-pane');
     let drag = false;
     const apply = ratio => { edPane.style.flex = String(ratio); pvPane.style.flex = String(1 - ratio); };
-    try { const r = parseFloat(localStorage.getItem('markvue-split')); if (r > 0.15 && r < 0.85) apply(r); } catch (e) {}
+    try { const r = parseFloat(mvStore.get('markvue-split')); if (r > 0.15 && r < 0.85) apply(r); } catch (e) {}
     div.addEventListener('pointerdown', e => {
         drag = true; div.classList.add('dragging'); div.setPointerCapture(e.pointerId);
         document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none'; e.preventDefault();
@@ -2228,11 +2256,11 @@ function initDivider() {
         if (!drag) return;
         drag = false; div.classList.remove('dragging');
         document.body.style.cursor = ''; document.body.style.userSelect = '';
-        try { if (S.splitRatio) localStorage.setItem('markvue-split', String(S.splitRatio)); } catch (e) {}
+        try { if (S.splitRatio) mvStore.set('markvue-split', String(S.splitRatio)); } catch (e) {}
     };
     div.addEventListener('pointerup', stop);
     div.addEventListener('pointercancel', stop);
-    div.addEventListener('dblclick', () => { apply(0.5); S.splitRatio = 0.5; try { localStorage.removeItem('markvue-split'); } catch (e) {} });
+    div.addEventListener('dblclick', () => { apply(0.5); S.splitRatio = 0.5; try { mvStore.remove('markvue-split'); } catch (e) {} });
 }
 
 // ===== Drag & Drop =====
@@ -2251,12 +2279,28 @@ function initDragDrop() {
     });
 }
 
+// Desktop app: page scripts never see a dropped file's path, so the Python side
+// (markvue_app.enable_file_drop) sends it here; the file then stays linked for saving.
+let dropWaiter = null;
+window.mvDroppedPath = p => {
+    if (dropWaiter) dropWaiter(p);
+    else S.droppedPath = { p, at: Date.now() };
+};
+function waitDroppedPath(name) {
+    const d = S.droppedPath;
+    S.droppedPath = null;
+    if (d && Date.now() - d.at < 5000 && d.p.split(/[\\/]/).pop() === name) return Promise.resolve(d.p);
+    return new Promise(resolve => {
+        const timer = setTimeout(() => { dropWaiter = null; resolve(null); }, 800);
+        dropWaiter = p => { clearTimeout(timer); dropWaiter = null; resolve(p); };
+    });
+}
+
 async function loadDroppedFile(file) {
     if (S.dirty && !confirm(t('confirm.openReplace', { name: file.name }))) return;
-    // Native app: pywebview exposes the real path, so the file stays linked for saving.
     const api = native();
-    const fullPath = file.pywebviewFullPath;
-    if (api && fullPath && api.open_path) {
+    const fullPath = api && api.open_path ? await waitDroppedPath(file.name) : null;
+    if (fullPath) {
         try {
             const r = await api.open_path(fullPath);
             if (r && !r.error) { setDocument(r.content, { filename: r.filename, path: r.path }); toast('📂', t('toast.opened', { name: r.filename })); return; }

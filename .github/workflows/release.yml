@@ -1,0 +1,58 @@
+name: Release
+
+# Push a v* tag on a commit whose CI is green. The exe published with the
+# release is the one built and self-tested here, never a local build.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Tag, version and changelog agree
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $ver = (Select-String -Path markvue_app.py -Pattern '^VERSION = "([\d.]+)"').Matches[0].Groups[1].Value
+          if ($tag -ne "v$ver") { throw "tag $tag does not match markvue_app.VERSION $ver" }
+          $text = Get-Content CHANGELOG.md -Raw -Encoding utf8
+          # — is the em dash of "## 1.2.3 — date"; kept ASCII so the script's own encoding cannot matter
+          $m = [regex]::Match($text, "(?ms)^## $([regex]::Escape($ver)) — (\d{4}-\d{2}-\d{2})\s*\n(.*?)(?=^## |\z)")
+          if (-not $m.Success) { throw "CHANGELOG has no dated section for $ver" }
+          Set-Content -Path notes.md -Value $m.Groups[2].Value.Trim() -Encoding utf8
+      - run: python -W error -m unittest discover -s tests -v
+      - run: python -m pip install pyinstaller==6.22.2 pywebview==6.2.1
+      - run: python build_exe.py
+      - name: Self-test the exe (no window)
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist\MarkVue.exe -ArgumentList '--self-test', 'self-test.json' -Wait -PassThru
+          Get-Content self-test.json
+          if ($p.ExitCode -ne 0) { throw "self-test exit code $($p.ExitCode)" }
+      - name: Assets, checksums and notes
+        shell: pwsh
+        run: |
+          # GitHub names the bat assets with dots for spaces, as earlier releases did
+          Copy-Item "Associate .md Files.bat" dist\Associate.md.Files.bat
+          Copy-Item "Remove File Association.bat" dist\Remove.File.Association.bat
+          $files = 'MarkVue.exe', 'Associate.md.Files.bat', 'Remove.File.Association.bat'
+          $lines = foreach ($f in $files) { "$((Get-FileHash dist\$f -Algorithm SHA256).Hash.ToLower())  $f" }
+          # LF, so `sha256sum -c SHA256SUMS.txt` works (a CR would become part of the file name)
+          [IO.File]::WriteAllText("$PWD\dist\SHA256SUMS.txt", ($lines -join "`n") + "`n")
+          $py = python -c "import sys; print(sys.version.split()[0])"
+          Add-Content -Path notes.md -Value "`n---`n`nMarkVue.exe: single-file PyInstaller 6.22.2 build (pywebview 6.2.1, Edge WebView2), Windows x64, Python $py, built and self-tested by this workflow.`n`nSHA-256`n`n$(($lines | ForEach-Object { '    ' + $_ }) -join "`n")" -Encoding utf8
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          gh release create "${{ github.ref_name }}" dist\MarkVue.exe dist\Associate.md.Files.bat dist\Remove.File.Association.bat dist\SHA256SUMS.txt --title "MarkVue $ver" --notes-file notes.md

@@ -32,6 +32,17 @@
 - Closing the native window, opening another file or creating a new one silently discarded
   unsaved changes. All three now ask first.
   关闭窗口、打开或新建会静默丢弃未保存内容；现在会先询问。
+- In the desktop app, theme, language, view, split ratio and the auto-saved draft were
+  lost every time the window closed: pywebview runs WebView2 in private mode, which
+  discards local storage. They are now kept in `%LOCALAPPDATA%\MarkVue\settings.json`
+  (written through `/api/store`) and shared by every open window; MarkVue.html opened
+  straight from disk still uses local storage.
+  桌面应用每次关闭都会丢失主题、语言、视图、分栏比例与自动保存的草稿（pywebview 无痕模式
+  会清空本地存储）；现改存设置文件，多个窗口共用。
+- A file dragged in from Explorer was not linked to its path, so Save asked for a new
+  location: page scripts never see a dropped file's path, pywebview hands it only to a
+  Python-side handler. The window now passes it to the page.
+  从资源管理器拖入的文件没有与路径关联（保存时要求另存为）；现由窗口把真实路径交给页面。
 
 ### Security / 安全
 - `/api/save` accepted a POST from any website running in the user's browser (a
@@ -67,7 +78,13 @@
 - Status bar shows cursor line/column and the current theme. 状态栏显示光标位置与主题。
 - Split ratio and view mode are remembered. 分栏比例与视图模式记忆。
 - Mermaid output is cached per diagram; stale async renders are discarded.
-- `tests/test_server.py` covers the server guards (stdlib only).
+- `tests/test_server.py` covers the server guards and the settings store (stdlib only;
+  run with `python -m unittest discover -s tests`).
+- `MarkVue.exe --self-test report.json` checks a build without opening a window.
+  The build options moved to `build_exe.py` (Build EXE.bat runs it). CI runs the tests,
+  a documentation check (`scripts/check_doc_drift.py`) and a build with its self-test on
+  every push; releases are built by CI from a version tag.
+  无窗口自检；打包参数集中到 build_exe.py；CI 跑测试、文档一致性检查、构建与自检，发布由 CI 构建。
 
 ### UI / 界面
 - Colour pass: every text/background pair in both themes measured against WCAG (body ≥ 4.5:1,

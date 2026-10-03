@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docs:
+    # README / CHANGELOG against the code; standard library only
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0          # the version check reads the v* tags
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python scripts/check_doc_drift.py
+
+  tests:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -W error -m unittest discover -s tests -v
+
+  build:
+    needs: [docs, tests]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pyinstaller==6.22.2 pywebview==6.2.1
+      - run: python build_exe.py
+      - name: Self-test the exe (no window)
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist\MarkVue.exe -ArgumentList '--self-test', 'self-test.json' -Wait -PassThru
+          Get-Content self-test.json
+          if ($p.ExitCode -ne 0) { throw "self-test exit code $($p.ExitCode)" }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: MarkVue-exe
+          path: dist/MarkVue.exe

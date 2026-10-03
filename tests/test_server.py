@@ -2,7 +2,7 @@
 """
 Server guard tests for MarkVue (stdlib only).
 
-    python -m unittest tests/test_server.py -v
+    python -m unittest discover -s tests -v
 
 Starts the embedded HTTP server from markvue_app.py on a free loopback port
 and checks that every endpoint behaves and that the guards hold:
@@ -41,6 +41,8 @@ class ServerTests(unittest.TestCase):
             f.write('SECRET')
 
         app.DOC = app.DocState()
+        cls.settings = os.path.join(cls.tmp.name, 'settings', 'settings.json')
+        app.STORE = app.SettingsStore(cls.settings)
         app.load_initial_file(cls.doc)
         cls.port = app.find_free_port(28737)
         resource_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -142,6 +144,49 @@ class ServerTests(unittest.TestCase):
         self.assertTrue(data['ok'])
         with open(self.doc, encoding='utf-8') as f:
             self.assertEqual(f.read(), '# Saved\n')
+
+    def store_page_values(self):
+        body = self.get('/')[1].decode('utf-8')
+        start = body.index('window.MV_STORE = ') + len('window.MV_STORE = ')
+        end = body.index(';</script>', start)
+        self.assertLess(start, body.index('window.mvStore'), 'values must precede the page scripts')
+        self.assertNotIn('</script', body[start:end].lower(), 'a value must not end the script element')
+        return json.loads(body[start:end])
+
+    def test_settings_round_trip_through_the_page(self):
+        ok = {'Content-Type': 'application/json', 'Origin': self.base}
+        self.assertEqual(self.post('/api/store', {'key': 'markvue-theme', 'value': 'light'}, ok)[0], 200)
+        draft = '# Draft </script><script>alert(1)</script>\n' * 3
+        self.assertEqual(self.post('/api/store', {'key': 'markvue-content', 'value': draft}, ok)[0], 200)
+        values = self.store_page_values()
+        self.assertEqual(values['markvue-theme'], 'light')
+        self.assertEqual(values['markvue-content'], draft)          # "</script>" cannot end the tag early
+        self.assertEqual(self.post('/api/store', {'key': 'markvue-theme', 'value': None}, ok)[0], 200)
+        self.assertNotIn('markvue-theme', self.store_page_values())
+        with open(self.settings, encoding='utf-8') as f:
+            saved = json.load(f)          # other tests share this file; check only our keys
+        self.assertEqual(saved.get('markvue-content'), draft)
+        self.assertNotIn('markvue-theme', saved)
+
+    def test_settings_guards(self):
+        good = {'key': 'markvue-lang', 'value': 'zh'}
+        self.assertEqual(self.post('/api/store', good, {'Content-Type': 'application/json',
+                                                        'Origin': 'http://evil.example'})[0], 403)
+        self.assertEqual(self.post('/api/store', good, {'Content-Type': 'text/plain'})[0], 415)
+        for bad in ({'key': 'other', 'value': 'x'}, {'key': 'markvue-x', 'value': 3}, ['markvue-x']):
+            self.assertEqual(self.post('/api/store', bad, {'Content-Type': 'application/json'})[0], 400, bad)
+        self.assertNotIn('markvue-lang', self.store_page_values())
+
+    def test_settings_file_is_shared_and_tolerant(self):
+        other = app.SettingsStore(self.settings)        # a second window's view of the same file
+        other.set('markvue-view', 'preview-only')
+        self.assertEqual(self.store_page_values().get('markvue-view'), 'preview-only')
+        broken = app.SettingsStore(os.path.join(self.tmp.name, 'broken.json'))
+        with open(broken.path, 'w', encoding='utf-8') as f:
+            f.write('{not json')
+        self.assertEqual(broken.load(), {})
+        broken.set('markvue-lang', 'en')
+        self.assertEqual(broken.load(), {'markvue-lang': 'en'})
 
     def test_unknown_routes_404(self):
         self.assertEqual(self.get('/api/nope')[0], 404)

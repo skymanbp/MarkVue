@@ -116,6 +116,74 @@ class DocState:
 DOC = DocState()
 
 
+# ========== Settings (theme, language, view, split, draft) ==========
+
+def default_settings_path():
+    """%LOCALAPPDATA%\\MarkVue\\settings.json (or ~/.markvue/settings.json)."""
+    base = os.environ.get('LOCALAPPDATA')
+    root = Path(base) / APP_NAME if base else Path.home() / '.markvue'
+    return root / 'settings.json'
+
+
+class SettingsStore:
+    """The page's settings and draft, kept in a JSON file.
+
+    The desktop window cannot keep them itself: pywebview runs WebView2 in
+    private mode, which discards localStorage when the window closes, and
+    two windows get different ports (different storage origins) anyway.
+    The server injects the current values into the page (window.MV_STORE)
+    and the page writes changes back through POST /api/store. The file is
+    re-read on every write, so several open windows share one set.
+    """
+
+    MAX_VALUE = 20 * 1024 * 1024        # the draft is the largest value
+
+    def __init__(self, path=None):
+        self.path = Path(path) if path else default_settings_path()
+        self.lock = threading.Lock()
+
+    def load(self):
+        try:
+            with open(self.path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return {k: v for k, v in data.items() if isinstance(k, str) and isinstance(v, str)} \
+                if isinstance(data, dict) else {}
+        except (OSError, ValueError):
+            return {}
+
+    @staticmethod
+    def valid(key, value):
+        return (isinstance(key, str) and key.startswith('markvue-') and len(key) <= 64
+                and (value is None or (isinstance(value, str) and len(value) <= SettingsStore.MAX_VALUE)))
+
+    def set(self, key, value):
+        """Store a string value, or remove the key when value is None."""
+        with self.lock:
+            data = self.load()
+            if value is None:
+                data.pop(key, None)
+            else:
+                data[key] = value
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.path.with_name(self.path.name + f'.{os.getpid()}.tmp')
+            with open(tmp, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False)
+            os.replace(tmp, self.path)
+
+
+STORE = SettingsStore()
+
+
+def inject_store(html_bytes, values):
+    """Put `window.MV_STORE = {...}` at the top of <head>, before any page script."""
+    payload = json.dumps(values, ensure_ascii=False).replace('<', '\\u003c')
+    tag = f'<script>window.MV_STORE = {payload};</script>'.encode('utf-8')
+    marker = b'<meta charset="UTF-8">'
+    if marker not in html_bytes:
+        return html_bytes
+    return html_bytes.replace(marker, marker + tag, 1)
+
+
 def read_text(path):
     with open(path, 'r', encoding='utf-8', errors='replace') as f:
         return f.read()
@@ -218,7 +286,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             except OSError:
                 self._not_found()
                 return
-            self._send(200, body, 'text/html; charset=utf-8')
+            self._send(200, inject_store(body, STORE.load()), 'text/html; charset=utf-8')
             return
 
         if path == '/api/initial-file':
@@ -241,7 +309,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
         path = urllib.parse.urlparse(self.path).path
 
-        if path != '/api/save':
+        if path not in ('/api/save', '/api/store'):
             self._not_found()
             return
 
@@ -260,6 +328,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length).decode('utf-8'))
         except Exception as e:
             self._json(400, {'error': f'Bad request: {e}'})
+            return
+
+        if path == '/api/store':
+            self._store(body)
             return
 
         filepath = body.get('path', '') if isinstance(body, dict) else ''
@@ -283,6 +355,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
         log(f"Saved: {fp}")
         self._json(200, {'ok': True, 'path': fp, 'filename': os.path.basename(fp)})
+
+    def _store(self, body):
+        key = body.get('key') if isinstance(body, dict) else None
+        value = body.get('value') if isinstance(body, dict) else None
+        if not SettingsStore.valid(key, value):
+            self._json(400, {'error': 'Bad setting'})
+            return
+        try:
+            STORE.set(key, value)
+        except OSError as e:
+            log(f"store error: {e}")
+            self._json(500, {'error': str(e)})
+            return
+        self._json(200, {'ok': True})
 
     def _serve_asset(self, rel):
         """Serve a file that sits next to the open document (images etc.)."""
@@ -359,6 +445,13 @@ def wait_for_server(port, timeout=5.0):
 
 # ========== pywebview API ==========
 
+def _dialog(kind):
+    """webview.FileDialog.OPEN / SAVE (pywebview >= 5.1); the old constants are deprecated."""
+    import webview
+    fd = getattr(webview, 'FileDialog', None)
+    return getattr(fd, kind) if fd else getattr(webview, f'{kind}_DIALOG')
+
+
 class Api:
     """Native file dialogs exposed to JS as window.pywebview.api."""
 
@@ -370,9 +463,8 @@ class Api:
 
     def open_file_dialog(self):
         try:
-            import webview
             result = self._window().create_file_dialog(
-                webview.OPEN_DIALOG,
+                _dialog('OPEN'),
                 file_types=('Markdown Files (*.md;*.markdown;*.txt;*.mdx;*.rmd)',
                             'All Files (*.*)'),
             )
@@ -414,7 +506,6 @@ class Api:
 
     def save_file_as(self, content, suggested=None):
         try:
-            import webview
             name = os.path.basename(suggested) if suggested else 'untitled.md'
             if not name.lower().endswith(MARKDOWN_SUFFIXES):
                 name = os.path.splitext(name)[0] + '.md'
@@ -423,7 +514,7 @@ class Api:
             cur = DOC.path
             if cur:
                 kwargs['directory'] = os.path.dirname(cur)
-            result = self._window().create_file_dialog(webview.SAVE_DIALOG, **kwargs)
+            result = self._window().create_file_dialog(_dialog('SAVE'), **kwargs)
             if not result:
                 return None
             filepath = result if isinstance(result, str) else result[0]
@@ -459,6 +550,33 @@ class Api:
 
     def version(self):
         return VERSION
+
+
+def enable_file_drop(window):
+    """Hand the real path of a file dropped from Explorer to the page.
+
+    Page scripts never see a dropped file's path; pywebview (>= 5) adds it
+    as `pywebviewFullPath` only for a Python-side DOM handler. The page
+    waits briefly for this call (window.mvDroppedPath) and otherwise falls
+    back to reading the file's contents without a link to disk.
+    """
+    try:
+        from webview.dom import DOMEventHandler
+    except ImportError:
+        return
+
+    def on_drop(event):
+        for f in (event.get('dataTransfer') or {}).get('files') or []:
+            path = f.get('pywebviewFullPath')
+            if path:
+                window.evaluate_js(f"window.mvDroppedPath && window.mvDroppedPath({json.dumps(path)})")
+                return
+
+    try:
+        # prevent_default only: the page's own drop listener must still run
+        window.dom.document.events.drop += DOMEventHandler(on_drop, True, False)
+    except Exception:
+        log_exception()
 
 
 # ========== Path Resolution ==========
@@ -596,12 +714,63 @@ def main():
     except Exception:
         log("closing event not supported by this pywebview")
 
+    window.events.loaded += lambda: enable_file_drop(window)
+
     log("Window created, starting event loop")
     webview.start(debug=('--debug' in sys.argv))
     log("Exiting")
 
 
+def self_test(report_path):
+    """Check a build without opening a window; write a JSON report.
+
+    A windowed exe has no console, so the result goes to a file. Covers what
+    a frozen bundle can miss: pywebview and its Windows backend, the bundled
+    MarkVue.html, and one round through the server (page with settings
+    injected, a settings write). Returns the exit code (0 = all passed).
+    """
+    import tempfile
+    import urllib.request
+    checks = {}
+
+    def run(name, fn):
+        try:
+            res = fn()
+            checks[name] = {'ok': res is not False, 'detail': '' if res in (None, True, False) else str(res)}
+        except Exception as e:
+            checks[name] = {'ok': False, 'detail': f'{type(e).__name__}: {e}'}
+
+    run('import webview', lambda: __import__('webview').__name__)
+    run('import webview.dom', lambda: bool(__import__('webview.dom')))
+    if sys.platform == 'win32':
+        run('import winforms backend', lambda: bool(__import__('webview.platforms.winforms')))
+    run('MarkVue.html bundled', lambda: (get_resource_dir() / 'MarkVue.html').is_file())
+
+    def server_round():
+        with tempfile.TemporaryDirectory() as d:
+            store = SettingsStore(os.path.join(d, 'settings.json'))   # never the user's file
+            store.set('markvue-theme', 'light')
+            globals()['STORE'] = store
+            port = find_free_port(28900)
+            threading.Thread(target=start_server, args=(port, str(get_resource_dir())), daemon=True).start()
+            assert wait_for_server(port)
+            with urllib.request.urlopen(f'http://127.0.0.1:{port}/', timeout=5) as r:
+                page = r.read().decode('utf-8')
+            assert 'window.MV_STORE = {"markvue-theme": "light"}' in page, 'settings not injected'
+            assert '<title>MarkVue</title>' in page
+    run('server', server_round)
+
+    ok = all(c['ok'] for c in checks.values())
+    report = {'version': VERSION, 'frozen': bool(getattr(sys, 'frozen', False)),
+              'python': sys.version.split()[0], 'ok': ok, 'checks': checks}
+    with open(report_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    return 0 if ok else 1
+
+
 if __name__ == '__main__':
+    if len(sys.argv) == 3 and sys.argv[1] == '--self-test':
+        sys.exit(self_test(sys.argv[2]))
     try:
         main()
     except Exception:

@@ -21,8 +21,8 @@ Download MarkVue.exe. For step 3, also download Associate.md.Files.bat.
 下载 MarkVue.exe。需要第 3 步的话，一并下载 Associate.md.Files.bat。
 ```
 
-Current release / 当前版本 **v0.0.5** (source is at v0.1.0 — a new EXE and
-hash follow the next release / 源码已是 v0.1.0，新的 EXE 与校验值随下一次 release 发布)
+Current release / 当前版本 **v0.0.5**. SHA-256 published with v0.0.5 /
+该版本发布的校验值:
 
 ```
 SHA-256  1867e037d8495aa4121fcad3e1c65a2be221dffa49d35ddc833805a39e12b93a  MarkVue.exe
@@ -65,9 +65,15 @@ MarkVue uses pywebview to embed a browser engine directly inside a native
 window. The HTML/CSS/JS rendering runs locally in the window, not in an
 external browser. In the native app, Open / Save / Save As go through
 pywebview's JS bridge to real OS file dialogs, so the open file stays linked
-by path (drag-and-drop from Explorer links it too). In plain-browser mode the
-File System Access pickers are used, and a file passed on the command line is
-written back through the local /api/save endpoint.
+by path; a file dragged in from Explorer is linked too (the window passes its
+real path to the page). In plain-browser mode the File System Access pickers
+are used, and a file passed on the command line is written back through the
+local /api/save endpoint.
+
+Settings (theme, language, view, split) and the unsaved draft are kept in
+`%LOCALAPPDATA%\MarkVue\settings.json` when MarkVue runs as the app or through
+markvue.py, shared by every open window. Opened straight from disk,
+MarkVue.html keeps them in the browser's local storage instead.
 
 MarkVue 使用 pywebview 将浏览器引擎直接嵌入原生窗口中。HTML/CSS/JS 渲染
 在窗口内部运行，不打开外部浏览器。原生应用里，打开 / 保存 / 另存为通过
@@ -75,26 +81,33 @@ pywebview 的 JS 桥接调用系统文件对话框，打开的文件按路径保
 器拖入的文件同样关联）。纯浏览器模式使用 File System Access 选择器；命令行传入
 的文件通过本地 /api/save 接口写回。
 
+设置（主题、语言、视图、分栏比例）与未保存的草稿，在桌面应用或 markvue.py 下
+保存在 `%LOCALAPPDATA%\MarkVue\settings.json`，所有打开的窗口共用一份；直接
+双击 MarkVue.html 打开时则保存在浏览器的本地存储里。
+
 The embedded server is locked down / 内置服务器做了最小化与加固:
 
-- Only `/` (MarkVue.html), `/api/initial-file`, `/api/save` and `/asset/<file>`
-  exist; nothing else in the program folder is reachable.
+- Only `/` (MarkVue.html), `/api/initial-file`, `/api/save`, `/api/store` and
+  `/asset/<file>` exist; nothing else in the program folder is reachable.
 - Every request needs a loopback `Host` header (DNS-rebinding guard).
 - `/api/save` accepts only same-origin `application/json`, and only writes
   files that MarkVue itself opened — never an arbitrary path.
+- `/api/store` writes only MarkVue's own settings file, under the same
+  same-origin JSON rule, and only `markvue-*` keys.
 - `/asset/` serves images that sit next to the open document (so relative
   `![](img.png)` works) and refuses to leave that folder.
 
-- 只有 `/`（MarkVue.html）、`/api/initial-file`、`/api/save`、`/asset/<文件>` 四个
-  路径，程序目录中的其他文件一律不可访问。
+- 只有 `/`（MarkVue.html）、`/api/initial-file`、`/api/save`、`/api/store`、
+  `/asset/<文件>` 五个路径，程序目录中的其他文件一律不可访问。
 - 所有请求必须带回环地址的 `Host` 头（防 DNS 重绑定）。
 - `/api/save` 只接受同源的 `application/json`，且只写 MarkVue 自己打开过的文件。
+- `/api/store` 只写 MarkVue 自己的设置文件，同样只接受同源 JSON，且只认 `markvue-*` 键。
 - `/asset/` 提供文档同目录下的图片（相对路径 `![](img.png)` 可用），不会越出该目录。
 
 Both launch methods share this one server implementation (markvue.py imports
-it from markvue_app.py). `python -m unittest tests/test_server.py` checks the
+it from markvue_app.py). `python -m unittest discover -s tests` checks the
 guards. / 两种启动方式共用同一份服务器实现（markvue.py 从 markvue_app.py 导入），
-`python -m unittest tests/test_server.py` 可验证这些防护。
+`python -m unittest discover -s tests` 可验证这些防护。
 
 ```
 Server mode (markvue.py)     Native mode (current)
@@ -180,6 +193,7 @@ python markvue.py -p 3000          # Custom port / 指定端口
 | Theme | Follows the OS until you pick one; no flash on start / 跟随系统，启动不闪烁 |
 | Language | English by default; one click (toolbar `中` / `EN`, status bar, or palette) switches the whole UI and sample to 中文, remembered / 默认英文，一键切换中文并记忆 |
 | Resizable split | Drag divider, double-click to reset, remembered / 拖动分栏，双击复位，自动记忆 |
+| Draft auto-save | Unsaved text is kept 1.5 s after you stop typing and comes back when MarkVue next starts without a file / 停止输入 1.5 秒后保存草稿，下次不带文件启动时恢复 |
 
 ---
 
@@ -225,6 +239,15 @@ Requirements: Python 3.8+ (only for building; EXE runs independently).
 2. Wait 2-3 minutes  /  等待 2-3 分钟
 3. Output: dist/MarkVue.exe  /  生成 dist/MarkVue.exe
 ```
+
+The build options live in `build_exe.py` (`python build_exe.py` does the same
+without the bat). Release EXEs are built by CI from a version tag with that
+script and checked with `MarkVue.exe --self-test report.json`, which tests the
+bundle without opening a window.
+
+打包参数统一在 `build_exe.py`（不用 bat 时直接 `python build_exe.py`）。发布用的
+EXE 由 CI 按版本标签用同一脚本构建，并用 `MarkVue.exe --self-test report.json`
+在不开窗口的情况下自检。
 
 The script excludes pywebview's Qt backend, so a build machine that happens
 to have PyQt5 installed still produces the small Edge WebView2 build
@@ -281,8 +304,14 @@ MarkVue/
                               设为默认程序
   Remove File Association.bat Undo association
                               撤销关联
+  build_exe.py                Build options (used by the bat and CI)
+                              打包参数（bat 与 CI 共用）
   tests/test_server.py        Server guard tests (stdlib unittest)
                               服务器防护测试
+  scripts/check_doc_drift.py  Checks this README against the code (CI)
+                              文档与代码一致性检查（CI 运行）
+  .github/workflows/          CI (tests, docs, build + self-test) and release
+                              持续集成与发布
   CHANGELOG.md                Release notes / 更新日志
   README.md                   This file / 本文件
   LICENSE                     Apache License 2.0

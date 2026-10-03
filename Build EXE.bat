@@ -10,10 +10,8 @@ echo.
 
 set "DIR=%~dp0"
 
-set "WINDOWED=--windowed"
 set "MODE=Release"
 if "%1"=="--debug" (
-    set "WINDOWED="
     set "MODE=Debug (console visible)"
 )
 
@@ -73,26 +71,8 @@ cd /d "%DIR%"
 if exist "%DIR%build" rmdir /s /q "%DIR%build" >nul 2>&1
 if exist "%DIR%dist\MarkVue.exe" del /q "%DIR%dist\MarkVue.exe" >nul 2>&1
 
-:: MarkVue runs on the Edge WebView2 backend (--hidden-import clr).
-:: pywebview can also drive Qt / GTK / CEF, and --collect-all pulls in
-:: whichever of those happens to be installed on the build machine --
-:: PyQt5 alone adds ~35 MB. Excluding them keeps the EXE ~18 MB anywhere.
-%PY% -m PyInstaller ^
-    --onefile %WINDOWED% ^
-    --name MarkVue ^
-    --add-data "MarkVue.html;." ^
-    --hidden-import webview ^
-    --hidden-import clr ^
-    --collect-all webview ^
-    --exclude-module PyQt5 ^
-    --exclude-module PyQt6 ^
-    --exclude-module PySide2 ^
-    --exclude-module PySide6 ^
-    --exclude-module qtpy ^
-    --exclude-module gi ^
-    --exclude-module cefpython3 ^
-    --clean --noconfirm ^
-    markvue_app.py
+:: The PyInstaller options live in build_exe.py (CI runs the same script).
+%PY% "%DIR%build_exe.py" %1
 
 echo.
 
