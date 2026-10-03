@@ -21,11 +21,11 @@ Download MarkVue.exe. For step 3, also download Associate.md.Files.bat.
 下载 MarkVue.exe。需要第 3 步的话，一并下载 Associate.md.Files.bat。
 ```
 
-Current release / 当前版本 **v0.0.5**. SHA-256 published with v0.0.5 /
+Current release / 当前版本 **v0.1.0**. SHA-256 published with v0.1.0 (also in the release's SHA256SUMS.txt) /
 该版本发布的校验值:
 
 ```
-SHA-256  1867e037d8495aa4121fcad3e1c65a2be221dffa49d35ddc833805a39e12b93a  MarkVue.exe
+SHA-256  c7d16d590c99904e612e67744625e833fe564e91aa0041904bdb3de2c6f04ab4  MarkVue.exe
 ```
 
 Check it with `Get-FileHash MarkVue.exe -Algorithm SHA256` in PowerShell.
